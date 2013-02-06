@@ -19,7 +19,8 @@ Install/Uninstall
 Install:
 	Unzip the archive into: %user_path%\\Autodesk |or| Softimage\\%xsi_version%\\Addons
 					Example: C:\\Users\\Ande\\Autodesk\\Softimage_2012\\Addons
-	Make sure the XSIZETools folder is DIRECTLY BENEATH the Addons folder. The xsizetools_master folder should be removed.
+	**IMPORTANT**
+	**RENAME THE "xsizetools-master" FOLDER TO "XSIZETools".**
 Uninstall:
 	Exit XSI, then remove the XSIZETools folder from: %user_path%\\Autodesk |or| Softimage\\%xsi_version%\\Addons
 
