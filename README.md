@@ -26,5 +26,5 @@ Uninstall:
 Links
 --------
 
-{https://sites.google.com/site/andescp/zetools_main "Homepage"}
-{http://gametoast.com/forums/viewtopic.php?f=36&t=26664 "Gametoast topic"}
+[Homepage]{https://sites.google.com/site/andescp/zetools_main "Homepage"}
+[Gametoast]{http://gametoast.com/forums/viewtopic.php?f=36&t=26664 "Gametoast topic"}
