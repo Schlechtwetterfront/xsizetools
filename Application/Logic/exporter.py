@@ -1,9 +1,12 @@
 #########################################################
-#####                XSIZETools                     #####
-#####         code copyright (C) Ande 2012          #####
-#####    https://sites.google.com/site/andescp/     #####
+#####                  exporter                     #####
 #####                                               #####
-#####             MSH Exporter logic.               #####
+#####              MSH Exporter logic               #####
+#####                                               #####
+#####             code copyright (C)                #####
+#####         Benedikt Schatz 2012-2013             #####
+#####                                               #####
+#####    https://sites.google.com/site/andescp/     #####
 #########################################################
 from win32com.client import constants as const
 import win32com.client

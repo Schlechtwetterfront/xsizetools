@@ -1,7 +1,11 @@
 #########################################################
-#####               msh2_framework                  #####
-#####                base classes                   #####
-#####         code copyright (C) Ande 2012          #####
+#####                    msh2                       #####
+#####                                               #####
+#####             MSH2 Framework main               #####
+#####                                               #####
+#####             code copyright (C)                #####
+#####         Benedikt Schatz 2012-2013             #####
+#####                                               #####
 #####    https://sites.google.com/site/andescp/     #####
 #########################################################
 import msh2_crc
@@ -1637,7 +1641,7 @@ class Bone(object):
     #   - collection: class(BoneCollection)
     #   - debug: use debug CRC calculation
     #   - safe: use safe CRC calculation
-    def __init__(self, collection=None, safe=False, debug=False):
+    def __init__(self, collection=None):
         # Parent BoneCollection.
         self.collection = collection
         self.classname = 'Bone'
@@ -1656,24 +1660,10 @@ class Bone(object):
         self.pos_keyframes = None
         # List of rotation frames(x, y, z, w).
         self.rot_keyframes = None
-        if safe:
-            self.recrc = self.recrc_safe
-        if debug:
-            self.recrc = self.recrc_debug
 
     def recrc(self):
         '''Calculates a Zero CRC from the name.'''
-        self.CRC = msh2_crc.crc(self.name)
-
-    def recrc_debug(self):
-        '''Calculates a Zero CRC from the name. Adds additional
-        try-except statements to extend error information.'''
-        self.CRC = msh2_crc.crc_debug(self.name)
-
-    def recrc_safe(self):
-        '''Calculates a Zero CRC from the name. Adds flag to
-        startup info. Slower but less prone to errors.'''
-        self.CRC = msh2_crc.crc_safe(self.name)
+        self.CRC = msh2_crc.strcrc(self.name)
 
     def set_name_from_crc(self):
         '''Tries to reverse-engineer the CRC into a name

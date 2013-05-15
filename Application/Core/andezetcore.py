@@ -1,6 +1,9 @@
 #########################################################
 #####                 andezetcore                   #####
-#####         code copyright (C) Ande 2012          #####
+#####                                               #####
+#####             code copyright (C)                #####
+#####         Benedikt Schatz 2012-2013             #####
+#####                                               #####
 #####    https://sites.google.com/site/andescp/     #####
 #########################################################
 from xml.etree.ElementTree import ElementTree, Element, SubElement, dump

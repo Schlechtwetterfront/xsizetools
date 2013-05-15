@@ -1,7 +1,11 @@
 #########################################################
-#####               msh2_framework                  #####
-#####                base classes                   #####
-#####         code copyright (C) Ande 2012          #####
+#####                  msh2_unpack                  #####
+#####                                               #####
+#####          MSH2 Framework .msh unpack           #####
+#####                                               #####
+#####             code copyright (C)                #####
+#####         Benedikt Schatz 2012-2013             #####
+#####                                               #####
 #####    https://sites.google.com/site/andescp/     #####
 #########################################################
 import msh2

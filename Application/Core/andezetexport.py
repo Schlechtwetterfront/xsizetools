@@ -1,12 +1,13 @@
 #########################################################
 #####               andezetexport                   #####
-#####                XSIZETools                     #####
-#####         code copyright (C) Ande 2012          #####
-#####    https://sites.google.com/site/andescp/     #####
 #####                                               #####
-#####          Classes used on export.              #####
+#####            Main Export classes                #####
+#####                                               #####
+#####             code copyright (C)                #####
+#####         Benedikt Schatz 2012-2013             #####
+#####                                               #####
+#####    https://sites.google.com/site/andescp/     #####
 #########################################################
-# TODO: Anim: ignore poly meshes?/export nulls instead of polymeshes?
 
 import andesicore
 import andezetcore

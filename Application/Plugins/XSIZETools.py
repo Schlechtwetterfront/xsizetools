@@ -1,9 +1,12 @@
 #########################################################
-#####                XSIZETools                     #####
-#####         code copyright (C) Ande 2012          #####
-#####    https://sites.google.com/site/andescp/     #####
+#####                  XSIZETools                   #####
 #####                                               #####
-#####     XSI plugin defining commands and UI.      #####
+#####       XSI Plugin defining commands and UI     #####
+#####                                               #####
+#####             code copyright (C)                #####
+#####         Benedikt Schatz 2012-2013             #####
+#####                                               #####
+#####    https://sites.google.com/site/andescp/     #####
 #########################################################
 import win32com.client
 from win32com.client import constants as const
@@ -29,7 +32,6 @@ def XSILoadPlugin(in_reg):
     in_reg.RegisterMenu(const.siMenuMainTopLevelID, 'ZE Tools', False)
     in_reg.RegisterCommand('XSIZETools', 'XSIZETools')
     in_reg.RegisterCommand('ZETHelp', 'ZETHelp')
-    in_reg.RegisterCommand('manageExpansions', 'manageExpansions')
     in_reg.RegisterCommand('MSHExport', 'MSHExport')
     in_reg.RegisterCommand('MSHImport', 'MSHImport')
     in_reg.RegisterCommand('MaterialEdit', 'MaterialEdit')
@@ -414,63 +416,6 @@ def ZETHelp_Execute():
     view.SetAttributeValue('targetcontent', pset.FullName)
     view.EndEdit()
 
-    return True
-
-
-def manageExpansions_Init(in_ctxt):
-    oCmd = in_ctxt.Source
-    oCmd.Description = ''
-    oCmd.ReturnValue = True
-
-    return True
-
-
-def manageExpansions_Execute():
-    #remove old property
-    for x in xsi.ActiveSceneRoot.Properties:
-        if x.Name == 'ExpansionManager':
-            xsi.DeleteObj('ExpansionManager')
-
-    # create new property + parameters
-    EMPS = xsi.ActiveSceneRoot.AddProperty('CustomProperty', False, 'ExpansionManager')
-    EMPS.AddParameter3('instExp', const.siString, 1)
-
-    #def variables for expansions
-    instExps = []
-    iEc = 0
-    #get expansions
-    expansionFile = open(str(ADDONPATH + '\\XSIZETools\\Resources\\Templates\\templates.tcnt'), 'r')
-    for line in expansionFile:
-        if line[:1] == '#':
-            pass
-        elif line[:2] == 'ep':
-            iEc += 1
-            instExps.append(line[3:])
-            instExps.append(iEc)
-    expansionFile.close()
-
-    emlay = EMPS.PPGLayout
-    #PPG logic path(could be in triple quotes, too)
-    emlay.SetAttribute(const.siUILogicFile, ADDONPATH + '\\XSIZETools\\Application\\Logic\\expansion_manager.py')
-    emlay.Language = 'pythonscript'
-
-    #define UI
-    emlay.AddGroup('Installed Expansions', 1)
-    emlay.AddRow()
-    listB = emlay.AddEnumControl('instExp', instExps, 'Expansions', const.siControlListBox)
-    listB.SetAttribute('NoLabel', True)
-    emlay.AddGroup('', False)
-    emlay.AddButton('addExp', 'Install Expansion...')
-    emlay.AddButton('remExp', 'Remove Expansion')
-    emlay.EndGroup()
-    emlay.EndRow()
-    emlay.EndGroup()
-    emlay.AddRow()
-    emlay.AddStaticText('')
-    emlay.AddButton('EClose', 'Close')
-    emlay.EndRow()
-
-    xsi.InspectObj(EMPS, '', '', 'siLock')
     return True
 
 
