@@ -141,7 +141,7 @@ def crc(string):
 
 def strcrc(string):
     '''Calculate the Zero CRC and return it in a structure
-    usable ín the .msh file.'''
+    usable in .msh files.'''
     crc_ = crc(string)
     # Cut off 0x... and ...L
     crc_ = crc_[2:-1]

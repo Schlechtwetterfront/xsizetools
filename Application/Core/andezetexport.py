@@ -9,6 +9,15 @@
 #####    https://sites.google.com/site/andescp/     #####
 #########################################################
 
+# TODO: FLGS:
+#   - Hidden: |= 1
+#   - DynamicallyLit |= 2
+#   - RetainNormal |= 4
+#   - RenderAfterShadows |= 8
+#   - DontFlatten |= 16
+#   - PS2Optimize |= 32
+
+
 import andesicore
 import andezetcore
 import andecore
@@ -22,6 +31,36 @@ import msh2
 reload(msh2)
 from win32com.client import constants as const
 STR_CODEC = 'utf-8'
+
+
+'''def cloth_Create_vlist():
+    i = 0
+    uvPositions, nUV = segment.GetUVCoords()
+    v3Positions, nPositions = segment.GetPositions()
+
+    polylist = segment.GetPolyList()
+
+    m_ClothParticleToVertexIndexMapCount = nPositions
+    m_ClothParticleToVertexIndexMap = [0] * nPositions
+
+    m_ClothUV = copy(uvPositions) or 0
+
+    vertexPool = copy(v3Positions)
+
+    m_ClothParticlesCount = nPositions
+    for n in range(nPositions):
+        m_ClothParticleToVertexIndexMap[n] = n
+
+    m_ClothParticles = copy(vertexPool)
+
+    for poly in polylist:
+        indexCount = 0
+        index = [0] * 256
+
+        for what in poly:
+            i = poly_index # ?
+            index[indexCount] = m_ClothParticleToVertexIndexMap[i]
+            indexCount += 1'''
 
 
 class BoneConverter(object):
@@ -465,8 +504,6 @@ class ModelConverter(andesicore.SIModel):
         # 1 = hidden, 0 = not hidden, so cast the bool to an int and reverse it.
         self.msh2_model.vis = int(not self.get_vis(self.si_model))
         self.msh2_model.transform = msh2.Transform(*self.get_transform_quat(self.si_model))
-        # Reset scale because we're using vertex world coordinates.
-        self.msh2_model.transform.scale = 1.0, 1.0, 1.0
         self.msh2_model.model_type = self.get_msh2_model_type(self.si_model)
         if 'geo' in self.msh2_model.model_type:
             self.msh2_model.segments = None
@@ -480,6 +517,9 @@ class ModelConverter(andesicore.SIModel):
             self.export.add_deformers(self.msh2_model.deformers)
         if self.is_collprim():
             self.process_collision_prim()
+        # Reset scale because we're using vertex world coordinates.
+        # And do it after process_collision_prim because it needs the scale.
+        self.msh2_model.transform.scale = 1.0, 1.0, 1.0
         if self.msh2_model.model_type == 'geoshadow':
             self.export.abort('Shadowmeshes arent supported.')
         return self.msh2_model

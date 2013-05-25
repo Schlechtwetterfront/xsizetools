@@ -95,7 +95,6 @@ def ZETools_Init(in_ctxt):
     sub_menu.AddCommandItem('Edit Cloth...', 'EditCloth')
     sub_menu2 = win32com.client.Dispatch(oMenu.AddItem('General Tools', const.siMenuItemSubmenu))
     sub_menu2.AddCommandItem('Info...', 'ZETHelp')
-    sub_menu2.AddCommandItem('Manage Expansions...', 'manageExpansions')
     sub_menu2.AddCommandItem('Open Import Log', 'OpenImportLog')
     return True
 
