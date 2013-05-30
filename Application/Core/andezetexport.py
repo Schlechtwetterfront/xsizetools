@@ -346,9 +346,9 @@ class ModelConverter(andesicore.SIModel):
         seg.mat_name = self.export.get_main_material_name(self.si_model)
         seg.material = self.export.msh.get_mat_by_name(seg.mat_name)
         seg.vertices = self.get_vertices()
-        seg.vertices.parent = seg
+        seg.vertices.segment = seg
         seg.faces = self.get_faces()
-        seg.faces.parent = seg
+        seg.faces.segment = seg
         if self.is_uved():
             seg.vertices.uved = True
             seg.vertices.set_uvs(self.get_uvs())
@@ -360,15 +360,23 @@ class ModelConverter(andesicore.SIModel):
             seg.vertices.set_weights(*self.get_weights())
         return seg
 
+    def clear_multiverts(self, collection):
+        for segment in collection:
+            self.export.xsi.LogMessage('One Segment.')
+            if isinstance(segment, msh2.SegmentGeometry):
+                self.export.xsi.LogMessage('Clearing Doubles.')
+                segment.clear_doubles()
+
     def get_segments(self):
         '''Creates segments from the main geometry and returns them in
         a SegmentCollection.'''
         # First get the geometry for the complete mesh.
+        self.export.xsi.LogMessage('Get Segments.')
         geometry = self.process_geometry()
         coll = msh2.SegmentCollection(self.msh2_model)
-        coll.parent = self.msh2_model
+        coll.model = self.msh2_model
         coll.msh = self.msh2_model.msh
-        geometry.parent = coll
+        geometry.collection = coll
         # Then split it up into chunks for more than one material per model.
         poly_mat_indices = self.export.xsi.CGA_GetPolyIndicesPerMaterial(self.geo)
         # self.export.xsi.LogMessage(poly_mat_indices)
@@ -377,10 +385,13 @@ class ModelConverter(andesicore.SIModel):
         coll.add(geometry)
         # If the model only has one material just export this one chunk.
         if len(mat_names) == 1:
+            self.clear_multiverts(coll)
             return coll
         # Otherwise split the geometry.
         coll.split(0, poly_mat_indices, mat_names)
         coll.assign_materials(self.export.msh.materials)
+        self.export.xsi.LogMessage(str(len(coll)))
+        self.clear_multiverts(coll)
         return coll
 
     def process_bbox(self):

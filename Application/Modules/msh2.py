@@ -14,6 +14,7 @@ import itertools
 import struct
 import math
 
+
 MODEL_TYPES = {'null': 0,
                 'geodynamic': 1,
                 'cloth': 2,
@@ -805,6 +806,27 @@ class SegmentGeometry(Packer):
         self.vertices = None
         self.faces = None
         self.msh = None
+        self.index_map = None
+
+    def clear_doubles(self):
+        print 'clearing doubles'
+        self.index_map = dict()
+        new_vertices = []
+        len_new_verts = 0
+        for index, vert in enumerate(self.vertices):
+            index_original = None
+            try:
+                index_original = new_vertices.index(vert)
+            except ValueError:
+                pass
+            if index_original:
+                # Insert into indices map.
+                self.index_map[index] = index_original
+            else:
+                new_vertices.append(vert)
+                self.index_map[index] = len_new_verts
+                len_new_verts += 1
+        self.vertices.vertices = new_vertices
 
     def dump(self, fh):
         '''Dump information to open filehandler fileh.'''
@@ -1029,31 +1051,33 @@ class Face(object):
 
     def pack(self):
         '''Packs the vertex indices for the STRP chunk.'''
+        index_map = self.collection.segment.index_map
         if self.sides == 4:
-            return struct.pack('<HHHH', self.vertices[0] + 0x8000,
-                                        self.vertices[1] + 0x8000,
-                                        self.vertices[2],
-                                        self.vertices[3])
+            return struct.pack('<HHHH', index_map[self.vertices[0]] + 0x8000,
+                                        index_map[self.vertices[1]] + 0x8000,
+                                        index_map[self.vertices[2]],
+                                        index_map[self.vertices[3]])
         elif self.sides == 3:
-            return struct.pack('<HHH', self.vertices[0] + 0x8000,
-                                        self.vertices[1] + 0x8000,
-                                        self.vertices[2])
+            return struct.pack('<HHH', index_map[self.vertices[0]] + 0x8000,
+                                        index_map[self.vertices[1]] + 0x8000,
+                                        index_map[self.vertices[2]])
         else:
             return ''
 
     def pack_tris(self):
         '''Packs the vertex indices as tris for the CMSH chunk.'''
+        index_map = self.collection.segment.index_map
         if self.sides == 4:
-            return (struct.pack('<LLL', self.vertices[0],
-                                        self.vertices[1],
-                                        self.vertices[2]),
-                    struct.pack('<LLL', self.vertices[0],
-                                        self.vertices[2],
-                                        self.vertices[3]))
+            return (struct.pack('<LLL', index_map[self.vertices[0]],
+                                        index_map[self.vertices[1]],
+                                        index_map[self.vertices[2]]),
+                    struct.pack('<LLL', index_map[self.vertices[0]],
+                                        index_map[self.vertices[2]],
+                                        index_map[self.vertices[3]]))
         elif self.sides == 3:
-            return (struct.pack('<LLL', self.vertices[0],
-                                        self.vertices[1],
-                                        self.vertices[2]),)
+            return (struct.pack('<LLL', index_map[self.vertices[0]],
+                                        index_map[self.vertices[1]],
+                                        index_map[self.vertices[2]]),)
         else:
             return ()
 
@@ -1258,6 +1282,12 @@ class Vertex(object):
         self.deformers = ['none', 'none', 'none', 'none']
         self.deformer_indices = [0, 0, 0, 0]
         self.weights = [1.0, 0.0, 0.0, 0.0]
+
+    def __eq__(self, other):
+        if (self.x == other.x) and (self.y == other.y) and (self.z == other.z):
+            if (self.u == other.u) and (self.v == other.v):
+                return True
+        return False
 
     @property
     def pos(self):
