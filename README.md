@@ -2,7 +2,7 @@ XSIZETools
 ========
 
 
-**NOTE:** This might be a dev build. For the latest stable build look [**here**] (https://github.com/Schlechtwetterfront/xsizetools/tree/8438be14f6e84f383e0899b7b78aa297d3d65654 "**here**")
+**NOTE:** This might be a dev build. For the latest stable build look [**here**] (https://github.com/Schlechtwetterfront/xsizetools/tree/8438be14f6e84f383e0899b7b78aa297d3d65654 "here")
 
 
 Main
@@ -27,10 +27,8 @@ Install:
 					Example: C:\\Users\\Ande\\Autodesk\\Softimage_2012\\Addons
 					
 					
-	**IMPORTANT**
-	
-	
-	**RENAME THE "xsizetools-master" FOLDER TO "XSIZETools".**
+IMPORTANT
+RENAME THE "xsizetools-master" FOLDER TO "XSIZETools".
 	
 	
 Uninstall:
