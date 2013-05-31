@@ -27,8 +27,7 @@ Install:
 					Example: C:\\Users\\Ande\\Autodesk\\Softimage_2012\\Addons
 					
 					
-IMPORTANT
-RENAME THE "xsizetools-master" FOLDER TO "XSIZETools".
+	RENAME THE "xsizetools-master" FOLDER TO "XSIZETools".
 	
 	
 Uninstall:
