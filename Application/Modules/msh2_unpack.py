@@ -57,8 +57,6 @@ class BBoxUnpacker(Unpacker):
 class MSHUnpack(Unpacker):
     def __init__(self, mshfile, config={'do_logging': False,
                                         'ignore_geo': False,
-                                        'debug': False,
-                                        'safe': False,
                                         'triangulate': False}):
         self.mshfile = mshfile
         self.msh = msh2.Msh()
@@ -114,7 +112,7 @@ class MSHUnpack(Unpacker):
                     numbones = unpack('<L', mf.read(4))[0]
                     bonecoll = msh2.BoneCollection(self.msh.animation)
                     for n in xrange(numbones):
-                        bone = msh2.Bone(bonecoll, self.config['safe'], self.config['debug'])
+                        bone = msh2.Bone(bonecoll)
                         bone.CRC = mf.read(4)
                         bone.set_name_from_crc()
                         bone.bone_type = unpack('<L', mf.read(4))[0]

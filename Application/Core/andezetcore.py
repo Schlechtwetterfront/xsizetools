@@ -268,10 +268,6 @@ class ImportConfig(Config):
         applyonly.text = int(ppg.Parameters('applyonly').Value) * 'True'
         log = SubElement(config, 'log')
         log.text = int(ppg.Parameters('log').Value) * 'True'
-        debug = SubElement(config, 'debug')
-        debug.text = int(ppg.Parameters('debug').Value) * 'True'
-        safe = SubElement(config, 'safe')
-        safe.text = int(ppg.Parameters('safe').Value) * 'True'
         triangulate = SubElement(config, 'triangulate')
         triangulate.text = int(ppg.Parameters('triangulate').Value) * 'True'
         nullsize = SubElement(config, 'nullsize')

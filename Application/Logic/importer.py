@@ -75,14 +75,6 @@ chain after import.''')
 Type is defined from certain strings appearing in the name:
 bone_l_leg is a bone, even if it's no animated/weighted to.''')
     egr()
-    agr('Debug')
-    text('''Uses a different method to calculate CRCs (needed for animation).
-This method is a lot slower than the usual one.''')
-    egr()
-    agr('"Safe" Import')
-    text('''Uses a different method to calculate CRCs (needed for animation).
-This method is slower than the usual one but not as slow as Debug.''')
-    egr()
     agr('Weld Boundary Edges')
     text('''Applies a Weld Op to all geo models with a value of 0.01. The Operator
 will persist after the import.''')

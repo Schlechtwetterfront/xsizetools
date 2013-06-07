@@ -1669,8 +1669,6 @@ class Cycle(object):
 class Bone(object):
     # Params:
     #   - collection: class(BoneCollection)
-    #   - debug: use debug CRC calculation
-    #   - safe: use safe CRC calculation
     def __init__(self, collection=None):
         # Parent BoneCollection.
         self.collection = collection

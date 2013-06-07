@@ -108,6 +108,11 @@ def XSIZETools_Init(in_ctxt):
 
 
 def XSIZETools_Execute():
+    # Just for now.
+    uitk.MsgBox('''Currently being reworked and thus not available.
+    Check https://github.com/Schlechtwetterfront/xsizetools for the latest full release.''')
+    return
+
     ppgname = 'ZETools'  # custom property name
     for x in xsi.ActiveSceneRoot.Properties:
         if x.Name == ppgname:
@@ -547,8 +552,6 @@ def MSHImport_Execute():
     pS.AddParameter3('expbit', const.siString, '')
     pS.AddParameter3('ignoreanim', const.siBool, bool(config.retrieve('ignoreanim')), '', '', 0, 0)
     pS.AddParameter3('log', const.siBool, False, '', '', 0, 0)
-    pS.AddParameter3('debug', const.siBool, bool(config.retrieve('debug')), '', '', 0, 0)
-    pS.AddParameter3('safe', const.siBool, bool(config.retrieve('safe')), '', '', 0, 0)
     pS.AddParameter3('triangulate', const.siBool, True, '', '', 0, 0)
     pS.AddParameter3('ignoregeo', const.siBool, bool(config.retrieve('ignoregeo')), '', '', 0, 0)
     pS.AddParameter3('nullsize', const.siDouble, float(config.retrieve('nullsize')), 0.01, 5.0, 0, 0)
@@ -673,8 +676,6 @@ def MSHImport_Execute():
     mLay.AddGroup('Misc')
     mLay.AddItem('hideroots', 'Hide Roots')
     mLay.AddItem('hideeffs', 'Hide Effectors')
-    #mLay.AddItem('debug', 'Debug')
-    #mLay.AddItem('safe', '"Safe" Import')
     mLay.AddItem('weld', 'Weld Boundary Edges')
     mLay.EndGroup()
     mLay.AddRow()

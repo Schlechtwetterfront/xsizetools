@@ -11,6 +11,3 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 GNU General Public License http://www.gnu.org/licenses/.
-
-drcrc.exe Copyright (C) Pandemic Studios.
-Templates (.xsi files) Copyright (C) Pandemic Studios | DarthD.U.C.K. | AceMastermind | Benedikt Schatz
