@@ -258,6 +258,7 @@ class ImportConfig(Config):
         config = Element('config')
         path = SubElement(config, 'path')
         path.text = ppg.Parameters('mshpath').Value
+        print 'ImportConfig path: {0}'.format(path.text)
         texpath = SubElement(config, 'texpath')
         texpath.text = ppg.Parameters('texpath').Value
         btexpath = SubElement(config, 'btexpath')
@@ -299,6 +300,7 @@ class ImportConfig(Config):
         self.tree = ElementTree(element=config)
 
     def default(self):
+        print 'default called'
         config = Element('config')
         path = SubElement(config, 'path')
         path.text = 'C:'

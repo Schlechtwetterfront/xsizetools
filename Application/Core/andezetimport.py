@@ -639,6 +639,7 @@ class Import(andesicore.SIGeneral):
     def do_import(self):
         '''Actual import function.'''
         # Disable logging temporarily.
+        print self.config.retrieve('path')
         logging.info('Starting import.')
         logging.info('.msh file path: {0}'.format(self.config.retrieve('path')))
         prefs = self.xsi.Preferences
@@ -654,10 +655,9 @@ class Import(andesicore.SIGeneral):
         start = dt.now()
         unpacker_config = {'do_logging': self.config.retrieve('log'),
                             'ignore_geo': self.config.retrieve('ignoregeo'),
-                            'debug': self.config.retrieve('debug'),
-                            'safe': self.config.retrieve('safe'),
                             'triangulate': self.config.retrieve('triangulate'),
             'modulepath': os.path.join(self.xsi.InstallationPath(const.siUserAddonPath), 'XSIZETools\\Application\\Modules')}
+        print self.config.retrieve('path')
         unpacker = msh2_unpack.MSHUnpack(self.config.retrieve('path'), unpacker_config)
         try:
             logging.info('Starting unpack.')
