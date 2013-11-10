@@ -1,5 +1,5 @@
 XSIZETools - Softimage exporter and importer for ZeroEngine (Star Wars Battlefront I + II) .msh 3D files.
-Code Copyright (C) 2012  Benedikt Schatz
+Code Copyright (C) 2013  Benedikt Schatz
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License v3 as published by

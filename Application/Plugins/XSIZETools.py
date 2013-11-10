@@ -11,6 +11,7 @@
 import win32com.client
 from win32com.client import constants as const
 import sys
+import os, inspect
 from datetime import datetime
 tt = datetime.now
 
@@ -44,10 +45,10 @@ def XSILoadPlugin(in_reg):
     eventtimer = xsi.EventInfos('ZEToolsDelayedStartupEvent')
     eventtimer.Mute = True
 
-    corepath = utils.BuildPath(ADDONPATH, 'XSIZEtools', 'Application', 'Core')
+    corepath = utils.BuildPath(ADDONPATH, 'XSIZETools', 'Application', 'Core').encode('utf-8')
     if corepath not in sys.path:
         sys.path.append(corepath)
-    modpath = utils.BuildPath(ADDONPATH, 'XSIZEtools', 'Application', 'Modules')
+    modpath = utils.BuildPath(ADDONPATH, 'XSIZETools', 'Application', 'Modules').encode('utf-8')
     if modpath not in sys.path:
         sys.path.append(modpath)
     return True
@@ -431,7 +432,9 @@ def MSHExport_Init(in_ctxt):
 
 
 def MSHExport_Execute():
+    print 'sys.path', sys.path
     import andezetcore
+    reload(andezetcore)
     for x in xsi.ActiveSceneRoot.Properties:
         if x.Name == 'MSHExport':
             xsi.DeleteObj('MSHExport')
@@ -535,6 +538,7 @@ def MSHImport_Init(in_ctxt):
 
 
 def MSHImport_Execute():
+    print sys.path
     import andezetcore
     for x in xsi.ActiveSceneRoot.Properties:
         if x.Name == 'MSHImport':

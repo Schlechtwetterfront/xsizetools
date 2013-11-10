@@ -8,6 +8,7 @@
 #####                                               #####
 #####    https://sites.google.com/site/andescp/     #####
 #########################################################
+from binascii import unhexlify
 
 
 class CRCError(Exception):
@@ -122,42 +123,32 @@ TOLOWER = (
 )
 
 
-def unsigned(n):
-    '''Patch n to be unsigned because python has no unsigned variables.'''
+def remove_sign_bit(n):
+    '''Simulate unsigned behavior by using no bit for the sign.'''
     return n & 0xFFFFFFFF
 
 
 def crc(string):
-    '''Calculate the Zero CRC from string and return it as hex.'''
+    '''Calculate the Zero CRC from string and return it as number.'''
     crc_ = 0
-    crc_ = unsigned(~crc_)
+    crc_ = remove_sign_bit(~crc_)
     if string:
         for char in string:
             ind = (crc_ >> 24)
             ind = ind ^ TOLOWER[ord(char)]
-            crc_ = unsigned(crc_ << 8) ^ TABLE_32[ind]
-    return hex(unsigned(~crc_))
+            crc_ = remove_sign_bit(crc_ << 8) ^ TABLE_32[ind]
+    return remove_sign_bit(~crc_)
 
 
 def strcrc(string):
     '''Calculate the Zero CRC and return it in a structure
     usable in .msh files.'''
-    crc_ = crc(string)
-    # Cut off 0x... and ...L
-    crc_ = crc_[2:-1]
-    crc_ = (crc_[-2:], crc_[-4:-2], crc_[-6:-4], crc_[:2])
-    return hextranslate(''.join(crc_))
+    crc_ = '{0:0>8X}'.format(crc(string))
+    crc_ = '{0}{1}{2}{3}'.format(crc_[-2:], crc_[-4:-2], crc_[-6:-4], crc_[:2])
+    return unhexlify(crc_)
 
 
 def compare_crc_adv(possible_strings, crc_):
     for string in possible_strings:
         if crc_ == strcrc(string):
             return string
-
-
-def hextranslate(s):
-    res = ""
-    for i in range(len(s) / 2):
-        realIdx = i * 2
-        res = res + chr(int(s[realIdx:realIdx + 2], 16))
-    return res

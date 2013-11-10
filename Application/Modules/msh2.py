@@ -6,7 +6,7 @@
 #####             code copyright (C)                #####
 #####         Benedikt Schatz 2012-2013             #####
 #####                                               #####
-#####    https://sites.google.com/site/andescp/     #####
+#####       http://byentech.wordpress.com           #####
 #########################################################
 import msh2_crc
 reload(msh2_crc)
@@ -818,7 +818,9 @@ class SegmentGeometry(Packer):
             try:
                 index_original = new_vertices.index(vert)
             except ValueError:
+                #print 'ValueError', vert
                 pass
+            #print index
             if index_original:
                 # Insert into indices map.
                 self.index_map[index] = index_original
@@ -833,10 +835,11 @@ class SegmentGeometry(Packer):
         fh.write('\t\t\t--- SegmentGeometry ---\n')
         fh.write('\t\t\t\tMaterial:    {0}\n'.format(self.material))
         fh.write('\t\t\t\tVertices:    {0}\n'.format(len(self.vertices)))
-        fh.write('\t\t\t\tFaces:       {0}\n'.format(len(self.faces)))
+        fh.write('\t\t\t\tFaces:       {0}\n'.format(len(self.faces or '')))
         fh.write('\t\t\t\tUVed:        {0}\n'.format(self.vertices.uved))
         fh.write('\t\t\t\tColored:     {0}\n'.format(self.vertices.colored))
         fh.write('\t\t\t\tWeighted:    {0}\n'.format(self.vertices.weighted))
+        fh.write(str(self.index_map))
 
     def pack_MATI(self):
         return self.pack_long_chunk('MATI', self.material.index)
@@ -1283,11 +1286,19 @@ class Vertex(object):
         self.deformer_indices = [0, 0, 0, 0]
         self.weights = [1.0, 0.0, 0.0, 0.0]
 
+    def dump(self, fh):
+        fh.write('\t\tVERTEX\n')
+        fh.write('\t\t\tPos: {0:3}, {1:3}, {2:3}\n'.format(*self.pos))
+        fh.write('\t\t\tUV:  {0:3}, {1:3}\n'.format(*self.uv))
+
     def __eq__(self, other):
         if (self.x == other.x) and (self.y == other.y) and (self.z == other.z):
             if (self.u == other.u) and (self.v == other.v):
                 return True
         return False
+
+    def __repr__(self):
+        return 'Vertex({0}, {1}, {2})'.format(*self.pos)
 
     @property
     def pos(self):
@@ -1349,6 +1360,10 @@ class VertexCollection(object):
         self.colored = False
         self.weighted = False
         self.uved = False
+
+    def dump(self, fh):
+        for v in self.vertices:
+            v.dump(fh)
 
     def set_flags_from_vertcoll(self, vertcoll):
         '''Transfers flags from the given VertexCollection vertcoll

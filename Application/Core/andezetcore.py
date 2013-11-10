@@ -194,7 +194,7 @@ class Config(object):
         self.path = path
         try:
             self.tree = ElementTree(file=path)
-        except SyntaxError:
+        except (SyntaxError, IOError):
             self.default()
 
     def from_ppg(self, ppg):
@@ -223,7 +223,7 @@ class Config(object):
         anim.text = ''
         basepose = SubElement(config, 'basepose')
         basepose.text = ''
-        rootname = SubElement(config, 'userootname')
+        rootname = SubElement(config, 'rootname')
         rootname.text = ''
         batch = SubElement(config, 'batch')
         batch.text = ''

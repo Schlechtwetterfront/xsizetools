@@ -695,7 +695,7 @@ class Import(andesicore.SIGeneral):
                         if not item.Type == 'polymsh':
                             continue
                         self.xsi.ApplyTopoOp('WeldEdges', item)
-                        self.xsi.SetValue('{0}.polymsh.weldedgesop.distance'.format(item.Name), 0.01)
+                        self.xsi.SetValue('{0}.polymsh.weldedgesop.distance'.format(item.Name), 0.02)
         if not self.msh.animation.empty and not self.config.retrieve('ignoreanim'):
             anim = AnimationImport(self, self.chain, self.msh.animation.bones)
             anim.import_()

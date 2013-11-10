@@ -6,7 +6,7 @@
 #####             code copyright (C)                #####
 #####         Benedikt Schatz 2012-2013             #####
 #####                                               #####
-#####    https://sites.google.com/site/andescp/     #####
+#####       http://byentech.wordpress.com           #####
 #########################################################
 
 # TODO: FLGS:
@@ -123,8 +123,8 @@ class AnimationConverter(andesicore.SIScene):
                 boneconv = BoneConverter(model, self, basepose)
                 bonecoll.add(boneconv.convert())
                 self.export.pb.setc('Building Bone {0}({1}/{2})'.format(model.Name,
-                                                                index,
-                                                                nummodels))
+                                                                        index,
+                                                                        nummodels))
             self.export.pb.inc()
         self.anim.bones = bonecoll
         return self.anim
@@ -160,7 +160,7 @@ class SceneInfoConverter(andesicore.SIScene):
         # get the playcontrol object which contains frame range and fps.
         playcontrol = self.get_playcontrol()
         self.sinfo.frame_range = (playcontrol.Parameters('In').Value,
-                                 playcontrol.Parameters('Out').Value)
+                                  playcontrol.Parameters('Out').Value)
         self.sinfo.fps = playcontrol.Parameters('Rate').Value
         self.calculate_global_bbox()
         return self.sinfo
@@ -397,7 +397,7 @@ class ModelConverter(andesicore.SIModel):
     def process_bbox(self):
         bbox = self.geo.GetBoundingBox(self.si_model.Kinematics.Local.Transform)
         bsphere = self.geo.GetBoundingSphere(const.siVolumeCenterMethodBBoxCenter,
-                                                self.si_model.Kinematics.Local.Transform)
+                                             self.si_model.Kinematics.Local.Transform)
         self.msh2_model.bbox.extents = (bbox[3] / 2 * self.msh2_model.transform.scale[0],
                                         bbox[4] / 2 * self.msh2_model.transform.scale[1],
                                         bbox[5] / 2 * self.msh2_model.transform.scale[2])
@@ -410,19 +410,19 @@ class ModelConverter(andesicore.SIModel):
         mm = self.msh2_model
         if 'cube' in sm.Name:
             mm.primitive = (4,
-                        sm.length.Value * mm.transform.scale[0],
-                        sm.length.Value * mm.transform.scale[1],
-                        sm.length.Value * mm.transform.scale[2])
+                            sm.length.Value * mm.transform.scale[0],
+                            sm.length.Value * mm.transform.scale[1],
+                            sm.length.Value * mm.transform.scale[2])
         elif 'cyl' in sm.Name:
             mm.primitive = (2,
-                        sm.radius.Value,
-                        sm.height.Value,
-                        0)
+                            sm.radius.Value,
+                            sm.height.Value,
+                            0)
         elif 'sphere' in sm.Name:
             mm.primitive = (0,
-                        sm.radius.Value,
-                        0,
-                        0)
+                            sm.radius.Value,
+                            0,
+                            0)
         else:
             self.msh2_model.collprim = False
             self.export.notify('{0} missing primitive type name(cube, cyl, sphere).'.format(sm.Name))
@@ -666,12 +666,12 @@ class Export(andesicore.SIGeneral):
                 notifs.append(notif)
                 notifs.append('\n')
         self.msg('Exported {0} materials and {1} models with {2} verts and {3} faces in {4} seconds and {5} microseconds.{6}'.format(self.stats.mats,
-                                                                                                                                    self.stats.models,
-                                                                                                                                    self.stats.verts,
-                                                                                                                                    self.stats.faces,
-                                                                                                                                    self.stats.secs(),
-                                                                                                                                    self.stats.micros(),
-                                                                                                                                    ''.join(notifs)))
+                                                                                                                                     self.stats.models,
+                                                                                                                                     self.stats.verts,
+                                                                                                                                     self.stats.faces,
+                                                                                                                                     self.stats.secs(),
+                                                                                                                                     self.stats.micros(),
+                                                                                                                                     ''.join(notifs)))
 
     def log(self, text):
         self.export_log.append(text)
@@ -758,8 +758,8 @@ class Export(andesicore.SIGeneral):
         self.msh.materials.replace([])
         for ndx, material in enumerate(self.si_materials):
             self.pb.setc('Processing Material {0}... {1}/{2}'.format(material.Name,
-                                                                    ndx + 1,
-                                                                    len(self.si_materials)))
+                                                                     ndx + 1,
+                                                                     len(self.si_materials)))
             conv = MaterialConverter(material, self, ndx)
             self.msh.materials.add(conv.convert())
             self.pb.inc()
@@ -772,8 +772,8 @@ class Export(andesicore.SIGeneral):
         self.msh.models.replace([])
         for ndx, model in enumerate(self.si_models):
             self.pb.setc('Processing Model {0}... {1}/{2}'.format(model.Name,
-                                                                    ndx + 1,
-                                                                    len(self.si_models)))
+                                                                  ndx + 1,
+                                                                  len(self.si_models)))
             conv = ModelConverter(model, self)
             self.msh.models.add(conv.convert())
             self.pb.inc()
