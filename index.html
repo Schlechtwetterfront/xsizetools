@@ -1,0 +1,359 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="chrome=1">
+        <title>XSI ZE Tools by Ande</title>
+        <link rel="stylesheet" href="stylesheets/styles.css">
+        <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+        <script src="javascripts/respond.js"></script>
+        <!--[if lt IE 9]>
+        <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <!--[if lt IE 8]>
+        <link rel="stylesheet" href="stylesheets/ie.css">
+        <![endif]-->
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    </head>
+    <body>
+        <div id="header">
+            <nav>
+                <li class="fork"><a href="https://github.com/Schlechtwetterfront/xsizetools">View On GitHub</a></li>
+				<li class="fork"><a href="http://gametoast.com/forums/viewtopic.php?f=36&t=26664">View On GameToast</a></li>
+                <li class="downloads"><a href="https://github.com/Schlechtwetterfront/xsizetools/zipball/">ZIP</a></li>
+                <li class="downloads"><a href="https://github.com/Schlechtwetterfront/xsizetools/tarball/">TAR</a></li>
+                <li class="title">DOWNLOADS</li>
+            </nav>
+        </div>
+        <!-- end header -->
+        <div class="wrapper">
+            <section>
+                <div id="title">
+                    <h1>XSIZETools</h1>
+                    <p></p>
+                    <hr>
+                    <span class="credits left">Project maintained by <a href="https://Schlechtwetterfront.github.io/">Schlechtwetterfront</a></span>
+                    <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+                </div>
+                <h2>Contents:</h2>
+                <ol>
+                    <li><a href="#maininfo">Main Info</a></li>
+                    <li><a href="#download">Download &amp; Installation</a></li>
+                    <li><a href="#guidelines">Guidelines</a></li>
+                    <li><a href="#contributors">Contributors</a></li>
+                    <li><a href="#changelog">Changelog</a></li>
+                </ol>
+				<br><br><br>
+                <h2><a name="maininfo"></a>Main Info</h2>
+                XSIZETools is an addon for Softimage (tested with ModTool 7.5, 2012 SP1 and 2014). The main features are full export and import of 3D .msh files for ZeroEngine (Star Wars Battlefront I and II). That includes geometry, materials with all ZeroEngine-specific flags, animations and collisions.
+                This began as a small collection of scripts to help setup hierarchies and the like and turned into a full-fledged exporter/importer for the .msh format. As only a small amount of the .msh file format structure was known when I began writing the exporter I had to reverse-engineer (with contributions from a handful of other people) the rest (which was about 70% of the chunks).
+                <br><br><br>
+				<h2><a name="download"></a>Download & Installation</h2>
+                The main chunk of the project is hosted on <a href="https://github.com/Schlechtwetterfront/xsizetools" target="_blank">Github</a>. The source for the CGeometryAccessorWrappers can be found here.
+                Use the <strong>Download ZIP </strong>button on Github to download the repository. If you are familiar with Git you can clone the repository, too.
+                Installation instructions for the addon are included on Github/the readme.
+                The low-level geometry functions are written in C++, so the Visual C++ 2010 redist is required.  <a href="http://www.microsoft.com/download/en/details.aspx?id=5555" target="_blank">x86</a>  |  <a href="http://www.microsoft.com/downloads/de-de/details.aspx?FamilyID=bd512d9e-43c8-4655-81bf-9350143d5867" target="_blank">x64 </a>(only if x86 didn't work).
+                <br><br><br>
+				<h2><a name="guidelines"></a>Guidelines</h2>
+                <h3>Import - Notes</h3>
+                <ul>
+                    <li>Animations will be imported as linear animations on a per-frame basis.</li>
+                    <li>It should be possible to re-export animations directly after import. For SWBF1 you need to have at least one material though.</li>
+                    <li>.msh files exported with MshEx won't import.</li>
+                    <li>There might be some misplaced edges.</li>
+                </ul>
+                <h3>Export - Avoid</h3>
+				The CheckSel function in the export dialog can detect some problems.
+                <ul>
+                    <li><b>Overlapping clusters:</b> Might break the .msh file. Might mess up the exported .msh's UVs/Weights/Vertex Colors.</li>
+                    <li><b>5-Sided(or more) Polygons:</b> Might break the .msh file. Will mess up export result(missing polies).</li>
+                    <li><b>Unsupported Model types:</b> The supported model types are: poly mesh, null, bone.</li>
+                    <li><b>No Materials:</b> You should have at least one material named Scene_Material when exporting. If you have at least one material you don't need Scene_Material.</li>
+                </ul>
+                <h3>Export - Collisions</h3>
+                <ul>
+                    <li>Collision meshes can be created by naming the model <b><span style="color: #3d85c6;">collision_*</span></b> or <b><span style="color: #3d85c6;">*_collision</span></b>.</li>
+                    <li>
+                        To create collision primitives you have to follow some guidelines:
+                        <ol>
+                            <li>The type has to appear in the name of the object.</li>
+                            <li>The object's name has to begin with <b>p_</b>.</li>
+                            <li>And of course the labelling for the engine(-svbot- or whichever entities you want it to collide with).</li>
+                            <li><b>DON'T FREEZE THE COLLISION PRIMITIVE. </b>This will remove some properties the exporter needs to produce a working collision primitive.</li>
+                        </ol>
+                    </li>
+                    <li>
+                        So, the final product will be something like these:
+                        <ol>
+                            <li>p_-svbot-cube</li>
+                            <li>p_-svb-cylinder</li>
+                            <li>p_-ot-sphere</li>
+                            <li>p_-svt-cube_back_left_semmel</li>
+                        </ol>
+                    </li>
+                </ul>
+                <h3>Export - Weighting</h3>
+                <ul>
+                    <li><b>Always apply the envelope to ALL bones.</b> This might slow your workflow down but it ensures the points are weighted to the correct bone after export.</li>
+                    <li><b>Only weight to objects with bone in their name(NOT: root, eff).</b></li>
+                    <li><b>Try to apply the envelope only to models which won't be merged after weighting.</b> This does not have to break the .msh, it could though.</li>
+                </ul>
+                <h3>Export - General</h3>
+                <ul>
+                    <li>It's not important how you animate bones (FK or IK etc), the exporter will go through all frames one-by-one and get the current local transforms of every bone.</li>
+                    <li>The currently selected object + all it's children will be exported.</li>
+                    <li>Only apply one 'master' UV projection to a object. All subsequent projections should be Sub-projections.</li>
+                </ul>
+                <h2><a name="contributors"></a>Contributors</h2>
+                <p style="text-align: center;"><strong>ME (ANDEWEGET/Ande)</strong><br>
+				All programming - Graphics/UI - Main .msh file research
+                </p>
+                <p style="text-align: center;"><strong>AceMastermind (gametoast.com)</strong><br>
+                    Created most  templates - Provided example .msh files - Additional .msh research
+                </p>
+                <p style="text-align: center;"><strong>DarthD.U.C.K (gametoast.com)</strong><br>
+                    Created some templates - Provided example .msh files - Additional .msh research
+                </p>
+                <p style="text-align: center;"><strong>tirpider (gametoast.com, swbfgamers.com)</strong><br>
+                    Additional .msh research - MSH Info Tool greatly helped with debugging - Interesting discussions
+                </p>
+                <p style="text-align: center;"><strong>FragMe! (gametoast.com)</strong><br>
+                    Provided a tool/material for some additional research
+                </p>
+                <h2 style="text-align: left;"><a name="changelog"></a>Changelog</h2>
+                <div>
+                    <ul>
+                        <li>
+                            1.1.11.10 r1:
+                            <ul>
+                                <li>Import: Fixed import error.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.1.11.10:
+                            <ul>
+                                <li>Export: File size of exported .msh files should be a lot smaller.</li>
+                                <li>Removed Expansion Manager and templates.</li>
+                                <li>ZE Tools scripts currently don't work.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.1.11.09:
+                            <ul>
+                                <li>Export: Fixed too small cube collision primitives.</li>
+                                <li>msh2_crc: Implemented standalone CRC algorithm, no more drcrc.exe needed (most likely faster, too).</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.1.11.08 r2:
+                            <ul>
+                                <li>Import: Fixed weight import error caused by the Weld op.</li>
+                                <li>Export: Fixed props exported from ModTool being invisible inside ZE.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.1.11.08:
+                            <ul>
+                                <li>Import: Added Weld Boundary Edges option to settings. Welds edges after import.</li>
+                                <li>Import: Collision primitive type 3 imports as null. 3 is not a functional prim.</li>
+                                <li>Import: Material Flags.</li>
+                                <li>Import: Added another path control to define the folder where the textures are. If the box is not checked the importer will search for the textures in the folder of the .msh file.</li>
+                                <li>General: Added item to the General Tools submenu which opens the import log.</li>
+                                <li>Export: Fixed collision primitive export.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.1.11.07 r4:
+                            <ul>
+                                <li>Export: Fixed animation export.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.1.11.07 r3:
+                            <ul>
+                                <li>Export: Fixed UI parameter bug.</li>
+                                <li>Import: Fixed cloth breaking the Enveloper again.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.1.11.07 r2:
+                            <ul>
+                                <li>Export: Fixed scale.</li>
+                                <li>Export: Fixed per-model BBox.</li>
+                                <li>Export: Now automatically calculating global BBox.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.1.11.07 r1:
+                            <ul>
+                                <li>Import: Fixed weights with deformer index 0 overwriting each other.</li>
+                                <li>Import: Added import logging to a text file(XSIZETools\\import_log.log).</li>
+                                <li>Import: Cloth doesn't break enveloping and export anymore.</li>
+                                <li>Import: Added 'MYTP' as chunk. .msh files exported with MshEx could work now.</li>
+                                <li>msh2_crc: Now using the _subprocess module for STARTF_USESHOWWINDOW and SW_HIDE constants. Should fix error on some python distributions where those constants don't exist in subprocess.</li>
+                                <li>Import: Added MshImportError exception.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.1.11.07:
+                            <ul>
+                                <li>Import: Fixed cube primitive import.</li>
+                                <li>Import: Fixed primitive type 1 import.</li>
+                                <li>Import: Fixed UV and vertex color algorithm.</li>
+                                <li>Import: Added support for Vertex Colors.</li>
+                                <li>Export: Fixed vertex color export.</li>
+                                <li>Export: Exporter now exports local vertex coordinates, not world coordinates. World coordinates would break scale because I didn't set the scale to 1 afterwards. It seemingly still worked ingame...</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.1.11.06:
+                            <ul>
+                                <li>Import: Enabled Apply Animation option. Tries to apply animation to selected hierarchy.</li>
+                                <li>Import: Added Ignore Animation if you only want to import geometry.</li>
+                                <li>Import: Added weights/envelope support.</li>
+                                <li>Import: Added support for multiple segments.</li>
+                                <li>msh2_crc: Added code to prevent file not found errors on subprocess.call.</li>
+                                <li>Import: Fixed poly meshes not being parented correctly.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.1.11.05:
+                            <ul>
+                                <li>Updated: sicore, zetcore.</li>
+                                <li>Import: Geometry with UVs.</li>
+                                <li>Import: Materials.</li>
+                                <li>Import  Collision primitives.</li>
+                                <li>Import: Added Debug(run that mode if you experience problems).</li>
+                                <li>Import: Added 'Safe' import(slower but more likely to work).</li>
+                                <li>Import: Triangulate n-gons. Triangulates n-gons on import(otherwise will try to get some quads in, too).</li>
+                                <li>msh2_crc: Added crc_debug and crc_safe.</li>
+                                <li>msh2_crc: Added CRCError.</li>
+                                <li>msh2_unpack: Fixed STRP unpack, fixed texture unpack. Added code to prevent errors on bad STRP chunks. Added code to cut 5+ sided polygons into tris(and quads).</li>
+                                <li>msh2: Added functions to Face and FaceCollection to get XSI import right.</li>
+                                <li>msh2: Fixed properties and decorators not working properly(all root objects now inherit from object).</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.1.11.04:
+                            <ul>
+                                <li>Updated: zetcore, sicore.</li>
+                                <li>Import: Null Chains(ChainBuilder), Animations(AnimationImport) and Materials(MaterialBuilder, disabled).</li>
+                                <li>Import: Nulls can be colored according to type(bone, root, eff).</li>
+                                <li>msh2_crc: Replaced method of validating CRCs(wdrcrc.exe) with my own.</li>
+                                <li>msh2_crc: Optimized CRC/name validation function.</li>
+                                <li>msh2_crc: Suppressed drcrc.exe popping up every time it's called.</li>
+                                <li>msh2_unpack: Most likely fixed STRP polygon unpacking algorithm.</li>
+                                <li>msh2_unpack: Added animation unpack.</li>
+                                <li>msh2_unpack: MSHUnpack now uses a config dict.</li>
+                                <li>msh2_unpack: Wrote msh2_unpack.</li>
+                                <li>msh2: Added various smaller methods to Animation, Cycle, BoneCollection and Bone.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.1.11.02 r4:
+                            <ul>
+                                <li>Added drcrc.exe and wdrcrc.exe to the archive again.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.1.11.02 r3
+                            <ul>
+                                <li>Export: Fixed a problem where some faces were assigned the wrong material.</li>
+                                <li>Export: Tweaked notifications.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.1.11.02 r2
+                            <ul>
+                                <li>Animation: Naming isn't important for bones anymore. As long as something is enveloped to the model it's declared as a bone.</li>
+                                <li>Animation: Tweaked export and Progress bar animation export display.</li>
+                                <li>Tweaked Installation dir 'checker'. Now should compare paths right.</li>
+                                <li>Animation: Fixed a function argument error for python 2.7 which killed the export.</li>
+                                <li>Export: Export now ignores Texture Support objects.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.1.11.02:
+                            <ul>
+                                <li>If ZETools is installed in the wrong dir(ie XSI factory addon dir)it will notice it. It can automatically copy the needed files to the right directory.</li>
+                                <li>Exporter: Animations done(until I find the next bug).</li>
+                                <li>Exporter: Option to only export current frame and next one as basepose for animations.</li>
+                                <li>Various smaller bug fixes(especially for the Mod Tool).</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.1.10.02:
+                            <ul>
+                                <li>Restructured folders and class-system.</li>
+                                <li>Higher level approach to storing data enabling easy manipulation of components.</li>
+                                <li>Minimized folder structure complexity.</li>
+                                <li>Added XSIZETUtils.</li>
+                                <li>Rewrote most of the export code. Now a lot cleaner and straight forward.</li>
+                                <li>Removed some things like the detailed export report, it was useful for me for profiling but now it just clutters the export up.</li>
+                                <li>Material Manager: Refined code, dialog now doesn't relaunch when a material gets deleted/created.</li>
+                                <li>Material Manager: Multi selection is now enabled.</li>
+                                <li>Material Manager: Every material has an indicator telling if it has ZE flags or not.</li>
+                                <li>Exporter: Batch Export</li>
+                                <li>Exporter: Automatic naming and finding of BBoxes.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1.0.09.02:
+                            <ul>
+                                <li>Polished reports.</li>
+                                <li>Polished appeareance.</li>
+                                <li>Added update checker.</li>
+                                <li>Changed the folder structure.</li>
+                                <li>Cleaned up code.</li>
+                                <li>Rewrote Export and Material Code.</li>
+                                <li>Wrote a additional 1k lines of code.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            0.9.08.02:
+                            <ul>
+                                <li>Added in weight support.</li>
+                                <li>Added multiple reports.</li>
+                                <li>Cleaned up code.</li>
+                                <li>Changed the folder structure a bit.</li>
+                                <li>Added in more and better comments in the code.</li>
+                                <li>Added multiple smaller functions.</li>
+                                <li>Improved performance.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            0.9.07.02:
+                            <ul>
+                                <li>Unfixed weight exporting(will come back soon).</li>
+                                <li>Improved performance.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            0.9.06.02:
+                            <ul>
+                                <li>Fixed weight exporting(unit-exporting works now).</li>
+                                <li>Added structure and beginnings of cloth support.</li>
+                                <li>Stuff.</li>
+                            </ul>
+                        </li>
+                        <li>0.9.05.02 r1:</li>
+                        <li>
+                            <ul style="display: inline !important;">
+                                <li style="display: inline !important;">Progress bar now displays more steps(per model/material).</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <ul>
+                                <li>Improved general packer structure.</li>
+                                <li>Fixed(?) bone and envelope exporting.</li>
+                                <li>Generally improved code(exporter automagically adds .msh, dictionaries for certain things etc...)</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+        <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    </body>
+</html>
