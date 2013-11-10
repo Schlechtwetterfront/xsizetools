@@ -8,7 +8,7 @@
 #####                                               #####
 #####    https://sites.google.com/site/andescp/     #####
 #########################################################
-from binascii import unhexlify
+from struct import pack
 
 
 class CRCError(Exception):
@@ -123,29 +123,27 @@ TOLOWER = (
 )
 
 
-def remove_sign_bit(n):
-    '''Simulate unsigned behavior by using no bit for the sign.'''
+def return_lowest_bits(n):
+    '''Simulate unsigned behavior.'''
     return n & 0xFFFFFFFF
 
 
 def crc(string):
     '''Calculate the Zero CRC from string and return it as number.'''
     crc_ = 0
-    crc_ = remove_sign_bit(~crc_)
+    crc_ = return_lowest_bits(~crc_)
     if string:
         for char in string:
             ind = (crc_ >> 24)
             ind = ind ^ TOLOWER[ord(char)]
-            crc_ = remove_sign_bit(crc_ << 8) ^ TABLE_32[ind]
-    return remove_sign_bit(~crc_)
+            crc_ = return_lowest_bits(crc_ << 8) ^ TABLE_32[ind]
+    return return_lowest_bits(~crc_)
 
 
 def strcrc(string):
     '''Calculate the Zero CRC and return it in a structure
     usable in .msh files.'''
-    crc_ = '{0:0>8X}'.format(crc(string))
-    crc_ = '{0}{1}{2}{3}'.format(crc_[-2:], crc_[-4:-2], crc_[-6:-4], crc_[:2])
-    return unhexlify(crc_)
+    return pack('<I', crc(string))
 
 
 def compare_crc_adv(possible_strings, crc_):
