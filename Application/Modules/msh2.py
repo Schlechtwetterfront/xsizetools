@@ -237,13 +237,13 @@ class Material(Packer):
         self.tex2 = None
         self.tex3 = None
         self.flags = [['specular', False, 128],
-                 ['additive', False, 64],
-                 ['perpixel', False, 32],
-                 ['hard', False, 16],
-                 ['double', False, 8],
-                 ['single', False, 4],
-                 ['glow', False, 2],
-                 ['emissive', False, 1]]
+                      ['additive', False, 64],
+                      ['perpixel', False, 32],
+                      ['hard', False, 16],
+                      ['double', False, 8],
+                      ['single', False, 4],
+                      ['glow', False, 2],
+                      ['emissive', False, 1]]
         self.render_type = 0
         self.data0 = 0
         self.data1 = 0
@@ -421,9 +421,9 @@ class MaterialCollection(Packer):
 
 class Model(Packer):
     collprim_by_index = {0: 'Sphere',
-                        1: 'Sphere',
-                        2: 'Cylinder',
-                        4: 'Cube'}
+                         1: 'Sphere',
+                         2: 'Cylinder',
+                         4: 'Cube'}
     collprim_by_name = {'Sphere': 0,
                         'Cylinder': 2,
                         'Cube': 4}
@@ -1544,6 +1544,7 @@ class ClothVertexCollection(Packer):
         else:
             self.vertices = []
         self.classname = 'ClothVertexCollection'
+        self.uved = True
 
     def add(self, vert):
         '''Adds a vertex to the collection and sets its
@@ -1703,6 +1704,16 @@ class Bone(object):
         self.pos_keyframes = None
         # List of rotation frames(x, y, z, w).
         self.rot_keyframes = None
+
+    def dump(self, fh):
+        w = fh.write
+        w('BONE - {0}\n'.format(self.name))
+        w('\tRotation:\n')
+        for rot in self.rot_keyframes:
+            w('\t\t{0}\n'.format(rot))
+        w('\tTransform:\n')
+        for pos in self.pos_keyframes:
+            w('\t\t{0}\n'.format(pos))
 
     def recrc(self):
         '''Calculates a Zero CRC from the name.'''
@@ -1898,10 +1909,11 @@ class Color(object):
         No converting is done, so if you pass f for mode
         but the values are from 0-255 you will get that
         value as float.'''
-        return struct.pack('<{0}'.format(mode * 4), self.red,
-                                                    self.green,
-                                                    self.blue,
-                                                    self.alpha)
+        return struct.pack('<{0}'.format(mode * 4),
+                           self.red,
+                           self.green,
+                           self.blue,
+                           self.alpha)
 
 
 class Transform(object):
@@ -1922,13 +1934,13 @@ class Transform(object):
 
     def __str__(self):
         return 'Pos({0}), Rot({1}), Scl({2})'.format(', '.join([str(i) for i in self.translation]),
-                                                                ', '.join([str(i) for i in self.rotation]),
-                                                                ', '.join([str(i) for i in self.scale]))
+                                                     ', '.join([str(i) for i in self.rotation]),
+                                                     ', '.join([str(i) for i in self.scale]))
 
     def __repr__(self):
         return 'Pos({0}), Rot({1}), Scl({2})'.format(', '.join([str(i) for i in self.translation]),
-                                                                ', '.join([str(i) for i in self.rotation]),
-                                                                ', '.join([str(i) for i in self.scale]))
+                                                     ', '.join([str(i) for i in self.rotation]),
+                                                     ', '.join([str(i) for i in self.scale]))
 
     def pack(self):
         data = ['TRAN', struct.pack('<L', 40)]
@@ -1954,12 +1966,12 @@ class Transform(object):
         sqy = self.rotation[1] * self.rotation[1]
         sqz = self.rotation[2] * self.rotation[2]
         heading = math.atan2((2 * self.rotation[1] * self.rotation[3] -
-                            2 * self.rotation[0] * self.rotation[2]),
-                            1 - 2 * sqy - 2 * sqz)
+                             2 * self.rotation[0] * self.rotation[2]),
+                             1 - 2 * sqy - 2 * sqz)
         attitude = math.asin(2 * test)
         bank = math.atan2((2 * self.rotation[0] * self.rotation[3] -
-                            2 * self.rotation[1] * self.rotation[2]),
-                            1 - 2 * sqx - 2 * sqz)
+                          2 * self.rotation[1] * self.rotation[2]),
+                          1 - 2 * sqx - 2 * sqz)
         return math.degrees(heading), math.degrees(attitude), math.degrees(bank)
 
     def euler_to_quaternion(self, euler):

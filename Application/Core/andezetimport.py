@@ -156,9 +156,9 @@ class MaterialBuilder(object):
 
 class ChainItemBuilder(andesicore.SIModel):
     prim_types = {0: 'Sphere',
-                    1: 'Sphere',
-                    2: 'Cylinder',
-                    4: 'Cube'}
+                  1: 'Sphere',
+                  2: 'Cylinder',
+                  4: 'Cube'}
 
     def __init__(self, model, chainbuilder):
         self.model = model
@@ -181,12 +181,44 @@ class ChainItemBuilder(andesicore.SIModel):
             else:
                 self.build_geo()
         elif self.model.model_type == 'cloth':
-            self.build_null()
+            self.build_cloth()
         else:
             raise MshImportError('Unsupported model type {0} on {1}.'.format(self.model.model_type,
-                                                                        self.model.name))
+                                                                             self.model.name))
         logging.info('Finished building {0}.'.format(self.model.name))
         return self.si_model
+
+    def build_cloth(self):
+        logging.info('Building {0} as cloth(originally {1}).'.format(self.model.name, self.model.model_type))
+        vertex_positions = self.get_vertex_positions()
+        faces = self.get_faces()
+        if self.model.parent_name:
+            parent = self.chainbuilder.name_dict[self.model.parent_name]
+        else:
+            parent = self.xsi.ActiveSceneRoot
+        if not parent:
+            logging.error('Cant find parent {0} for {1}.'.format(self.model.parent_name,
+                                                                 self.model.name))
+        try:
+            self.si_model = parent.AddPolygonMesh(vertex_positions,
+                                                  faces,
+                                                  self.model.name)
+        except com_error:
+            logging.exception('verts: {0}, faces: {1}, name: {2}.'.format(vertex_positions,
+                                                                          faces, self.model.name))
+            self.imp.abort_checklog()
+        self.geo = self.si_model.ActivePrimitive.GetGeometry2(0)
+        if self.model.vis == 1:
+            self.xsi.ToggleVisibility(self.si_model, None, None)
+        if self.model.segments[0].vertices.uved:
+            uvs = self.make_uvs_persample()
+            self.xsi.CreateProjection(self.si_model)
+            self.xsi.FreezeObj(self.si_model)
+            self.set_uvs(0, uvs)
+        else:
+            logging.debug('Model {0} has no UVs.'.format(self.model.name))
+        self.set_transform()
+        self.set_vis()
 
     def build_shadow(self):
         logging.info('Building {0} as shadow(originally {1}).'.format(self.model.name, self.model.model_type))
@@ -202,9 +234,9 @@ class ChainItemBuilder(andesicore.SIModel):
             self.build_null()
             return
         self.si_model = self.xsi.CreatePrim(self.prim_types[self.model.primitive[0]],
-                                    'MeshSurface',
-                                    self.model.name,
-                                    self.model.parent_name)
+                                            'MeshSurface',
+                                            self.model.name,
+                                            self.model.parent_name)
         self.set_transform()
         self.set_vis()
         if self.model.primitive[0] == 0:
@@ -223,8 +255,8 @@ class ChainItemBuilder(andesicore.SIModel):
     def set_prim_scale(self):
         transform = self.si_model.Kinematics.Local.Transform
         transform.SetScalingFromValues(self.model.primitive[1],
-                                        self.model.primitive[2],
-                                        self.model.primitive[3])
+                                       self.model.primitive[2],
+                                       self.model.primitive[3])
         self.si_model.Kinematics.Local.Transform = transform
 
     def build_geo(self):
@@ -237,14 +269,14 @@ class ChainItemBuilder(andesicore.SIModel):
             parent = self.xsi.ActiveSceneRoot
         if not parent:
             logging.error('Cant find parent {0} for {1}.'.format(self.model.parent_name,
-                                                                self.model.name))
+                                                                 self.model.name))
         try:
             self.si_model = parent.AddPolygonMesh(vertex_positions,
-                                                faces,
-                                                self.model.name)
+                                                  faces,
+                                                  self.model.name)
         except com_error:
             logging.exception('verts: {0}, faces: {1}, name: {2}.'.format(vertex_positions,
-                                                                        faces, self.model.name))
+                                                                          faces, self.model.name))
             self.imp.abort_checklog()
         self.geo = self.si_model.ActivePrimitive.GetGeometry2(0)
         if self.model.vis == 1:
@@ -261,7 +293,7 @@ class ChainItemBuilder(andesicore.SIModel):
             self.create_poly_clusters()
         else:
             self.xsi.SIAssignMaterial(self.si_model,
-                self.chainbuilder.materials[self.model.segments[0].material.name])
+                                      self.chainbuilder.materials[self.model.segments[0].material.name])
         if self.model.segments[0].vertices.colored:
             colors = self.make_colors_persample()
             self.xsi.CreateVertexColorSupport('', 'Vertex_Color', [self.si_model])
@@ -274,9 +306,9 @@ class ChainItemBuilder(andesicore.SIModel):
     def make_colors_persample(self):
         numsamples = self.geo.Samples.Count
         colors = [[0.0] * numsamples,
-                    [0.0] * numsamples,
-                    [0.0] * numsamples,
-                    [0.0] * numsamples]
+                 [0.0] * numsamples,
+                 [0.0] * numsamples,
+                 [0.0] * numsamples]
         # Will offset the index by the number of vertices the precedent
         # segments had.
         offset = 0
@@ -324,7 +356,7 @@ class ChainItemBuilder(andesicore.SIModel):
                 sii = face.SIindices()
                 if len(sii) == 4:
                     sii = (sii[0] + offset, sii[1] + offset,
-                            sii[2] + offset, sii[3] + offset)
+                           sii[2] + offset, sii[3] + offset)
                 else:
                     sii = sii[0] + offset, sii[1] + offset, sii[2] + offset
                 faces.extend(sii)
@@ -422,9 +454,9 @@ class ChainItemBuilder(andesicore.SIModel):
 \t\t\t\t\t\tPosition: {1}, {2}, {3};
 \t\t\t\t\t\tRotation: {4}, {5}, {6};
 \t\t\t\t\t\tScale:    {7}, {8}, {9}.'''.format(self.si_model.Name,
-                                    transform.PosX, transform.PosY, transform.PosZ,
-                                    transform.RotX, transform.RotY, transform.RotZ,
-                                    transform.SclX, transform.SclY, transform.SclZ))
+                                               transform.PosX, transform.PosY, transform.PosZ,
+                                               transform.RotX, transform.RotY, transform.RotZ,
+                                               transform.SclX, transform.SclY, transform.SclZ))
 
 
 class ChainBuilder(object):
@@ -446,7 +478,7 @@ class ChainBuilder(object):
         chain = []
         for ind, model in enumerate(coll):
             self.pb.setc('Building {0}({1}/{2})...'.format(model.name,
-                                                            ind, lencoll))
+                                                           ind, lencoll))
             builder = ChainItemBuilder(model, self)
             item = builder.build()
             self.name_dict[model.name] = item
@@ -577,7 +609,7 @@ class Import(andesicore.SIGeneral):
         self.stats = None
         self.pb = andesicore.SIProgressBar()
         logpath = os.path.join(self.xsi.InstallationPath(const.siUserAddonPath),
-                                            'XSIZETools', 'import_log.log')
+                               'XSIZETools', 'import_log.log')
         logging.basicConfig(format='%(levelname)s (%(lineno)d, %(funcName)s): %(message)s',
                             filename=logpath,
                             filemode='w',
@@ -654,9 +686,9 @@ class Import(andesicore.SIGeneral):
         self.pb.set(1, 'Unpacking {0}...'.format(short_path_fin))
         start = dt.now()
         unpacker_config = {'do_logging': self.config.retrieve('log'),
-                            'ignore_geo': self.config.retrieve('ignoregeo'),
-                            'triangulate': self.config.retrieve('triangulate'),
-            'modulepath': os.path.join(self.xsi.InstallationPath(const.siUserAddonPath), 'XSIZETools\\Application\\Modules')}
+                           'ignore_geo': self.config.retrieve('ignoregeo'),
+                           'triangulate': self.config.retrieve('triangulate'),
+                           'modulepath': os.path.join(self.xsi.InstallationPath(const.siUserAddonPath), 'XSIZETools\\Application\\Modules')}
         print self.config.retrieve('path')
         unpacker = msh2_unpack.MSHUnpack(self.config.retrieve('path'), unpacker_config)
         try:
