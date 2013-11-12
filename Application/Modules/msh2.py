@@ -1,3 +1,4 @@
+# -*- encoding: ascii -*-
 #########################################################
 #####                    msh2                       #####
 #####                                               #####
@@ -66,7 +67,7 @@ class Packer(object):
     def pack_string_chunk(self, header, string):
         '''String Chunk(NAME, TX0D...) packer.'''
         data = [header]
-        comp_str = self.pad_string(string)
+        comp_str = self.pad_string(string.encode('ascii'))
         data.append(struct.pack('<L', len(comp_str)))
         data.append(comp_str)
         return ''.join(data)
@@ -106,10 +107,41 @@ class Msh(Packer):
         return True
 
     def save(self, filepath):
-        '''Saves the .msh in ASCII format.'''
-        with open(filepath, 'w') as fh:
-            pass
+        with open(filepath, 'wb') as fh:
+            fh.write(self.pack())
+
+    def save_json(self, filepath):
+        '''Saves the .msh in JSON format.'''
+        data = {
+            'info': self.info.get_json(),
+            'models': self.models.get_json(),
+            'materials': self.materials.get_json(),
+            'has_shadowvolume': self.has_shadowvolume,
+            'animation': None,
+        }
+        with open(filepath, 'wb') as fh:
+            fh.write(json.dumps(data, indent=4, separators=(',', ': ')))
         return True
+
+    @staticmethod
+    def load_json(filepath):
+        data = ''
+        with open(filepath, 'rb') as fh:
+            data = fh.read()
+        data = json.loads(data)
+        msh = Msh()
+        msh.info = SceneInfo.from_json(data['info'], msh)
+        msh.models = ModelCollection.from_json(data['models'], msh)
+        msh.materials = MaterialCollection.from_json(data['materials'], msh)
+        msh.has_shadowvolume = data['has_shadowvolume']
+        for index, material in enumerate(msh.materials):
+            material.index = index
+        for index, model in enumerate(msh.models):
+            model.index = index
+            for seg in model.segments:
+                seg.material = msh.get_mat_by_name(seg.mat_name)
+        msh.animation = Animation(None, 'empty')
+        return msh
 
     def get_mat_by_name(self, name):
         '''Get Material object by name.'''
@@ -192,7 +224,7 @@ class SceneInfo(Packer):
             fileh.write('\tFrameRange: {0}-{1}\n'.format(*self.frame_range))
             fileh.write('\tFPS:        {0}\n'.format(self.fps))
 
-    def get_json(self, fh):
+    def get_json(self):
         data = {
             'name': self.name,
             'frame_range': self.frame_range,
@@ -203,8 +235,9 @@ class SceneInfo(Packer):
         return data
 
     @staticmethod
-    def from_json(data):
+    def from_json(data, msh=None):
         info = SceneInfo()
+        info.msh = msh
         info.name = data['name']
         info.frame_range = data['frame_range']
         info.fps = data['fps']
@@ -320,8 +353,9 @@ class Material(Packer):
         return data
 
     @staticmethod
-    def from_json(data):
+    def from_json(data, collection=None):
         material = Material()
+        material.collection = collection
         material.name = data['name']
         material.index = data['index']
         material.tex0 = data['tex0']
@@ -438,12 +472,16 @@ class MaterialCollection(Packer):
             mat.dump(fh)
 
     def get_json(self):
-        return [mat.get_json() for mat in self.materials]
+        data = {
+            'materials': [mat.get_json() for mat in self.materials],
+        }
+        return data
 
     @staticmethod
-    def from_json(data):
+    def from_json(data, msh=None):
         coll = MaterialCollection()
-        for material_data in data:
+        coll.msh = msh
+        for material_data in data['materials']:
             coll.materials.append(Material.from_json(material_data))
         return coll
 
@@ -530,10 +568,9 @@ class Model(Packer):
         data = {
             'name': self.name,
             'parent': self.parent_name,
-            'index': self.index,
             'model_type': self.model_type,
             'vis': self.vis,
-            'segments': [segment.get_json() for segment in self.segments],
+            'segments': self.segments.get_json(),
             'collprim': self.collprim,
             'primitive': self.primitive,
             'deformers': self.deformers,
@@ -544,21 +581,21 @@ class Model(Packer):
         return data
 
     @staticmethod
-    def from_json(self, data):
+    def from_json(data, collection=None):
         model = Model()
+        model.collection = collection
         model.name = data['name']
         model.parent_name = data['parent']
-        model.index = data['index']
         model.model_type = data['model_type']
         model.vis = data['vis']
-        model.segments = ModelCollection.from_json(data['segments'])
+        model.segments = SegmentCollection.from_json(data['segments'], model)
         model.collprim = data['collprim']
         model.primitive = data['primitive']
         model.deformers = data['deformers']
         model.bbox = BBox.from_json(data['bbox'])
         model.transform = Transform.from_json(data['transform'])
-        if data['bone']:
-            model.bone = Bone.from_json(data['bone'])
+        '''if data['bone']:
+            model.bone = Bone.from_json(data['bone'])'''
         return model
 
     def get_collprim_name(self):
@@ -687,7 +724,7 @@ class Model(Packer):
 
 
 class ModelCollection(object):
-    def __init__(self, msh, models=None):
+    def __init__(self, msh=None, models=None):
         # Ref to Msh.
         if msh:
             self.msh = msh
@@ -701,13 +738,17 @@ class ModelCollection(object):
         self.msh = None
 
     def get_json(self):
-        return [model.get_json() for model in self.models]
+        data = {
+            'models': [m.get_json() for m in self.models]
+        }
+        return data
 
     @staticmethod
-    def from_json(data):
+    def from_json(data, msh=None):
         coll = ModelCollection()
-        for model_data in data:
-            coll.models.append(Model.from_json(model_data))
+        coll.msh = msh
+        for model_data in data['models']:
+            coll.models.append(Model.from_json(model_data, coll))
         return coll
 
     def dump(self, fh):
@@ -802,18 +843,22 @@ class SegmentCollection(object):
         self.msh = None
 
     def get_json(self):
-        return [seg.get_json() for seg in self.segments]
+        data = {
+            'segments': [seg.get_json() for seg in self.segments],
+        }
+        return data
 
     @staticmethod
-    def from_json(data):
+    def from_json(data, model=None):
         coll = SegmentCollection()
+        coll.model = model
         for segment_data in data['segments']:
             if segment_data['type'] == 'SegmentGeometry':
-                coll.segments.append(SegmentGeometry.from_json(segment_data))
+                coll.segments.append(SegmentGeometry.from_json(segment_data, coll))
             elif segment_data['type'] == 'ClothGeometry':
-                coll.segments.append(ClothGeometry.from_json(segment_data))
+                coll.segments.append(ClothGeometry.from_json(segment_data, coll))
             elif segment_data['type'] == 'ShadowGeometry':
-                coll.segments.append(ShadowGeometry.from_json(segment_data))
+                coll.segments.append(ShadowGeometry.from_json(segment_data, coll))
         return coll
 
     def dump(self, fh):
@@ -846,7 +891,7 @@ class SegmentCollection(object):
         mat_names is a list of material names.
         This function splits the segment into multiple
         segments(one per material). The result segments
-        will be used as the .segments of this SegmentColleciton.'''
+        will be used as the .segments of this SegmentCollection.'''
         polies_per_material = self._polies_per_material(poly_mat_inds)
         # Segment to split.
         segm = self.segments[seg_index]
@@ -950,17 +995,18 @@ class SegmentGeometry(Packer):
         data = {
             'type': self.classname,
             'material': self.material.name,
-            'vertices': [vert.get_json() for vert in self.vertices],
-            'faces': [face.get_json() for face in self.faces],
+            'vertices': self.vertices.get_json(),
+            'faces': self.faces.get_json(),
         }
         return data
 
     @staticmethod
-    def from_json(data):
+    def from_json(data, collection=None):
         geo = SegmentGeometry()
+        geo.collection = collection
         geo.mat_name = data['material']
-        geo.vertices = VertexCollection.from_json(data['vertices'])
-        geo.faces = FaceCollection.from_json(data['faces'])
+        geo.vertices = VertexCollection.from_json(data['vertices'], geo)
+        geo.faces = FaceCollection.from_json(data['faces'], geo)
         return geo
 
     def clear_doubles(self):
@@ -1030,8 +1076,9 @@ class ShadowGeometry(Packer):
         return data
 
     @staticmethod
-    def from_json(data):
+    def from_json(data, collection=None):
         geo = ShadowGeometry()
+        geo.collection = collection
         geo.data = data['data']
         return geo
 
@@ -1069,8 +1116,8 @@ class ClothGeometry(Packer):
     def get_json(self):
         data = {
             'type': self.classname,
-            'vertices': [vert.get_json() for vert in self.vertices],
-            'faces': [face.get_json() for face in self.faces],
+            'vertices': ClothVertexCollection.get_json(),
+            'faces': FaceCollection.get_json(),
             'stretch': self.stretch,
             'cross': self.cross,
             'bend': self.bend,
@@ -1079,10 +1126,11 @@ class ClothGeometry(Packer):
         return data
 
     @staticmethod
-    def from_json(data):
+    def from_json(data, collection=None):
         geo = ClothGeometry()
-        geo.vertices = ClothVertexCollection.from_json(data['vertices'])
-        geo.faces = FaceCollection.from_json(data['faces'])
+        geo.collection = collection
+        geo.vertices = ClothVertexCollection.from_json(data['vertices'], geo)
+        geo.faces = FaceCollection.from_json(data['faces'], geo)
         geo.stretch = data['stretch']
         geo.cross = data['cross']
         geo.bend = data['bend']
@@ -1219,8 +1267,9 @@ class Face(object):
         return data
 
     @staticmethod
-    def from_json(data):
+    def from_json(data, collection=None):
         face = Face()
+        face.collection = collection
         face.vertices = data['vertices']
         return face
 
@@ -1258,32 +1307,52 @@ class Face(object):
     def pack(self):
         '''Packs the vertex indices for the STRP chunk.'''
         index_map = self.collection.segment.index_map
-        if self.sides == 4:
+        if (self.sides == 4) and (index_map is not None):
             return struct.pack('<HHHH', index_map[self.vertices[0]] + 0x8000,
-                                        index_map[self.vertices[1]] + 0x8000,
-                                        index_map[self.vertices[2]],
-                                        index_map[self.vertices[3]])
-        elif self.sides == 3:
+                               index_map[self.vertices[1]] + 0x8000,
+                               index_map[self.vertices[2]],
+                               index_map[self.vertices[3]])
+        elif (self.sides == 3) and (index_map is not None):
             return struct.pack('<HHH', index_map[self.vertices[0]] + 0x8000,
-                                        index_map[self.vertices[1]] + 0x8000,
-                                        index_map[self.vertices[2]])
+                               index_map[self.vertices[1]] + 0x8000,
+                               index_map[self.vertices[2]])
+        elif (self.sides == 4) and (index_map is None):
+            return struct.pack('<HHHH', self.vertices[0] + 0x8000,
+                               self.vertices[1] + 0x8000,
+                               self.vertices[2],
+                               self.vertices[3])
+        elif (self.sides == 3) and (index_map is None):
+            return struct.pack('<HHH', self.vertices[0] + 0x8000,
+                               self.vertices[1] + 0x8000,
+                               self.vertices[2])
         else:
             return ''
 
     def pack_tris(self):
         '''Packs the vertex indices as tris for the CMSH chunk.'''
         index_map = self.collection.segment.index_map
-        if self.sides == 4:
+        if (self.sides == 4) and (index_map is not None):
             return (struct.pack('<LLL', index_map[self.vertices[0]],
-                                        index_map[self.vertices[1]],
-                                        index_map[self.vertices[2]]),
+                    index_map[self.vertices[1]],
+                    index_map[self.vertices[2]]),
                     struct.pack('<LLL', index_map[self.vertices[0]],
-                                        index_map[self.vertices[2]],
-                                        index_map[self.vertices[3]]))
-        elif self.sides == 3:
+                                index_map[self.vertices[2]],
+                                index_map[self.vertices[3]]))
+        elif (self.sides == 3) and (index_map is not None):
             return (struct.pack('<LLL', index_map[self.vertices[0]],
-                                        index_map[self.vertices[1]],
-                                        index_map[self.vertices[2]]),)
+                                index_map[self.vertices[1]],
+                                index_map[self.vertices[2]]),)
+        elif (self.sides == 4) and (index_map is None):
+            return (struct.pack('<LLL', self.vertices[0],
+                    self.vertices[1],
+                    self.vertices[2]),
+                    struct.pack('<LLL', self.vertices[0],
+                                self.vertices[2],
+                                self.vertices[3]))
+        elif (self.sides == 3) and (index_map is None):
+            return (struct.pack('<LLL', self.vertices[0],
+                                self.vertices[1],
+                                self.vertices[2]),)
         else:
             return ()
 
@@ -1320,12 +1389,16 @@ class FaceCollection(object):
         self.classname = 'FaceCollection'
 
     def get_json(self):
-        return [face.get_json() for face in self.faces]
+        data = {
+            'faces': [face.get_json() for face in self.faces],
+        }
+        return data
 
     @staticmethod
-    def from_json(data):
+    def from_json(data, segment=None):
         coll = FaceCollection()
-        coll.faces = [Face.from_json(face_data) for face_data in data]
+        coll.segment = segment
+        coll.faces = [Face.from_json(face_data, coll) for face_data in data['faces']]
         return coll
 
     def get_faces(self):
@@ -1473,7 +1546,7 @@ class FaceCollection(object):
 
 
 class Vertex(object):
-    def __init__(self, pos, normal=None, coll=None):
+    def __init__(self, pos=(0, 0, 0), normal=None, coll=None):
         # Reference to parent(VertexCollection).
         if coll:
             self.collection = coll
@@ -1508,6 +1581,18 @@ class Vertex(object):
             'color': self.color.get_json()
         }
         return data
+
+    @staticmethod
+    def from_json(data, coll=None):
+        vert = Vertex()
+        vert.collection = coll
+        vert.pos = data['position']
+        vert.normal = data['normal']
+        vert.uv = data['uv']
+        vert.color = Color.from_json(data['color'])
+        vert.deformers = data['deformers']
+        vert.weights = data['weights']
+        return vert
 
     def dump(self, fh):
         fh.write('\t\tVERTEX\n')
@@ -1583,6 +1668,26 @@ class VertexCollection(object):
         self.colored = False
         self.weighted = False
         self.uved = False
+
+    def get_json(self):
+        data = {
+            'vertices': [v.get_json() for v in self.vertices],
+            'colored': self.colored,
+            'weighted': self.weighted,
+            'uved': self.uved,
+        }
+        return data
+
+    @staticmethod
+    def from_json(data, segment=None):
+        coll = VertexCollection()
+        coll.segment = segment
+        for vdata in data['vertices']:
+            coll.vertices.append(Vertex.from_json(vdata, coll))
+        coll.colored = data['colored']
+        coll.weighted = data['weighted']
+        coll.uved = data['uved']
+        return coll
 
     def dump(self, fh):
         for v in self.vertices:
@@ -1731,6 +1836,25 @@ class ClothVertex(object):
         self.deformer = ''
         self.is_fixed = False
 
+    def get_json(self):
+        data = {
+            'position': self.pos,
+            'uv': self.uv,
+            'deformer': self.deformer,
+            'is_fixed': self.is_fixed,
+        }
+        return data
+
+    @staticmethod
+    def from_json(data, collection=None):
+        v = ClothVertex()
+        v.collection = collection
+        v.pos = data['position']
+        v.uv = data['uv']
+        v.deformer = data['deformer']
+        v.is_fixed = data['is_fixed']
+        return v
+
     @property
     def pos(self):
         return self.x, self.y, self.z
@@ -1768,6 +1892,21 @@ class ClothVertexCollection(Packer):
             self.vertices = []
         self.classname = 'ClothVertexCollection'
         self.uved = True
+
+    def get_json(self):
+        data = {
+            'vertices': [v.get_json() for v in self.vertices],
+            'uved': self.uved,
+        }
+        return data
+
+    @staticmethod
+    def from_json(data, segment=None):
+        coll = ClothVertexCollection()
+        coll.segment = segment
+        coll.uved = data['uved']
+        coll.vertices = [ClothVertex.from_json(vdata, coll) for vdata in data['vertices']]
+        return coll
 
     def add(self, vert):
         '''Adds a vertex to the collection and sets its
@@ -2075,6 +2214,24 @@ class BBox(object):
         self.radius = 6.92
         self.classname = 'BBox'
 
+    def get_json(self):
+        data = {
+            'rotation': self.rotation,
+            'extents': self.extents,
+            'center': self.center,
+            'radius': self.radius,
+        }
+        return data
+
+    @staticmethod
+    def from_json(data):
+        b = BBox()
+        b.rotation = data['rotation']
+        b.extents = data['extents']
+        b.center = data['center']
+        b.radius = data['radius']
+        return b
+
     def pack(self):
         data = ['BBOX', struct.pack('<L', 44)]
         data.append(struct.pack('<ffff', *self.rotation))
@@ -2097,6 +2254,26 @@ class Color(object):
             self.blue = 128
             self.alpha = 255
         self.classname = 'Color'
+
+    def get_json(self):
+        data = {
+            'rgba': self.rgba,
+        }
+        return data
+
+    @staticmethod
+    def from_json(data):
+        col = Color()
+        col.rgba = data['rgba']
+        return col
+
+    @property
+    def rgba(self):
+        return self.red, self.green, self.blue, self.alpha
+
+    @rgba.setter
+    def rgba(self, value):
+        self.red, self.green, self.blue, self.alpha = value
 
     def get_f(self):
         if isinstance(self.red, float):
@@ -2154,6 +2331,22 @@ class Transform(object):
         else:
             self.scale = 1.0, 1.0, 1.0
         self.classname = 'Transform'
+
+    def get_json(self):
+        data = {
+            'position': self.translation,
+            'rotation': self.rotation,
+            'scale': self.scale,
+        }
+        return data
+
+    @staticmethod
+    def from_json(data):
+        tr = Transform()
+        tr.translation = data['position']
+        tr.rotation = data['rotation']
+        tr.scale = data['scale']
+        return tr
 
     def __str__(self):
         return 'Pos({0}), Rot({1}), Scl({2})'.format(', '.join([str(i) for i in self.translation]),

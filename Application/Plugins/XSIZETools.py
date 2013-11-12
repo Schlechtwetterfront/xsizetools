@@ -39,6 +39,7 @@ def XSILoadPlugin(in_reg):
     in_reg.RegisterCommand('ClothCreate', 'ClothCreate')
     in_reg.RegisterCommand('EditCloth', 'EditCloth')
     in_reg.RegisterCommand('OpenImportLog', 'OpenImportLog')
+    in_reg.RegisterCommand('MshJson', 'MshJson')
 
     in_reg.RegisterEvent('ZEToolsStartupEvent', const.siOnStartup)
     in_reg.RegisterTimerEvent('ZEToolsDelayedStartupEvent', 0, 1000)
@@ -94,6 +95,7 @@ def ZETools_Init(in_ctxt):
     sub_menu.AddCommandItem('Manage Materials...', 'MaterialEdit')
     sub_menu.AddCommandItem('Create Cloth...', 'ClothCreate')
     sub_menu.AddCommandItem('Edit Cloth...', 'EditCloth')
+    sub_menu.AddCommandItem('MSH to TXT...', 'MshJson')
     sub_menu2 = win32com.client.Dispatch(oMenu.AddItem('General Tools', const.siMenuItemSubmenu))
     sub_menu2.AddCommandItem('Info...', 'ZETHelp')
     sub_menu2.AddCommandItem('Open Import Log', 'OpenImportLog')
@@ -829,6 +831,56 @@ def EditCloth_Execute():
         uitk.MsgBox('No Model selected.')
         return
     edit_prop(xsi.Selection(0))
+
+
+def MshJson_Init(in_ctxt):
+    oCmd = in_ctxt.Source
+    oCmd.Description = ''
+    oCmd.ReturnValue = True
+    return True
+
+
+def MshJson_Execute():
+    for x in xsi.ActiveSceneRoot.Properties:
+        if x.Name == 'MshText':
+            xsi.DeleteObj('MshText')
+
+    pS = xsi.ActiveSceneRoot.AddProperty('CustomProperty', False, 'MshText')
+    pS.AddParameter3('mshpath', const.siString, 'C:\\Users\\Administrator\\Documents\\')
+    pS.AddParameter3('txtpath', const.siString, 'C:\\Users\\Administrator\\Documents\\')
+
+    mLay = pS.PPGLayout
+    mLay.SetAttribute(const.siUILogicFile, ADDONPATH + '\\XSIZETools\\Application\\Logic\\mshjson.py')
+    mLay.Language = 'pythonscript'
+
+    mLay.AddGroup('MSH Text', 1)
+
+    mshPathI = mLay.AddItem('mshpath', 'MSH File', const.siControlFilePath)
+    mshPathI.SetAttribute(const.siUINoLabel, 0)
+    mshPathI.SetAttribute(const.siUIFileFilter, 'MSH File (*.msh)|*.msh')
+    mshPathI.SetAttribute(const.siUIOpenFile, False)
+    mshPathI.SetAttribute(const.siUIFileMustExist, False)
+
+    txtPathI = mLay.AddItem('txtpath', 'TXT File', const.siControlFilePath)
+    txtPathI.SetAttribute(const.siUINoLabel, 0)
+    txtPathI.SetAttribute(const.siUIFileFilter, 'TXT File (*.txt)|*.txt')
+    txtPathI.SetAttribute(const.siUIOpenFile, False)
+    txtPathI.SetAttribute(const.siUIFileMustExist, False)
+
+    mLay.AddRow()
+    mLay.AddButton('msh2txt', 'MSH to TXT')
+    mLay.AddButton('txt2msh', 'TXT to MSH')
+    mLay.EndRow()
+
+    mLay.EndGroup()
+
+    desk = xsi.Desktop.ActiveLayout
+    view = desk.CreateView('Property Panel', 'MSH Export')
+    view.BeginEdit()
+    view.Resize(400, 120)
+    view.SetAttributeValue('targetcontent', pS.FullName)
+    view.EndEdit()
+    return True
 
 #############################################################################################
 #############################################################################################
