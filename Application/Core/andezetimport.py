@@ -11,15 +11,15 @@
 import os
 import sys
 import logging
+reload(logging)
 import andesicore
+reload(andesicore)
 from pythoncom import com_error
 import msh2
-import msh2_unpack
-from msh2_crc import CRCError
-reload(logging)
-reload(andesicore)
 reload(msh2)
+import msh2_unpack
 reload(msh2_unpack)
+from msh2_crc import CRCError
 from datetime import datetime as dt
 import win32com
 from win32com.client import constants as const
@@ -569,8 +569,16 @@ class Enveloper(object):
             if not model:
                 logging.debug('No msh2 Model found for {0}, continuing.'.format(item.Name))
                 continue
-            if model.model_type == 'cloth':
-                logging.debug('Model is cloth, continuing with next Model.')
+            if (model.model_type == 'cloth') and (model.deformers):
+                logging.debug('Model is cloth, trying some stuff.')
+                deformers = self.imp.get_objects_by_name(model.deformers)
+                coll = xsifact.CreateObject('XSI.Collection')
+                coll.AddItems(deformers)
+                item.ApplyEnvelope(coll)
+                weights = self.make_cloth_weights(model)
+                simd = andesicore.SIModel(item)
+                simd.set_weights(0, weights)
+                logging.info('Finished enveloping {0}.'.format(item.Name))
                 continue
             if not model.deformers:
                 logging.debug('No deformers for msh2 Model {0}, continuing.'.format(model.name))
@@ -584,6 +592,22 @@ class Enveloper(object):
             simd.set_weights(0, weights)
             logging.info('Finished enveloping {0}.'.format(item.Name))
         logging.info('Finished enveloping.')
+
+    def make_cloth_weights(self, model):
+        weights = []
+        num_deformers = len(model.deformers)
+        segment = model.segments[0]
+        for n in xrange(num_deformers):
+            weights.append([0.0] * len(segment.vertices))
+        for vind, vert in enumerate(segment.vertices):
+            if vert.deformer:
+                deformer_index = model.deformers.index(vert.deformer)
+                logging.debug('Vert: {0} - {1} - {2}'.format(vind, vert.deformer, deformer_index))
+                weights[deformer_index][vind] = 100
+            else:
+                weights[0][vind] = 100
+        logging.debug('Created weights for {0} cloth points.'.format(len(weights[0])))
+        return weights
 
     def make_weights(self, model):
         weights = []
@@ -672,7 +696,7 @@ class Import(andesicore.SIGeneral):
         '''Actual import function.'''
         # Disable logging temporarily.
         print self.config.retrieve('path')
-        logging.info('Starting import.')
+        logging.info('Starting import at {0}.'.format(dt.now()))
         logging.info('.msh file path: {0}'.format(self.config.retrieve('path')))
         prefs = self.xsi.Preferences
         originalcmd = prefs.GetPreferenceValue('scripting.cmdlog')

@@ -11,18 +11,19 @@
 import msh2
 reload(msh2)
 from struct import unpack as unpack
+import logging
 
 STR_CODEC = 'utf-8'
 CHUNK_LIST = ['HEDR', 'SHVO', 'MSH2',
-                'SINF', 'FRAM', 'CAMR',
-                'MATL', 'DATA', 'MATD', 'ATRB', 'TX0D', 'TX1D', 'TX2D', 'TX3D',
-                'MODL', 'MTYP', 'MNDX', 'PRNT', 'FLGS', 'TRAN', 'ENVL', 'SWCI',
-                'GEOM', 'SEGM', 'SHDW', 'MATI', 'POSL', 'NRML', 'UV0L', 'CLRL',
-                    'CLRB', 'WGHT', 'NDXL', 'NDXT', 'STRP',
-                'CLTH', 'CTEX', 'CPOS', 'CUV0', 'FIDX', 'FWGT', 'SPRS', 'CPRS',
-                    'BPRS', 'COLL',
-                'SKL2', 'BLN2', 'ANM2', 'CYCL', 'KFR3',
-                'NAME', 'BBOX', 'CL1L']
+              'SINF', 'FRAM', 'CAMR',
+              'MATL', 'DATA', 'MATD', 'ATRB', 'TX0D', 'TX1D', 'TX2D', 'TX3D',
+              'MODL', 'MTYP', 'MNDX', 'PRNT', 'FLGS', 'TRAN', 'ENVL', 'SWCI',
+              'GEOM', 'SEGM', 'SHDW', 'MATI', 'POSL', 'NRML', 'UV0L', 'CLRL',
+              'CLRB', 'WGHT', 'NDXL', 'NDXT', 'STRP',
+              'CLTH', 'CTEX', 'CPOS', 'CUV0', 'FIDX', 'FWGT', 'SPRS', 'CPRS',
+              'BPRS', 'COLL',
+              'SKL2', 'BLN2', 'ANM2', 'CYCL', 'KFR3',
+              'NAME', 'BBOX', 'CL1L']
 
 
 class UnpackError(Exception):
@@ -38,6 +39,12 @@ class Unpacker(object):
         return data[:4], unpack('<L', data[4:])[0]
 
     def unpack_str(self, data):
+        pass
+
+    def log(self, text):
+        logging.debug(text)
+
+    def dont_log(self, *text):
         pass
 
 
@@ -64,12 +71,6 @@ class MSHUnpack(Unpacker):
         self.config = config
         if not config['do_logging']:
             self.log = self.dont_log
-
-    def log(self, text):
-        print text
-
-    def dont_log(self, *text):
-        pass
 
     def unpack(self):
         with open(self.mshfile, 'rb') as mf:
@@ -254,10 +255,10 @@ class ClothUnpacker(Unpacker):
 
     def unpack(self):
         self.log('Unpacking Cloth.')
+        fixed = []
         while True:
             hdr, size = self.unpack_header(self.fh.read(8))
-            self.log('Cloth: Header, Size: {0}, {1}'.format(hdr, size))
-            fixed = []
+            logging.debug('Cloth: Header, Size: {0}, {1}'.format(hdr, size))
             if hdr == 'CTEX':
                 self.seg.texture = self.fh.read(size).strip('\x00').encode(STR_CODEC)
             elif hdr == 'CPOS':
@@ -279,8 +280,13 @@ class ClothUnpacker(Unpacker):
                     fixed.append(index)
                     self.seg.vertices[index].is_fixed = True
             elif hdr == 'FWGT':
-                weights = self.fh.read(size).split('\x00')
+                self.fh.read(4)  # Number of points.
+                weights = self.fh.read(size - 4).split('\x00')
+                logging.debug('Cloth Deformers: {0}'.format(weights))
+                logging.debug('Cloth Fixed Points: {0}'.format(len(fixed)))
+                weights.remove('')
                 for index, vertindex in enumerate(fixed):
+                    #logging.debug('Cloth Vertex Deformer: {0}'.format(self.seg.vertices[vertindex].deformer))
                     self.seg.vertices[vertindex].deformer = weights[index]
             elif hdr == 'CMSH':
                 num = unpack('<L', self.fh.read(4))[0]

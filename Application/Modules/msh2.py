@@ -13,23 +13,25 @@ reload(msh2_crc)
 import itertools
 import struct
 import math
+import logging
+import json
 
 
 MODEL_TYPES = {'null': 0,
-                'geodynamic': 1,
-                'cloth': 2,
-                'bone': 3,
-                'geobone': 3,
-                'geostatic': 4,
-                'geoshadow': 6}
+               'geodynamic': 1,
+               'cloth': 2,
+               'bone': 3,
+               'geobone': 3,
+               'geostatic': 4,
+               'geoshadow': 6}
 
 MODEL_TYPES_INT = ['null',
-                    'geodynamic',
-                    'cloth',
-                    'bone',
-                    'geostatic',
-                    '',
-                    'geoshadow']
+                   'geodynamic',
+                   'cloth',
+                   'bone',
+                   'geostatic',
+                   '',
+                   'geoshadow']
 
 
 class MSH2Error(Exception):
@@ -101,6 +103,12 @@ class Msh(Packer):
             self.info.dump(fh)
             self.materials.dump(fh)
             self.models.dump(fh)
+        return True
+
+    def save(self, filepath):
+        '''Saves the .msh in ASCII format.'''
+        with open(filepath, 'w') as fh:
+            pass
         return True
 
     def get_mat_by_name(self, name):
@@ -183,6 +191,26 @@ class SceneInfo(Packer):
             fileh.write('\tSceneName:  {0}\n'.format(self.name))
             fileh.write('\tFrameRange: {0}-{1}\n'.format(*self.frame_range))
             fileh.write('\tFPS:        {0}\n'.format(self.fps))
+
+    def get_json(self, fh):
+        data = {
+            'name': self.name,
+            'frame_range': self.frame_range,
+            'fps': self.fps,
+            'scale': self.scale,
+            'bbox': self.bbox.get_json()
+        }
+        return data
+
+    @staticmethod
+    def from_json(data):
+        info = SceneInfo()
+        info.name = data['name']
+        info.frame_range = data['frame_range']
+        info.fps = data['fps']
+        info.scale = data['scale']
+        info.bbox = BBox.from_json(data['bbox'])
+        return info
 
     def pack(self):
         '''Packs the scene information data.'''
@@ -271,6 +299,44 @@ class Material(Packer):
         fh.write('\t\tSpecular:   {0}\n'.format(self.spec_color))
         fh.write('\t\tAmbient:    {0}\n'.format(self.ambt_color))
         fh.write('\t\tGloss:      {0}\n'.format(self.gloss))
+
+    def get_json(self):
+        data = {
+            'name': self.name,
+            'index': self.index,
+            'tex0': self.tex0,
+            'tex1': self.tex1,
+            'tex2': self.tex2,
+            'tex3': self.tex3,
+            'flags': self.flags,
+            'render_type': self.render_type,
+            'data0': self.data0,
+            'data1': self.data1,
+            'diffuse': self.diff_color.get_json(),
+            'specular': self.spec_color.get_json(),
+            'ambient': self.ambt_color.get_json(),
+            'gloss': self.gloss,
+        }
+        return data
+
+    @staticmethod
+    def from_json(data):
+        material = Material()
+        material.name = data['name']
+        material.index = data['index']
+        material.tex0 = data['tex0']
+        material.tex1 = data['tex1']
+        material.tex2 = data['tex2']
+        material.tex3 = data['tex3']
+        material.flags = data['flags']
+        material.render_type = data['render_type']
+        material.data0 = data['data0']
+        material.data1 = data['data1']
+        material.diff_color = Color.from_json(data['diffuse'])
+        material.spec_color = Color.from_json(data['specular'])
+        material.ambt_color = Color.from_json(data['ambient'])
+        material.gloss = data['gloss']
+        return material
 
     @property
     def ATRB(self):
@@ -371,6 +437,16 @@ class MaterialCollection(Packer):
         for mat in self.materials:
             mat.dump(fh)
 
+    def get_json(self):
+        return [mat.get_json() for mat in self.materials]
+
+    @staticmethod
+    def from_json(data):
+        coll = MaterialCollection()
+        for material_data in data:
+            coll.materials.append(Material.from_json(material_data))
+        return coll
+
     def add(self, material):
         '''Add Material to the collection and set
         collection attribute.'''
@@ -449,6 +525,41 @@ class Model(Packer):
         self.transform = Transform()
         self.bone = None
         self.msh = None
+
+    def get_json(self):
+        data = {
+            'name': self.name,
+            'parent': self.parent_name,
+            'index': self.index,
+            'model_type': self.model_type,
+            'vis': self.vis,
+            'segments': [segment.get_json() for segment in self.segments],
+            'collprim': self.collprim,
+            'primitive': self.primitive,
+            'deformers': self.deformers,
+            'bbox': self.bbox.get_json(),
+            'transform': self.transform.get_json(),
+            'bone': self.bone,
+        }
+        return data
+
+    @staticmethod
+    def from_json(self, data):
+        model = Model()
+        model.name = data['name']
+        model.parent_name = data['parent']
+        model.index = data['index']
+        model.model_type = data['model_type']
+        model.vis = data['vis']
+        model.segments = ModelCollection.from_json(data['segments'])
+        model.collprim = data['collprim']
+        model.primitive = data['primitive']
+        model.deformers = data['deformers']
+        model.bbox = BBox.from_json(data['bbox'])
+        model.transform = Transform.from_json(data['transform'])
+        if data['bone']:
+            model.bone = Bone.from_json(data['bone'])
+        return model
 
     def get_collprim_name(self):
         return self.collprim_by_index[self.primitive[0]]
@@ -589,6 +700,16 @@ class ModelCollection(object):
             self.models = []
         self.msh = None
 
+    def get_json(self):
+        return [model.get_json() for model in self.models]
+
+    @staticmethod
+    def from_json(data):
+        coll = ModelCollection()
+        for model_data in data:
+            coll.models.append(Model.from_json(model_data))
+        return coll
+
     def dump(self, fh):
         '''Dump information to open filehandler fh.'''
         fh.write('--- ModelCollection ---\n')
@@ -631,7 +752,9 @@ class ModelCollection(object):
         '''Get model.index for model with name modelname.'''
         for model in self.models:
             if model.name == modelname:
+                logging.debug('ModelCollection.get_index: {0} - {1}'.format(model.name, model.index))
                 return model.index
+        return 0
 
     def by_name(self, name):
         '''Get model by name.'''
@@ -677,6 +800,21 @@ class SegmentCollection(object):
         else:
             self.segments = []
         self.msh = None
+
+    def get_json(self):
+        return [seg.get_json() for seg in self.segments]
+
+    @staticmethod
+    def from_json(data):
+        coll = SegmentCollection()
+        for segment_data in data['segments']:
+            if segment_data['type'] == 'SegmentGeometry':
+                coll.segments.append(SegmentGeometry.from_json(segment_data))
+            elif segment_data['type'] == 'ClothGeometry':
+                coll.segments.append(ClothGeometry.from_json(segment_data))
+            elif segment_data['type'] == 'ShadowGeometry':
+                coll.segments.append(ShadowGeometry.from_json(segment_data))
+        return coll
 
     def dump(self, fh):
         '''Dump information to open filehandler fileh.'''
@@ -808,6 +946,23 @@ class SegmentGeometry(Packer):
         self.msh = None
         self.index_map = None
 
+    def get_json(self):
+        data = {
+            'type': self.classname,
+            'material': self.material.name,
+            'vertices': [vert.get_json() for vert in self.vertices],
+            'faces': [face.get_json() for face in self.faces],
+        }
+        return data
+
+    @staticmethod
+    def from_json(data):
+        geo = SegmentGeometry()
+        geo.mat_name = data['material']
+        geo.vertices = VertexCollection.from_json(data['vertices'])
+        geo.faces = FaceCollection.from_json(data['faces'])
+        return geo
+
     def clear_doubles(self):
         print 'clearing doubles'
         self.index_map = dict()
@@ -867,6 +1022,19 @@ class ShadowGeometry(Packer):
         self.classname = 'ShadowGeometry'
         self.data = ''
 
+    def get_json(self):
+        data = {
+            'type': self.classname,
+            'data': self.data,
+        }
+        return data
+
+    @staticmethod
+    def from_json(data):
+        geo = ShadowGeometry()
+        geo.data = data['data']
+        return geo
+
     def dump(self, fh):
         '''Dump information to open filehandler fileh.'''
         fh.write('\t\t\t--- ShadowGeometry ---\n')
@@ -897,6 +1065,29 @@ class ClothGeometry(Packer):
         self.cross = ''
         self.bend = ''
         self.collision = ''
+
+    def get_json(self):
+        data = {
+            'type': self.classname,
+            'vertices': [vert.get_json() for vert in self.vertices],
+            'faces': [face.get_json() for face in self.faces],
+            'stretch': self.stretch,
+            'cross': self.cross,
+            'bend': self.bend,
+            'collision': self.collision,
+        }
+        return data
+
+    @staticmethod
+    def from_json(data):
+        geo = ClothGeometry()
+        geo.vertices = ClothVertexCollection.from_json(data['vertices'])
+        geo.faces = FaceCollection.from_json(data['faces'])
+        geo.stretch = data['stretch']
+        geo.cross = data['cross']
+        geo.bend = data['bend']
+        geo.collision = data['collision']
+        return geo
 
     def dump(self, fh):
         '''Dump information to open filehandler fileh.'''
@@ -1021,6 +1212,18 @@ class Face(object):
             self.collection = None
         self.classname = 'Face'
 
+    def get_json(self):
+        data = {
+            'vertices': self.vertices,
+        }
+        return data
+
+    @staticmethod
+    def from_json(data):
+        face = Face()
+        face.vertices = data['vertices']
+        return face
+
     def replace(self, verts):
         '''Replaces the local vertices list with a new one.'''
         self.vertices = verts
@@ -1115,6 +1318,15 @@ class FaceCollection(object):
         else:
             self.segment = None
         self.classname = 'FaceCollection'
+
+    def get_json(self):
+        return [face.get_json() for face in self.faces]
+
+    @staticmethod
+    def from_json(data):
+        coll = FaceCollection()
+        coll.faces = [Face.from_json(face_data) for face_data in data]
+        return coll
 
     def get_faces(self):
         '''Returns faces as vertex indices.'''
@@ -1285,6 +1497,17 @@ class Vertex(object):
         self.deformers = ['none', 'none', 'none', 'none']
         self.deformer_indices = [0, 0, 0, 0]
         self.weights = [1.0, 0.0, 0.0, 0.0]
+
+    def get_json(self):
+        data = {
+            'position': self.pos,
+            'uv': self.uv,
+            'normal': self.normal,
+            'deformers': self.deformers,
+            'weights': self.weights,
+            'color': self.color.get_json()
+        }
+        return data
 
     def dump(self, fh):
         fh.write('\t\tVERTEX\n')
