@@ -1009,15 +1009,25 @@ class SegmentGeometry(Packer):
         geo.faces = FaceCollection.from_json(data['faces'], geo)
         return geo
 
-    def clear_doubles(self):
-        print 'clearing doubles'
+    def clear_doubles(self, positions=None, normals=None):
+        '''Clears Vertices appearing more than once.'''
         self.index_map = dict()
         new_vertices = []
         len_new_verts = 0
         for index, vert in enumerate(self.vertices):
             index_original = None
+            if positions:
+                # Replace the normal.
+                vert_index = None
+                try:
+                    vert_index = positions.index(vert.pos)
+                except ValueError:
+                    pass
+                if vert_index:
+                    vert.normal = normals[vert_index]
             try:
                 index_original = new_vertices.index(vert)
+                print 'Original: {0}; Double: {1}'.format(new_vertices[index_original].normal, vert.normal)
             except ValueError:
                 #print 'ValueError', vert
                 pass

@@ -361,11 +361,18 @@ class ModelConverter(andesicore.SIModel):
         return seg
 
     def clear_multiverts(self, collection):
+        positions = []
+        normals = []
+        for point in self.geo.Points:
+            pos = point.Position
+            normal = point.Normal
+            positions.append((pos.X, pos.Y, pos.Z))
+            normals.append((normal.X, normal.Y, normal.Z))
         for segment in collection:
             self.export.xsi.LogMessage('One Segment.')
             if isinstance(segment, msh2.SegmentGeometry):
                 self.export.xsi.LogMessage('Clearing Doubles.')
-                segment.clear_doubles()
+                segment.clear_doubles(positions, normals)
 
     def get_segments(self):
         '''Creates segments from the main geometry and returns them in
