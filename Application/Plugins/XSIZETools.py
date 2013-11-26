@@ -11,7 +11,6 @@
 import win32com.client
 from win32com.client import constants as const
 import sys
-import os, inspect
 from datetime import datetime
 tt = datetime.now
 
@@ -20,6 +19,26 @@ uitk = XSIUIToolkit
 utils = XSIUtils
 
 ADDONPATH = xsi.InstallationPath(const.siUserAddonPath)
+
+
+def add_to_path():
+    orig_path = get_origin()
+    corepath = utils.BuildPath(orig_path, 'Application', 'Core')
+    if corepath not in sys.path:
+        sys.path.append(corepath)
+    modpath = utils.BuildPath(orig_path, 'Application', 'Modules')
+    if modpath not in sys.path:
+        sys.path.append(modpath)
+
+
+def get_origin():
+    orig_path = ''
+    plugins = xsi.Plugins
+    for p in plugins:
+        #print p.Name
+        if p.Name == 'XSIZETools':
+            orig_path = p.OriginPath[:-20]
+    return orig_path
 
 
 def XSILoadPlugin(in_reg):
@@ -46,12 +65,7 @@ def XSILoadPlugin(in_reg):
     eventtimer = xsi.EventInfos('ZEToolsDelayedStartupEvent')
     eventtimer.Mute = True
 
-    corepath = utils.BuildPath(ADDONPATH, 'XSIZETools', 'Application', 'Core').encode('utf-8')
-    if corepath not in sys.path:
-        sys.path.append(corepath)
-    modpath = utils.BuildPath(ADDONPATH, 'XSIZETools', 'Application', 'Modules').encode('utf-8')
-    if modpath not in sys.path:
-        sys.path.append(modpath)
+    add_to_path()
     return True
 
 
@@ -88,7 +102,7 @@ Try to move ZETools to the right dir?'''.format(p.OriginPath, ADDONPATH), 4) == 
 def ZETools_Init(in_ctxt):
     #define Menu
     oMenu = in_ctxt.Source
-    oMenu.AddCommandItem('ZETools...', 'XSIZETools')
+    oMenu.AddCommandItem('Scripts...', 'XSIZETools')
     oMenu.AddCommandItem('Export .MSH...', 'MSHExport')
     oMenu.AddCommandItem('Import .MSH...', 'MSHImport')
     sub_menu = win32com.client.Dispatch(oMenu.AddItem('.MSH Tools', const.siMenuItemSubmenu))
@@ -111,233 +125,65 @@ def XSIZETools_Init(in_ctxt):
 
 
 def XSIZETools_Execute():
-    # Just for now.
-    uitk.MsgBox('''Currently being reworked and thus not available.
-    Check https://github.com/Schlechtwetterfront/xsizetools for the latest full release.''')
-    return
+    from andesicore import Softimage
 
-    ppgname = 'ZETools'  # custom property name
+    ppgname = 'ZEScripts'  # custom property name
     for x in xsi.ActiveSceneRoot.Properties:
         if x.Name == ppgname:
             xsi.DeleteObj(ppgname)
 
-    #variables for template storage
-    boneL = getBoneList()
-    #printBL(boneL)
-    bones = boneL
-    charTemplates = []
-    vehTemplates = []
-    weapTemplates = []
-    ctc = 0
-    vtc = 0
-    wtc = 0
-    #get templates from templates file
-    templateFile = open(str(ADDONPATH + '\\XSIZETools\\Resources\\Templates\\templates.tcnt'), 'r')
-    for line in templateFile:
-        if line[:1] == '#':
-            pass
-        elif line[:1] == 'c':
-            ctc += 1
-            charTemplates.append(line[2:])
-            charTemplates.append(ctc)
-        elif line[:1] == 'v':
-            vtc += 1
-            vehTemplates.append(line[2:])
-            vehTemplates.append(vtc)
-        elif line[:1] == 'w':
-            wtc += 1
-            weapTemplates.append(line[2:])
-            weapTemplates.append(wtc)
-    templateFile.close()
-
-    if ctc == 0:
-        charTemplates.append('No templates found.')
-        charTemplates.append(1)
-    elif vtc == 0:
-        vehTemplates.append('No templates found.')
-        vehTemplates.append(1)
-    elif wtc == 0:
-        weapTemplates.append('No templates found.')
-        weapTemplates.append(1)
-
     #create custom property
-    oPSet = xsi.ActiveSceneRoot.AddProperty('CustomProperty', False, ppgname)
+    property_set = xsi.ActiveSceneRoot.AddProperty('CustomProperty', False, ppgname)
 
-    ##define lots of parameters##
-    oPSet.AddParameter3('fireNodeNum', const.siInt4, 1, 0, 15, False)
-    oPSet.AddParameter3('driverNodeNum', const.siInt4, 1, 0, 15, False)
-    oPSet.AddParameter3('exhaustNodeNum', const.siInt4, 0, 0, 15, False)
+    property_set.AddParameter3('addon_bone', const.siString, 1)
+    property_set.AddParameter3('addon_root_name', const.siString, 'AddonRoot')
+    property_set.AddParameter3('addon_is_shadowvolume', const.siBool, 0, '', '', 0)
 
-    oPSet.AddParameter3('turrName', const.siString, 'turret')
-    oPSet.AddParameter3('fireNodeNumTurr', const.siInt4, 1, 0, 15, False)
-    oPSet.AddParameter3('vehSV', const.siBool, 0, '', '', 0)
+    property_set.AddParameter2('Logo', const.siString, '', None, None, None, None, const.siClassifUnknown, const.siPersistable)
+    layout = property_set.PPGLayout
+    layout.Clear()
 
-    oPSet.AddParameter3('weapSV', const.siBool, 0, '', '', 0)
+    layout.SetAttribute(const.siUILogicFile, Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\zetools.py')
+    layout.Language = 'pythonscript'
 
-    oPSet.AddParameter3('addonBone', const.siString, 1)
-    oPSet.AddParameter3('addonRName', const.siString, 'AddonRoot')
-    oPSet.AddParameter3('addonSV', const.siBool, 0, '', '', 0)
+    #layout.AddTab('Character Tools')
 
-    oPSet.AddParameter3('CharTempl', const.siString, 1)
-    oPSet.AddParameter3('WeapTempl', const.siString, 1)
-    oPSet.AddParameter3('VehTempl', const.siString, 1)
+    layout.AddGroup('Bone Tools', 1)
+    layout.AddButton('groupbones', 'Create Bone Group')
+    layout.EndGroup()
 
-    oPSet.AddParameter3('mdlKind', const.siString, 1)
-    oPSet.AddParameter3('overrideCount', const.siInt4, 1)
-    oPSet.AddParameter3('delExst', const.siBool, 0, '', '', 0)
-    oPSet.AddParameter3('delMdl', const.siBool, 0, '', '', 0)
+    #layout.AddTab('Addon Tools')
 
-    oPSet.AddParameter3('boneGrp', const.siString, 1)
+    layout.AddGroup('Addon Mesh Setup', 1)
+    layout.AddGroup('', 0)
+    name_control = layout.AddItem('addon_root_name', 'Addon Root Name')
+    name_control.SetAttribute('labelPercentage', 80)
 
-    oPSet.AddParameter2('Logo', const.siString, '', None, None, None, None, const.siClassifUnknown, const.siPersistable)
-    oLay = oPSet.PPGLayout
-    oLay.Clear()
-    ##end lots of parameters##
+    bones = Softimage.get_objects('bone*')
+    # Create variants (display value/actual value).
+    if len(bones) > 0:
+        bone_variants = []
+        for bone in bones:
+            bone_variants.append(bone.Name)
+            bone_variants.append(bone.FullName)
+    else:
+        bone_variants = ('No bones found.', 1)
+    bone_control = layout.AddEnumControl('addon_bone', bone_variants, 'Addon Bone', const.siControlCombo)
+    bone_control.SetAttribute('labelPercentage', 80)
+    layout.EndGroup()
+    layout.AddRow()
+    layout.AddItem('addon_is_shadowvolume', 'Shadowvolume(sv_*)')
+    layout.AddButton('makeaddon', 'Create Hierarchy')
+    layout.AddButton('setmesh', 'Set As Addon Mesh')
+    layout.EndRow()
+    layout.EndGroup()
 
-    #define logic file
-    oLay.SetAttribute(const.siUILogicFile, ADDONPATH + '\\XSIZETools\\Application\\Logic\\zetools.py')
-
-    oLay.Language = 'pythonscript'
-
-    ##define UI##
-    #character tab
-    oLay.AddTab('Character Tools')  # ########################CHAR TOOLS
-    oLay.AddGroup('Character Model Setup', 1)
-    oLay.AddGroup('', 0, 100)
-    oLay.AddEnumControl('mdlKind', ('override_texture', 1, 'Shadowvolume(sv_*)', 2, 'Generic Object', 3), 'Model Type', const.siControlCombo)
-    oLay.EndGroup()
-    ovrC = oLay.AddEnumControl('overrideCount', ('override_texture', 1, 'override_texture2', 2), '', const.siControlRadio)
-    ovrC.SetAttribute('ValueOnly', True)
-    ovrC.SetAttribute('WidthPercentage', 5)
-    oLay.AddRow()
-    oLay.AddButton('SetMdl', 'Selected > Exported Model')
-    oLay.EndRow()
-    oLay.AddGroup('', 0, 100)
-    oLay.AddItem('delMdl', 'Cut Models instead of deleting')
-    oLay.EndGroup()
-    oLay.AddButton('remEx', 'Remove Direct Children from DummyRoot')
-    oLay.EndGroup()
-
-    oLay.AddGroup('Character Skeleton Setup', 1)
-    oLay.AddStaticText('The following functions only recognizes objects beginning with "bone".', 270, 35)
-    oLay.AddButton('groupBones', 'Create Group from Existing Bones')
-    oLay.AddButton('toggleBoneVis', 'Toggle Bone Visibility')
-    oLay.EndGroup()
-
-    oLay.AddGroup('Templates', 1)
-    cI = oLay.AddEnumControl('CharTempl', charTemplates, 'Template to import:', const.siControlCombo)
-    cI.SetAttribute('LabelPercentage', 90)
-    oLay.AddButton('CharTemplImp', 'Import Template')
-    oLay.EndGroup()
-
-    oLay.AddRow()
-    oLay.AddStaticText('')
-    oLay.AddButton('Close', 'Close')
-    oLay.EndRow()
-
-    #weapon tab
-    oLay.AddTab('Weapon Tools')  # ########################################WEAPON TOOLS
-
-    oLay.AddGroup('Setup Tools', 1)
-    oLay.Additem('weapSV', 'Weapon Shadowvolume(sv_*)')
-    oLay.AddRow()
-    oLay.AddButton('weapHier', 'Create Hierarchy')
-    oLay.AddButton('setWMdl', 'Selected > Exported Model')
-    oLay.EndRow()
-
-    oLay.EndGroup()
-
-    oLay.AddGroup('Templates', 1)
-    wIm = oLay.AddEnumControl('WeapTempl', weapTemplates, 'Template to import:', const.siControlCombo)
-    wIm.SetAttribute('LabelPercentage', 90)
-    oLay.AddButton('WeapTemplImp', 'Import Template')
-    oLay.EndGroup()
-    oLay.AddRow()
-    oLay.AddStaticText('')
-    oLay.AddButton('Close', 'Close')
-    oLay.EndRow()
-
-    #vehicle tab
-    oLay.AddTab('Vehicle Tools')  # #############################VEHICLE TOOLS
-
-    oLay.AddGroup('Hierarchy Setup', 1)
-    oLay.AddRow()
-    fire = oLay.AddItem('fireNodeNum', '''hp_fire's''')
-    fire.SetAttribute('LabelPercentage', 80)
-    oLay.EndRow()
-
-    oLay.AddRow()
-    driver = oLay.AddItem('driverNodeNum', '''hp_driver's''')
-    driver.SetAttribute('LabelPercentage', 80)
-    oLay.EndRow()
-
-    oLay.AddRow()
-    exhaust = oLay.AddItem('exhaustNodeNum', '''hp_exhaust's''')
-    exhaust.SetAttribute('LabelPercentage', 80)
-    oLay.EndRow()
-
-    oLay.AddItem('vehSV', 'Vehicle Shadowvolume(sv_*)')
-    oLay.AddRow()
-    oLay.AddButton('vehHier', 'Create Hierarchy')
-    oLay.AddButton('setVMdl', 'Selected > Exported Model')
-    oLay.EndRow()
-    oLay.EndGroup()
-
-    oLay.AddGroup('Turret Setup', 1)
-    oLay.AddItem('turrName', 'Turret Name')
-    oLay.AddItem('fireNodeNumTurr', '''hp_fire's''')
-    oLay.AddButton('turrHier', 'Create Turret Hierarchy')
-    oLay.AddStaticText('Type in the turrets name if you want to use any\n'
-                       'of the following tools.')
-
-    oLay.AddRow()
-    oLay.AddButton('makeTurrBase', 'Selected > Base(blue)')
-    oLay.AddButton('makeTurrY', 'Selected > Turret(green)')
-    oLay.EndRow()
-    oLay.AddRow()
-    oLay.AddButton('makeTurrX', 'Selected > Barrel(red)')
-    oLay.AddButton('printOpt', 'Output .OPTION content')
-    oLay.EndRow()
-    oLogo = oLay.AddItem('Logo', '', 'BitmapWidget')
-    oLogo.SetAttribute('path', xsi.InstallationPath(const.siUserAddonPath) + '\\XSIZETools\\Resources\\UI\\turr.bmp')
-    oLogo.SetAttribute(const.siUINoLabel, 1)
-    oLay.EndGroup()
-
-    oLay.AddGroup('Templates', 1)
-    vIm = oLay.AddEnumControl('VehTempl', vehTemplates, 'Template to import:', const.siControlCombo)
-    vIm.SetAttribute('LabelPercentage', 90)
-    oLay.AddButton('VehTemplImp', 'Import Template')
-    oLay.EndGroup()
-    oLay.AddRow()
-    oLay.AddStaticText('')
-    oLay.AddButton('Close', 'Close')
-    oLay.EndRow()
-
-    #addon tab
-    oLay.AddTab('Addon Tools')  # ##################################ADDON TOOLS
-
-    oLay.AddGroup('Addon Mesh Setup', 1)
-    oLay.AddStaticText('Creating Addons for more than one skeleton per scene is not supported.', 270, 30)
-    oLay.AddGroup('', 0)
-    aN = oLay.AddItem('addonRName', 'Addon Root Name')
-    aN.SetAttribute('labelPercentage', 80)
-    aB = oLay.AddEnumControl('addonBone', bones, 'Addon Bone', const.siControlCombo)
-    aB.SetAttribute('labelPercentage', 80)
-    oLay.AddItem('addonSV', 'Shadowvolume(sv_*)')
-    oLay.EndGroup()
-    oLay.AddRow()
-    oLay.AddButton('makeAddon', 'Create Addon Hierarchy')
-    oLay.AddButton('setAddonMesh', 'Selected > Addon Mesh')
-    oLay.EndRow()
-    oLay.EndGroup()
-
-    oLay.AddRow()
-    oLay.AddStaticText('')
-    oLay.AddButton('Close', 'Close')
-    oLay.EndRow()
-    ##end define UI##
-
-    xsi.InspectObj(oPSet, '', '', 'siLock')  # create PPG and lock > doesnt change to selections property page
+    desk = xsi.Desktop.ActiveLayout
+    view = desk.CreateView('Property Panel', 'ZE Scripts')
+    view.BeginEdit()
+    view.Resize(400, 180)
+    view.SetAttributeValue('targetcontent', property_set.FullName)
+    view.EndEdit()
     return True
 
 
@@ -350,23 +196,23 @@ def ZETHelp_Init(in_ctxt):
 
 
 def ZETHelp_Execute():
-
+    from andesicore import Softimage
     import andezetcore
     reload(andezetcore)
     #remove old custom property
     for x in xsi.ActiveSceneRoot.Properties:
         if x.Name == 'ZETH':
             xsi.DeleteObj('ZETH')
-    currver = andezetcore.get_current_version(ADDONPATH)
+    currver = andezetcore.get_current_version(Softimage.get_plugin_origin('XSIZETools') + '\\xsizet.ver')
     pset = xsi.ActiveSceneRoot.AddProperty('CustomProperty', False, 'ZETH')
     pset.AddParameter3('bitmap', const.siString)
 
     lay = pset.PPGLayout
-    lay.SetAttribute(const.siUILogicFile, ADDONPATH + '\\XSIZETools\\Application\\Logic\\misc.py')
+    lay.SetAttribute(const.siUILogicFile, Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\misc.py')
     lay.Language = 'pythonscript'
 
     lay.AddGroup('XSIZETools', 1)
-    imagepath = ADDONPATH + '\\XSIZETools\\Resources\\UI\\zetools_a2pandemic.bmp'
+    imagepath = Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\UI\\zetools_a2pandemic.bmp'
     expbitmap = lay.AddEnumControl('bitmap', None, '', const.siControlBitmap)
     expbitmap.SetAttribute(const.siUINoLabel, True)
     expbitmap.SetAttribute(const.siUIFilePath, imagepath)
@@ -379,27 +225,27 @@ def ZETHelp_Execute():
     lay.AddStaticText('Code Copyright (C) Ande 2012')
     lay.EndRow()
     lay.AddRow()
-    lay.AddStaticText('      sites.google.com/site/andescp/zetools_main', 290)
+    lay.AddStaticText('      http://schlechtwetterfront.github.io/xsizetools/', 290)
     lay.EndRow()
     lay.EndGroup()
     lay.AddGroup('Credits', 1)
     lay.AddStaticText('Credits for templates go to:' +
-        '\n\tAceMastermind' +
-        '\n\tDarthD.U.C.K.' +
-        '\n\tFragMe!' +
-        '\n\tpsych0fred' +
-        '\n\tAnde')
+                      '\n\tAceMastermind' +
+                      '\n\tDarthD.U.C.K.' +
+                      '\n\tFragMe!' +
+                      '\n\tpsych0fred' +
+                      '\n\tAnde')
     lay.AddStaticText('Credits for .msh research go to:' +
-        '\n\tRileyman' +
-        '\n\tAnde' +
-        '\n\ttirpider' +
-        '\n\tAceMastermind' +
-        '\n\tFragMe!' +
-        '\n\tRepSharpshooter')
+                      '\n\tRileyman' +
+                      '\n\tAnde' +
+                      '\n\ttirpider' +
+                      '\n\tAceMastermind' +
+                      '\n\tFragMe!' +
+                      '\n\tRepSharpshooter')
     lay.EndGroup()
     lay.AddGroup('Help', 1)
     lay.AddStaticText('For help, consult the XSIZETools homepage or' +
-        '\npost a topic on gametoast.com.', 280)
+                      '\npost a topic on gametoast.com.', 280)
     lay.AddRow()
     lay.AddStaticText('Website:', 80)
     web = lay.AddButton('launch_website', 'Open Website in Browser')
@@ -435,13 +281,14 @@ def MSHExport_Init(in_ctxt):
 
 def MSHExport_Execute():
     print 'sys.path', sys.path
+    from andesicore import Softimage
     import andezetcore
     reload(andezetcore)
     for x in xsi.ActiveSceneRoot.Properties:
         if x.Name == 'MSHExport':
             xsi.DeleteObj('MSHExport')
     config = andezetcore.Config()
-    config.from_file(ADDONPATH + '\\XSIZETools\\Resources\\Config\\export.tcnt')
+    config.from_file(Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\Config\\export.tcnt')
 
     pS = xsi.ActiveSceneRoot.AddProperty('CustomProperty', False, 'MSHExport')
     pS.AddParameter3('mshpath', const.siString, config.retrieve('path'))
@@ -453,7 +300,7 @@ def MSHExport_Execute():
     pS.AddParameter3('batch', const.siBool, bool(config.retrieve('batch')), '', 0, 0)
 
     mLay = pS.PPGLayout
-    mLay.SetAttribute(const.siUILogicFile, ADDONPATH + '\\XSIZETools\\Application\\Logic\\exporter.py')
+    mLay.SetAttribute(const.siUILogicFile, Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\exporter.py')
     mLay.Language = 'pythonscript'
 
     mLay.AddGroup('Export MSH', 1)  # G0
@@ -515,7 +362,7 @@ def MSHExport_Execute():
     mLay.EndGroup()  # Controls
     icongroup = mLay.AddGroup('', 0)
     icongroup.SetAttribute('WidthPercentage', 1)
-    imagepath = ADDONPATH + '\\XSIZETools\\Resources\\UI\\export_icon_zetools.bmp'
+    imagepath = Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\UI\\export_icon_zetools.bmp'
     expbitmap = mLay.AddEnumControl('expbit', None, '', const.siControlBitmap)
     expbitmap.SetAttribute(const.siUINoLabel, True)
     expbitmap.SetAttribute(const.siUIFilePath, imagepath)
@@ -540,13 +387,14 @@ def MSHImport_Init(in_ctxt):
 
 
 def MSHImport_Execute():
+    from andesicore import Softimage
     print sys.path
     import andezetcore
     for x in xsi.ActiveSceneRoot.Properties:
         if x.Name == 'MSHImport':
             xsi.DeleteObj('MSHImport')
     config = andezetcore.ImportConfig()
-    config.from_file(ADDONPATH + '\\XSIZETools\\Resources\\Config\\import.tcnt')
+    config.from_file(Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\Config\\import.tcnt')
 
     pS = xsi.ActiveSceneRoot.AddProperty('CustomProperty', False, 'MSHImport')
     pS.AddParameter3('mshpath', const.siString, config.retrieve('path'))
@@ -585,7 +433,7 @@ def MSHImport_Execute():
     pS.AddParameter3('Beff', const.siDouble, b, 0.0, 1.0, 0, 0)
 
     mLay = pS.PPGLayout
-    mLay.SetAttribute(const.siUILogicFile, ADDONPATH + '\\XSIZETools\\Application\\Logic\\importer.py')
+    mLay.SetAttribute(const.siUILogicFile, Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\importer.py')
     mLay.Language = 'pythonscript'
 
     mLay.AddTab('Import')
@@ -656,7 +504,7 @@ def MSHImport_Execute():
     mLay.EndGroup()  # Controls
     icongroup = mLay.AddGroup('', 0)
     icongroup.SetAttribute('WidthPercentage', 1)
-    imagepath = ADDONPATH + '\\XSIZETools\\Resources\\UI\\import_icon_zetools.bmp'
+    imagepath = Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\UI\\import_icon_zetools.bmp'
     expbitmap = mLay.AddEnumControl('expbit', None, '', const.siControlBitmap)
     expbitmap.SetAttribute(const.siUINoLabel, True)
     expbitmap.SetAttribute(const.siUIFilePath, imagepath)
@@ -709,9 +557,10 @@ def OpenImportLog_Init(in_ctxt):
 
 
 def OpenImportLog_Execute():
+    from andesicore import Softimage
     import webbrowser
     import os.path as p
-    path = p.join(ADDONPATH, 'XSIZETools\\import_log.log')
+    path = p.join(Softimage.get_plugin_origin('XSIZETools'), 'import_log.log')
     if not p.isfile(path):
         uitk.MsgBox('Cant find {0}. Maybe you didnt import anything yet?'.format(path))
         return True
@@ -728,6 +577,7 @@ def MaterialEdit_Init(in_ctxt):
 
 
 def MaterialEdit_Execute():
+    from andesicore import Softimage
     for x in xsi.ActiveSceneRoot.Properties:
         if x.Name == 'MaterialEdit':
             xsi.DeleteObj('MaterialEdit')
@@ -736,7 +586,7 @@ def MaterialEdit_Execute():
     pset.AddParameter3('mat_name', const.siString, 'Phong')
     pset.AddParameter3('matbit', const.siString, '')
     mlay = pset.PPGLayout
-    mlay.SetAttribute(const.siUILogicFile, ADDONPATH + '\\XSIZETools\\Application\\Logic\\material_manager.py')
+    mlay.SetAttribute(const.siUILogicFile, Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\material_manager.py')
     mlay.Language = 'pythonscript'
 
     materials = get_scene_materials('variants')
@@ -780,7 +630,7 @@ def MaterialEdit_Execute():
     assbtn.SetAttribute(const.siUICX, 65)
     unabtn = mlay.AddButton('unassign_mat', 'Unassign')
     unabtn.SetAttribute(const.siUICX, 65)
-    imagepath = ADDONPATH + '\\XSIZETools\\Resources\\UI\\material_icon_zetools.bmp'
+    imagepath = Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\UI\\material_icon_zetools.bmp'
     expbitmap = mlay.AddEnumControl('matbit', None, '', const.siControlBitmap)
     expbitmap.SetAttribute(const.siUINoLabel, True)
     expbitmap.SetAttribute(const.siUIFilePath, imagepath)
@@ -841,6 +691,7 @@ def MshJson_Init(in_ctxt):
 
 
 def MshJson_Execute():
+    from andesicore import Softimage
     for x in xsi.ActiveSceneRoot.Properties:
         if x.Name == 'MshText':
             xsi.DeleteObj('MshText')
@@ -850,7 +701,7 @@ def MshJson_Execute():
     pS.AddParameter3('txtpath', const.siString, 'C:\\Users\\Administrator\\Documents\\')
 
     mLay = pS.PPGLayout
-    mLay.SetAttribute(const.siUILogicFile, ADDONPATH + '\\XSIZETools\\Application\\Logic\\mshjson.py')
+    mLay.SetAttribute(const.siUILogicFile, Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\mshjson.py')
     mLay.Language = 'pythonscript'
 
     mLay.AddGroup('MSH Text', 1)
@@ -895,13 +746,14 @@ def edit_prop(model):
 
 
 def add_prop(model):
+    from andesicore import Softimage
     ps = model.AddProperty('CustomProperty', False, 'ZECloth')
     ps.AddParameter3('collisions', const.siString)
     ps.AddParameter3('texture', const.siString)
     ps.AddParameter3('fixedcluster', const.siString)
     ps.AddParameter3('modelname', const.siString, model.Name)
     lay = ps.PPGLayout
-    lay.SetAttribute(const.siUILogicFile, ADDONPATH + '\\XSIZETools\\Application\\Logic\\cloth.py')
+    lay.SetAttribute(const.siUILogicFile, Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\cloth.py')
     lay.Language = 'pythonscript'
     arow = lay.AddRow
     erow = lay.EndRow
@@ -982,40 +834,3 @@ def get_msh_material_property(material):
     for prop in material.Properties:
         if 'ZeroEngine_Flags' in prop.Name:
             return prop
-
-
-def checkExistence(objName):
-    xsifact = win32com.client.Dispatch('XSI.Factory')
-    oColl = xsifact.CreateObject('XSI.Collection')
-    oColl.items = objName
-    if oColl.Count == 1:
-        return oColl(0)
-    elif oColl.Count > 1:
-        return 'multi'
-    else:
-        return False
-
-
-def getBoneList():
-    log('getting bone list')
-    xsifact = win32com.client.Dispatch('XSI.Factory')
-    oColl = xsifact.CreateObject('XSI.Collection')
-    oColl.items = 'bone*'
-    bC = 0
-    boneList = []
-
-    if oColl.Count >= 1:
-        for element in oColl:
-            boneList.append(element.Name)
-            bC += 1
-            boneList.append(bC)
-            log(element)
-            log(bC)
-    elif oColl.Count == 0:
-        boneList = ['No Bones found', 1]
-        log('no bones found')
-    return boneList
-
-
-def log(text):
-    xsi.LogMessage(text)

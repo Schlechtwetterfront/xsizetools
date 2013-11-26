@@ -9,12 +9,12 @@
 from xml.etree.ElementTree import ElementTree, Element, SubElement, dump
 
 
-def get_current_version(ap):
+def get_current_version(versionpath):
     major = 0
     minor = 0
     export = 0
     import_ = 0
-    with open(ap + '\\XSIZETools\\xsizet.ver', 'r') as fh:
+    with open(versionpath, 'r') as fh:
         for index, line in enumerate(fh):
             if index == 0:
                 major = int(line.strip())
@@ -289,8 +289,8 @@ class ImportConfig(Config):
                                             ppg.Parameters('Broot').Value)
         effcol = SubElement(config, 'effcol')
         effcol.text = '{0} {1} {2}'.format(ppg.Parameters('Reff').Value,
-                                            ppg.Parameters('Geff').Value,
-                                            ppg.Parameters('Beff').Value)
+                                           ppg.Parameters('Geff').Value,
+                                           ppg.Parameters('Beff').Value)
         hideeffs = SubElement(config, 'hideeffs')
         hideeffs.text = int(ppg.Parameters('hideeffs').Value) * 'True'
         hideroots = SubElement(config, 'hideroots')

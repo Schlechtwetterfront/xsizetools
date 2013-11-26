@@ -4,9 +4,9 @@
 #####             XSI utility classes               #####
 #####                                               #####
 #####             code copyright (C)                #####
-#####         Benedikt Schatz 2012-2013             #####
+#####            Benedikt Schatz 2013               #####
 #####                                               #####
-#####    https://sites.google.com/site/andescp/     #####
+#####    http://schlechtwetterfront.github.io/      #####
 #########################################################
 from win32com.client import constants as const
 import win32com
@@ -14,6 +14,56 @@ STR_CODEC = 'utf-8'
 xsi = win32com.client.Dispatch('XSI.Application')
 xsiui = win32com.client.Dispatch('XSI.UIToolkit')
 xsimath = win32com.client.Dispatch('XSI.Math')
+
+
+class SICoreError(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __repr__(self):
+        return 'SICoreError: {0}'.format(self.value)
+
+
+class Softimage(object):
+    @staticmethod
+    def get_objects(name):
+        xsifact = win32com.client.Dispatch('XSI.Factory')
+        collection = xsifact.CreateObject('XSI.Collection')
+        collection.items = name
+        if collection.Count > 0:
+            return list(collection)
+        return ()
+
+    @staticmethod
+    def get_object(name):
+        try:
+            return xsi.Dictionary.GetObject(name)
+        except win32com.client.pythoncom.com_error:
+            print 'COM ERROR'
+            return None
+
+    @staticmethod
+    def get_plugin_origin(plugin_name):
+        xsi = win32com.client.Dispatch('XSI.Application')
+        plugins = xsi.Plugins
+        for plugin in plugins:
+            if plugin.Name == plugin_name:
+                return plugin.OriginPath[:-20]
+
+    @staticmethod
+    def msg(self, message, msg_type=const.siMsgOkOnly, caption='Information'):
+        return xsiui.MsgBox(message, msg_type, caption)
+
+    @staticmethod
+    def get_all_children(self, root):
+        '''Recursively adds children to a list.'''
+        children = []
+        children.append(root)
+        if root.Children(0):
+            chldrn = list(root.Children)
+            for child in chldrn:
+                children.extend(self.get_all_children(child))
+        return children
 
 
 class SIScene(object):
@@ -34,6 +84,12 @@ class SIModel(object):
     def __init__(self, si_model):
         self.si_model = si_model
         self.geo = si_model.ActivePrimitive.GetGeometry2(0)
+
+    def get_geo(self, model):
+        if model:
+            return model.ActivePrimitive.GetGeometry2(0)
+        else:
+            return self.si_model.ActivePrimitive.GetGeometry2(0)
 
     def get_uv_props(self):
         cls = self.si_model.ActivePrimitive.GetGeometry2(0).Clusters
@@ -126,6 +182,14 @@ class SIMaterial(object):
 
 
 class SIGeneral(object):
+    @staticmethod
+    def get_plugin_origin(plugin_name):
+        xsi = win32com.client.Dispatch('XSI.Application')
+        plugins = xsi.Plugins
+        for plugin in plugins:
+            if plugin.Name == plugin_name:
+                return plugin.OriginPath[:-20]
+
     def get_objects_by_name(self, modelnames):
         models = []
         for name in modelnames:

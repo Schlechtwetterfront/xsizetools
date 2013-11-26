@@ -6,7 +6,7 @@
 #####             code copyright (C)                #####
 #####         Benedikt Schatz 2012-2013             #####
 #####                                               #####
-#####    https://sites.google.com/site/andescp/     #####
+#####    http://schlechtwetterfront.github.io/      #####
 #########################################################
 from win32com.client import constants as const
 import webbrowser
@@ -23,18 +23,13 @@ def ERClose_OnClicked():
     xsi.DeleteObj('ExportReport')
 
 
-def openDocs_OnClicked():
-    thepath = addonpath + "\\XSIZETools\\Resources\\Help\\Documentation.txt"
-    webbrowser.open(thepath)
-
-
 def launch_gt_OnClicked():
     url = "http://gametoast.com/forums/viewtopic.php?f=36&t=26664"
     webbrowser.open_new_tab(url)
 
 
 def launch_website_OnClicked():
-    url = "https://sites.google.com/site/andescp/zetools_main"
+    url = "http://schlechtwetterfront.github.io/xsizetools/"
     webbrowser.open_new_tab(url)
 
 

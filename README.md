@@ -20,20 +20,15 @@ Required
 Install/Uninstall
 --------
 
-Install:
-
-
-	Unzip the archive into: %user_path%\\Autodesk |or| Softimage\\%xsi_version%\\Addons
-					Example: C:\\Users\\Ande\\Autodesk\\Softimage_2012\\Addons
-					
-					
-	RENAME THE "xsizetools-master" FOLDER TO "XSIZETools".
+**Install:**
+	
+Unzip the archive into: %user_path%\\Autodesk |or| Softimage\\%xsi_version%\\Addons
+				Example: C:\\Users\\Ande\\Autodesk\\Softimage_2012\\Addons
 	
 	
-Uninstall:
+**Uninstall:**
 
-
-	Exit XSI, then remove the XSIZETools folder from: %user_path%\\Autodesk |or| Softimage\\%xsi_version%\\Addons
+Exit XSI, then remove the XSIZETools folder from: %user_path%\\Autodesk |or| Softimage\\%xsi_version%\\Addons
 
 Links
 --------
