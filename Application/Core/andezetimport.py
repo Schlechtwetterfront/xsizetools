@@ -279,6 +279,10 @@ class ChainItemBuilder(andesicore.SIModel):
                                                                           faces, self.model.name))
             self.imp.abort_checklog()
         self.geo = self.si_model.ActivePrimitive.GetGeometry2(0)
+        # Normals
+        normal_cluster = self.geo.AddCluster(const.siSampledPointCluster)
+        normal_cluster.AddProperty('User Normal Property', False, 'ZETools-NormalsProperty')
+        self.set_normals(0, self.make_normals())
         if self.model.vis == 1:
             self.xsi.ToggleVisibility(self.si_model, None, None)
         if self.model.segments[0].vertices.uved:
@@ -302,6 +306,26 @@ class ChainItemBuilder(andesicore.SIModel):
             logging.debug('Model {0} is not colored.'.format(self.model.name))
         self.set_transform()
         self.set_vis()
+
+    def make_normals(self):
+        '''Creates Normals.'''
+        numsamples = self.geo.Samples.Count
+        normals = [[0.0] * numsamples, [0.0] * numsamples, [0.0] * numsamples]
+        # Will offset the index by the number of vertices the precedent
+        # segments had.
+        offset = 0
+        for segm in self.model.segments:
+            numverts = len(segm.vertices)
+            for n in xrange(numverts):
+                vert = segm.vertices[n]
+                point = self.geo.Points[n + offset]
+                for sample in point.Samples:
+                    normals[0][sample.Index] = vert.nx
+                    normals[1][sample.Index] = vert.ny
+                    normals[2][sample.Index] = vert.nz
+            offset += numverts
+        logging.debug('Created UVs for {0} samples/nodes.'.format(numsamples))
+        return normals
 
     def make_colors_persample(self):
         numsamples = self.geo.Samples.Count

@@ -98,6 +98,15 @@ class SIModel(object):
             props = cls.Properties.Filter('uvspace')
             return props
 
+    def get_normal_props(self):
+        clusters = self.geo.Clusters.Filter('sample')
+        for cluster in clusters:
+            return cluster.Properties.Filter('normal')
+
+    def set_normals(self, index, normals):
+        prop = self.get_normal_props()[index]
+        prop.Elements.Array = normals
+
     def get_envelope_props(self):
         pnt_clusters = self.geo.Clusters.Filter('pnt')
         for cluster in pnt_clusters:

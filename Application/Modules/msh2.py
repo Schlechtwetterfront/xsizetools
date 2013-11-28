@@ -1016,7 +1016,7 @@ class SegmentGeometry(Packer):
         len_new_verts = 0
         for index, vert in enumerate(self.vertices):
             index_original = None
-            if positions:
+            '''if positions:
                 # Replace the normal.
                 vert_index = None
                 try:
@@ -1024,7 +1024,7 @@ class SegmentGeometry(Packer):
                 except ValueError:
                     pass
                 if vert_index:
-                    vert.normal = normals[vert_index]
+                    vert.normal = normals[vert_index]'''
             try:
                 index_original = new_vertices.index(vert)
                 print 'Original: {0}; Double: {1}'.format(new_vertices[index_original].normal, vert.normal)
@@ -1612,7 +1612,8 @@ class Vertex(object):
     def __eq__(self, other):
         if (self.x == other.x) and (self.y == other.y) and (self.z == other.z):
             if (self.u == other.u) and (self.v == other.v):
-                return True
+                if (self.nx == other.nx) and (self.ny == other.ny) and (self.nz == other.nz):
+                    return True
         return False
 
     def __repr__(self):

@@ -11,6 +11,7 @@
 import win32com.client
 from win32com.client import constants as const
 import sys
+import os
 from datetime import datetime
 tt = datetime.now
 
@@ -23,10 +24,10 @@ ADDONPATH = xsi.InstallationPath(const.siUserAddonPath)
 
 def add_to_path():
     orig_path = get_origin()
-    corepath = utils.BuildPath(orig_path, 'Application', 'Core')
+    corepath = os.path.join(orig_path, 'Application', 'Core')
     if corepath not in sys.path:
         sys.path.append(corepath)
-    modpath = utils.BuildPath(orig_path, 'Application', 'Modules')
+    modpath = os.path.join(orig_path, 'Application', 'Modules')
     if modpath not in sys.path:
         sys.path.append(modpath)
 
@@ -35,7 +36,6 @@ def get_origin():
     orig_path = ''
     plugins = xsi.Plugins
     for p in plugins:
-        #print p.Name
         if p.Name == 'XSIZETools':
             orig_path = p.OriginPath[:-20]
     return orig_path
@@ -125,7 +125,10 @@ def XSIZETools_Init(in_ctxt):
 
 
 def XSIZETools_Execute():
-    from andesicore import Softimage
+    add_to_path()
+    import andesicore
+    reload(andesicore)
+    print andesicore
 
     ppgname = 'ZEScripts'  # custom property name
     for x in xsi.ActiveSceneRoot.Properties:
@@ -143,7 +146,7 @@ def XSIZETools_Execute():
     layout = property_set.PPGLayout
     layout.Clear()
 
-    layout.SetAttribute(const.siUILogicFile, Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\zetools.py')
+    layout.SetAttribute(const.siUILogicFile, andesicore.Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\zetools.py')
     layout.Language = 'pythonscript'
 
     #layout.AddTab('Character Tools')
@@ -159,7 +162,7 @@ def XSIZETools_Execute():
     name_control = layout.AddItem('addon_root_name', 'Addon Root Name')
     name_control.SetAttribute('labelPercentage', 80)
 
-    bones = Softimage.get_objects('bone*')
+    bones = andesicore.Softimage.get_objects('bone*')
     # Create variants (display value/actual value).
     if len(bones) > 0:
         bone_variants = []
@@ -196,23 +199,25 @@ def ZETHelp_Init(in_ctxt):
 
 
 def ZETHelp_Execute():
-    from andesicore import Softimage
+    add_to_path()
+    import andesicore
+    reload(andesicore)
     import andezetcore
     reload(andezetcore)
     #remove old custom property
     for x in xsi.ActiveSceneRoot.Properties:
         if x.Name == 'ZETH':
             xsi.DeleteObj('ZETH')
-    currver = andezetcore.get_current_version(Softimage.get_plugin_origin('XSIZETools') + '\\xsizet.ver')
+    currver = andezetcore.get_current_version(andesicore.Softimage.get_plugin_origin('XSIZETools') + '\\xsizet.ver')
     pset = xsi.ActiveSceneRoot.AddProperty('CustomProperty', False, 'ZETH')
     pset.AddParameter3('bitmap', const.siString)
 
     lay = pset.PPGLayout
-    lay.SetAttribute(const.siUILogicFile, Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\misc.py')
+    lay.SetAttribute(const.siUILogicFile, andesicore.Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\misc.py')
     lay.Language = 'pythonscript'
 
     lay.AddGroup('XSIZETools', 1)
-    imagepath = Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\UI\\zetools_a2pandemic.bmp'
+    imagepath = andesicore.Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\UI\\zetools_a2pandemic.bmp'
     expbitmap = lay.AddEnumControl('bitmap', None, '', const.siControlBitmap)
     expbitmap.SetAttribute(const.siUINoLabel, True)
     expbitmap.SetAttribute(const.siUIFilePath, imagepath)
@@ -280,15 +285,16 @@ def MSHExport_Init(in_ctxt):
 
 
 def MSHExport_Execute():
-    print 'sys.path', sys.path
-    from andesicore import Softimage
+    add_to_path()
+    import andesicore
+    reload(andesicore)
     import andezetcore
     reload(andezetcore)
     for x in xsi.ActiveSceneRoot.Properties:
         if x.Name == 'MSHExport':
             xsi.DeleteObj('MSHExport')
     config = andezetcore.Config()
-    config.from_file(Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\Config\\export.tcnt')
+    config.from_file(andesicore.Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\Config\\export.tcnt')
 
     pS = xsi.ActiveSceneRoot.AddProperty('CustomProperty', False, 'MSHExport')
     pS.AddParameter3('mshpath', const.siString, config.retrieve('path'))
@@ -300,7 +306,7 @@ def MSHExport_Execute():
     pS.AddParameter3('batch', const.siBool, bool(config.retrieve('batch')), '', 0, 0)
 
     mLay = pS.PPGLayout
-    mLay.SetAttribute(const.siUILogicFile, Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\exporter.py')
+    mLay.SetAttribute(const.siUILogicFile, andesicore.Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\exporter.py')
     mLay.Language = 'pythonscript'
 
     mLay.AddGroup('Export MSH', 1)  # G0
@@ -362,7 +368,7 @@ def MSHExport_Execute():
     mLay.EndGroup()  # Controls
     icongroup = mLay.AddGroup('', 0)
     icongroup.SetAttribute('WidthPercentage', 1)
-    imagepath = Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\UI\\export_icon_zetools.bmp'
+    imagepath = andesicore.Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\UI\\export_icon_zetools.bmp'
     expbitmap = mLay.AddEnumControl('expbit', None, '', const.siControlBitmap)
     expbitmap.SetAttribute(const.siUINoLabel, True)
     expbitmap.SetAttribute(const.siUIFilePath, imagepath)
@@ -387,14 +393,16 @@ def MSHImport_Init(in_ctxt):
 
 
 def MSHImport_Execute():
-    from andesicore import Softimage
-    print sys.path
+    add_to_path()
+    import andesicore
+    reload(andesicore)
     import andezetcore
+    reload(andezetcore)
     for x in xsi.ActiveSceneRoot.Properties:
         if x.Name == 'MSHImport':
             xsi.DeleteObj('MSHImport')
     config = andezetcore.ImportConfig()
-    config.from_file(Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\Config\\import.tcnt')
+    config.from_file(andesicore.Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\Config\\import.tcnt')
 
     pS = xsi.ActiveSceneRoot.AddProperty('CustomProperty', False, 'MSHImport')
     pS.AddParameter3('mshpath', const.siString, config.retrieve('path'))
@@ -433,7 +441,7 @@ def MSHImport_Execute():
     pS.AddParameter3('Beff', const.siDouble, b, 0.0, 1.0, 0, 0)
 
     mLay = pS.PPGLayout
-    mLay.SetAttribute(const.siUILogicFile, Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\importer.py')
+    mLay.SetAttribute(const.siUILogicFile, andesicore.Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\importer.py')
     mLay.Language = 'pythonscript'
 
     mLay.AddTab('Import')
@@ -504,7 +512,7 @@ def MSHImport_Execute():
     mLay.EndGroup()  # Controls
     icongroup = mLay.AddGroup('', 0)
     icongroup.SetAttribute('WidthPercentage', 1)
-    imagepath = Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\UI\\import_icon_zetools.bmp'
+    imagepath = andesicore.Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\UI\\import_icon_zetools.bmp'
     expbitmap = mLay.AddEnumControl('expbit', None, '', const.siControlBitmap)
     expbitmap.SetAttribute(const.siUINoLabel, True)
     expbitmap.SetAttribute(const.siUIFilePath, imagepath)
@@ -557,10 +565,12 @@ def OpenImportLog_Init(in_ctxt):
 
 
 def OpenImportLog_Execute():
-    from andesicore import Softimage
+    add_to_path()
+    import andesicore
+    reload(andesicore)
     import webbrowser
     import os.path as p
-    path = p.join(Softimage.get_plugin_origin('XSIZETools'), 'import_log.log')
+    path = p.join(andesicore.Softimage.get_plugin_origin('XSIZETools'), 'import_log.log')
     if not p.isfile(path):
         uitk.MsgBox('Cant find {0}. Maybe you didnt import anything yet?'.format(path))
         return True
@@ -577,7 +587,9 @@ def MaterialEdit_Init(in_ctxt):
 
 
 def MaterialEdit_Execute():
-    from andesicore import Softimage
+    add_to_path()
+    import andesicore
+    reload(andesicore)
     for x in xsi.ActiveSceneRoot.Properties:
         if x.Name == 'MaterialEdit':
             xsi.DeleteObj('MaterialEdit')
@@ -586,7 +598,7 @@ def MaterialEdit_Execute():
     pset.AddParameter3('mat_name', const.siString, 'Phong')
     pset.AddParameter3('matbit', const.siString, '')
     mlay = pset.PPGLayout
-    mlay.SetAttribute(const.siUILogicFile, Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\material_manager.py')
+    mlay.SetAttribute(const.siUILogicFile, andesicore.Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\material_manager.py')
     mlay.Language = 'pythonscript'
 
     materials = get_scene_materials('variants')
@@ -630,7 +642,7 @@ def MaterialEdit_Execute():
     assbtn.SetAttribute(const.siUICX, 65)
     unabtn = mlay.AddButton('unassign_mat', 'Unassign')
     unabtn.SetAttribute(const.siUICX, 65)
-    imagepath = Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\UI\\material_icon_zetools.bmp'
+    imagepath = andesicore.Softimage.get_plugin_origin('XSIZETools') + '\\Resources\\UI\\material_icon_zetools.bmp'
     expbitmap = mlay.AddEnumControl('matbit', None, '', const.siControlBitmap)
     expbitmap.SetAttribute(const.siUINoLabel, True)
     expbitmap.SetAttribute(const.siUIFilePath, imagepath)
@@ -691,7 +703,9 @@ def MshJson_Init(in_ctxt):
 
 
 def MshJson_Execute():
-    from andesicore import Softimage
+    add_to_path()
+    import andesicore
+    reload(andesicore)
     for x in xsi.ActiveSceneRoot.Properties:
         if x.Name == 'MshText':
             xsi.DeleteObj('MshText')
@@ -701,7 +715,7 @@ def MshJson_Execute():
     pS.AddParameter3('txtpath', const.siString, 'C:\\Users\\Administrator\\Documents\\')
 
     mLay = pS.PPGLayout
-    mLay.SetAttribute(const.siUILogicFile, Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\mshjson.py')
+    mLay.SetAttribute(const.siUILogicFile, andesicore.Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\mshjson.py')
     mLay.Language = 'pythonscript'
 
     mLay.AddGroup('MSH Text', 1)
@@ -746,14 +760,15 @@ def edit_prop(model):
 
 
 def add_prop(model):
-    from andesicore import Softimage
+    import andesicore
+    reload(andesicore)
     ps = model.AddProperty('CustomProperty', False, 'ZECloth')
     ps.AddParameter3('collisions', const.siString)
     ps.AddParameter3('texture', const.siString)
     ps.AddParameter3('fixedcluster', const.siString)
     ps.AddParameter3('modelname', const.siString, model.Name)
     lay = ps.PPGLayout
-    lay.SetAttribute(const.siUILogicFile, Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\cloth.py')
+    lay.SetAttribute(const.siUILogicFile, andesicore.Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\cloth.py')
     lay.Language = 'pythonscript'
     arow = lay.AddRow
     erow = lay.EndRow
