@@ -47,6 +47,15 @@ class Unpacker(object):
     def dont_log(self, *text):
         pass
 
+    def long(self, data):
+        return unpack('<L', data)[0]
+
+    def short(self, data):
+        return unpack('<H', data)[0]
+
+    def float(self, data):
+        return unpack('<f', data)[0]
+
 
 class BBoxUnpacker(Unpacker):
     def __init__(self, data):
@@ -338,7 +347,18 @@ class GeometryUnpacker(Unpacker):
             if hdr == 'SHDW':
                 self.up.up.last_chunk = 'SHDW'
                 self.seg = msh2.ShadowGeometry(self.up.mdl)
-                self.seg.data = self.fh.read(size)
+                # self.seg.data = self.fh.read(size)
+                num_pos = self.long(self.fh.read(4))
+                positions = []
+                for n in xrange(num_pos):
+                    positions.append((self.float(self.fh.read(4)), self.float(self.fh.read(4)), self.float(self.fh.read(4))))
+                num_edges = self.long(self.fh.read(4))
+                edges = []
+                for n in xrange(num_edges):
+                    edge = self.short(self.fh.read(2)), self.short(self.fh.read(2)), self.short(self.fh.read(2)), self.short(self.fh.read(2))
+                    edges.append(edge)
+                self.seg.positions = positions
+                self.seg.edges = edges
             elif hdr == 'MATI':
                 self.up.up.last_chunk = 'MATI'
                 # 1st up: ModelUnpacker, 2nd up: MSHUnpack

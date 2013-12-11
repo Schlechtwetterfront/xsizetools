@@ -361,18 +361,11 @@ class ModelConverter(andesicore.SIModel):
         return seg
 
     def clear_multiverts(self, collection):
-        positions = []
-        normals = []
-        for point in self.geo.Points:
-            pos = point.Position
-            normal = point.Normal
-            positions.append((pos.X, pos.Y, pos.Z))
-            normals.append((normal.X, normal.Y, normal.Z))
         for segment in collection:
             self.export.xsi.LogMessage('One Segment.')
             if isinstance(segment, msh2.SegmentGeometry):
                 self.export.xsi.LogMessage('Clearing Doubles.')
-                segment.clear_doubles(positions, normals)
+                segment.clear_doubles()
 
     def get_segments(self):
         '''Creates segments from the main geometry and returns them in
@@ -386,9 +379,7 @@ class ModelConverter(andesicore.SIModel):
         geometry.collection = coll
         # Then split it up into chunks for more than one material per model.
         poly_mat_indices = self.export.xsi.CGA_GetPolyIndicesPerMaterial(self.geo)
-        # self.export.xsi.LogMessage(poly_mat_indices)
         mat_names = self.export.xsi.CGA_GetMaterialNames(self.geo)
-        # self.export.xsi.LogMessage(mat_names)
         coll.add(geometry)
         # If the model only has one material just export this one chunk.
         if len(mat_names) == 1:

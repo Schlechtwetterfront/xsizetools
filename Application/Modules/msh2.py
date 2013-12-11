@@ -16,6 +16,7 @@ import struct
 import math
 import logging
 import json
+import os
 
 
 MODEL_TYPES = {'null': 0,
@@ -123,25 +124,90 @@ class Msh(Packer):
             fh.write(json.dumps(data, indent=4, separators=(',', ': ')))
         return True
 
-    @staticmethod
-    def load_json(filepath):
+    def save_segmented_json(self, folder, name):
+        if not os.path.isdir(folder):
+            os.mkdir(folder)
+        with open(os.path.join(folder, name + '.txt'), 'w') as fh:
+            fh.write(json.dumps({'has_shadowvolume': self.has_shadowvolume}))
+        with open(os.path.join(folder, name + ' nfo.txt'), 'w') as fh:
+            fh.write(json.dumps(self.info.get_json(), indent=4, separators=(',', ': ')))
+        for model in self.models:
+            model.save_segmented_json(folder, name)
+        for material in self.materials:
+            with open(os.path.join(folder, '{0} mtl {1}.txt'.format(name, material.name)), 'wb') as fh:
+                fh.write(json.dumps(material.get_json(), indent=4, separators=(',', ': ')))
+
+    @classmethod
+    def load_segmented_json(cls, folder, name):
+        model_start = '{0} mdl '.format(name)
+        material_start = '{0} mtl '.format(name)
+        msh = cls()
+        info_data = ''
+        with open(os.path.join(folder, '{0}.txt'.format(name)), 'r') as fh:
+            msh.has_shadowvolume = json.loads(fh.read())['has_shadowvolume']
+        with open(os.path.join(folder, '{0} nfo.txt'.format(name)), 'r') as fh:
+            info_data = json.loads(fh.read())
+        msh.info = SceneInfo.from_json(info_data)
+        materials = MaterialCollection(msh)
+        models = ModelCollection(msh)
+        for filename in os.listdir(folder):
+            if filename.startswith(model_start) and (not ' seg ' in filename):
+                models.add(Model.load_segmented_json(folder, filename.split('.')[0]))
+            elif filename.startswith(material_start):
+                with open(os.path.join(folder, filename), 'r') as fh:
+                    materials.add(Material.from_json(json.loads(fh.read())))
+        msh.models = models
+        # Re-order models so that parents appear before their children.
+        models_map = {}
+        models = []
+        for model in msh.models:
+            if model.parent_name:
+                if not models_map.get(model.parent_name, None):
+                    models_map[model.parent_name] = [model]
+                else:
+                    models_map[model.parent_name].append(model)
+            else:
+                models.append(model)
+        new_models = []
+        for model in models:
+            new_models.extend(msh.get_children_ordered(model, models_map))
+        msh.models.replace(new_models)
+        msh.materials = materials
+        msh.animation = Animation(None, 'empty')
+        msh.set_indices()
+        return msh
+
+    def get_children_ordered(self, model, children_map):
+        models = []
+        models.append(model)
+        children = children_map.get(model.name, [])
+        for child in children:
+            models.extend(self.get_children_ordered(child, children_map))
+        return models
+
+    @classmethod
+    def load_json(cls, filepath):
         data = ''
         with open(filepath, 'rb') as fh:
             data = fh.read()
         data = json.loads(data)
-        msh = Msh()
+        msh = cls()
         msh.info = SceneInfo.from_json(data['info'], msh)
         msh.models = ModelCollection.from_json(data['models'], msh)
         msh.materials = MaterialCollection.from_json(data['materials'], msh)
         msh.has_shadowvolume = data['has_shadowvolume']
-        for index, material in enumerate(msh.materials):
+        msh.animation = Animation(None, 'empty')
+        msh.set_indices()
+        return msh
+
+    def set_indices(self):
+        '''Set material and model indices (ie after json load).'''
+        for index, material in enumerate(self.materials):
             material.index = index
-        for index, model in enumerate(msh.models):
+        for index, model in enumerate(self.models):
             model.index = index
             for seg in model.segments:
-                seg.material = msh.get_mat_by_name(seg.mat_name)
-        msh.animation = Animation(None, 'empty')
-        return msh
+                seg.material = self.get_mat_by_name(seg.mat_name)
 
     def get_mat_by_name(self, name):
         '''Get Material object by name.'''
@@ -576,9 +642,37 @@ class Model(Packer):
             'deformers': self.deformers,
             'bbox': self.bbox.get_json(),
             'transform': self.transform.get_json(),
-            'bone': self.bone,
         }
         return data
+
+    def save_segmented_json(self, folder, name):
+        data = self.get_json()
+        del data['segments']
+        with open(os.path.join(folder, '{0} mdl {1}.txt'.format(name, self.name)), 'w') as fh:
+            fh.write(json.dumps(data, indent=4, separators=(',', ': ')))
+        for index, segment in enumerate(self.segments):
+            with open(os.path.join(folder, '{0} mdl {1} seg {2:0>3}.txt'.format(name, self.name, index)), 'w') as fh:
+                fh.write(json.dumps(segment.get_json(), indent=4, separators=(',', ': ')))
+
+    @classmethod
+    def load_segmented_json(cls, folder, name):
+        print 'LOADING SEGMENTED MODEL {0} {1}'.format(folder, name)
+        with open(os.path.join(folder, '{0}.txt'.format(name)), 'r') as fh:
+            model = Model.from_json(json.loads(fh.read()))
+        seg_start = '{0} seg '.format(name)
+        segments = SegmentCollection(model)
+        for filename in os.listdir(folder):
+            if filename.startswith(seg_start):
+                with open(os.path.join(folder, filename), 'r') as fh:
+                    data = json.loads(fh.read())
+                if data['type'] == 'SegmentGeometry':
+                    segments.add(SegmentGeometry.from_json(data))
+                elif data['type'] == 'ClothGeometry':
+                    segments.add(ClothGeometry.from_json(data))
+                elif data['type'] == 'ShadowGeometry':
+                    segments.add(ShadowGeometry.from_json(data))
+        model.segments = segments
+        return model
 
     @staticmethod
     def from_json(data, collection=None):
@@ -588,14 +682,14 @@ class Model(Packer):
         model.parent_name = data['parent']
         model.model_type = data['model_type']
         model.vis = data['vis']
-        model.segments = SegmentCollection.from_json(data['segments'], model)
+        # In case this is loaded from a segmented json.
+        if data.get('segments', None):
+            model.segments = SegmentCollection.from_json(data['segments'], model)
         model.collprim = data['collprim']
         model.primitive = data['primitive']
         model.deformers = data['deformers']
         model.bbox = BBox.from_json(data['bbox'])
         model.transform = Transform.from_json(data['transform'])
-        '''if data['bone']:
-            model.bone = Bone.from_json(data['bone'])'''
         return model
 
     def get_collprim_name(self):
@@ -994,7 +1088,7 @@ class SegmentGeometry(Packer):
     def get_json(self):
         data = {
             'type': self.classname,
-            'material': self.material.name,
+            'material': self.material.name.encode('utf-8'),
             'vertices': self.vertices.get_json(),
             'faces': self.faces.get_json(),
         }
@@ -1004,27 +1098,18 @@ class SegmentGeometry(Packer):
     def from_json(data, collection=None):
         geo = SegmentGeometry()
         geo.collection = collection
-        geo.mat_name = data['material']
+        geo.mat_name = data['material'].encode('utf-8')
         geo.vertices = VertexCollection.from_json(data['vertices'], geo)
         geo.faces = FaceCollection.from_json(data['faces'], geo)
         return geo
 
-    def clear_doubles(self, positions=None, normals=None):
+    def clear_doubles(self):
         '''Clears Vertices appearing more than once.'''
         self.index_map = dict()
         new_vertices = []
         len_new_verts = 0
         for index, vert in enumerate(self.vertices):
             index_original = None
-            '''if positions:
-                # Replace the normal.
-                vert_index = None
-                try:
-                    vert_index = positions.index(vert.pos)
-                except ValueError:
-                    pass
-                if vert_index:
-                    vert.normal = normals[vert_index]'''
             try:
                 index_original = new_vertices.index(vert)
                 print 'Original: {0}; Double: {1}'.format(new_vertices[index_original].normal, vert.normal)
@@ -1077,11 +1162,14 @@ class ShadowGeometry(Packer):
             self.collection = None
         self.classname = 'ShadowGeometry'
         self.data = ''
+        self.positions = []
+        self.edges = []
 
     def get_json(self):
         data = {
             'type': self.classname,
-            'data': self.data,
+            'positions': self.positions,
+            'edges': self.edges,
         }
         return data
 
@@ -1089,7 +1177,8 @@ class ShadowGeometry(Packer):
     def from_json(data, collection=None):
         geo = ShadowGeometry()
         geo.collection = collection
-        geo.data = data['data']
+        geo.positions = data['positions']
+        geo.edges = data['edges']
         return geo
 
     def dump(self, fh):
@@ -1103,7 +1192,14 @@ class ShadowGeometry(Packer):
         return ''.join(data)
 
     def pack(self):
-        return ''
+        data = ['SHDW', 'size']
+        data.append(struct.pack('<L', len(self.positions)))
+        for pos in self.positions:
+            data.append(struct.pack('<fff', *pos))
+        data.append(struct.pack('<L', len(self.edges)))
+        for edge in self.edges:
+            data.append(struct.pack('<HHHH', *edge))
+        return ''.join(data)
 
 
 class ClothGeometry(Packer):
@@ -2346,16 +2442,16 @@ class Transform(object):
     def get_json(self):
         data = {
             'position': self.translation,
-            'rotation': self.rotation,
+            'rotation': self.euler_angles(),
             'scale': self.scale,
         }
         return data
 
-    @staticmethod
-    def from_json(data):
-        tr = Transform()
+    @classmethod
+    def from_json(cls, data):
+        tr = cls()
         tr.translation = data['position']
-        tr.rotation = data['rotation']
+        tr.rotation = tr.euler_to_quaternion(data['rotation'])
         tr.scale = data['scale']
         return tr
 
@@ -2415,6 +2511,7 @@ class Transform(object):
         y = s1 * c2 * c3 + c1 * s2 * s3
         z = c1 * s2 * c3 - s1 * c2 * s3
         self.rotation = x, y, z, w
+        return x, y, z, w
 
     def reversed_quaternion(self):
         '''Returns the Quaternion as W, X, Y, Z.'''

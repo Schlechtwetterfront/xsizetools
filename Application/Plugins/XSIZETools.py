@@ -713,6 +713,8 @@ def MshJson_Execute():
     pS = xsi.ActiveSceneRoot.AddProperty('CustomProperty', False, 'MshText')
     pS.AddParameter3('mshpath', const.siString, 'C:\\Users\\Administrator\\Documents\\')
     pS.AddParameter3('txtpath', const.siString, 'C:\\Users\\Administrator\\Documents\\')
+    pS.AddParameter3('segmented', const.siBool, True, 0, 1, 0, 0)
+    pS.AddParameter3('dev', const.siBool, False, 0, 1, 0, 0)
 
     mLay = pS.PPGLayout
     mLay.SetAttribute(const.siUILogicFile, andesicore.Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\mshjson.py')
@@ -733,6 +735,8 @@ def MshJson_Execute():
     txtPathI.SetAttribute(const.siUIFileMustExist, False)
 
     mLay.AddRow()
+    mLay.AddItem('segmented', 'Segmented')
+    mLay.AddItem('dev', 'DevMode')
     mLay.AddButton('msh2txt', 'MSH to TXT')
     mLay.AddButton('txt2msh', 'TXT to MSH')
     mLay.EndRow()
@@ -740,9 +744,9 @@ def MshJson_Execute():
     mLay.EndGroup()
 
     desk = xsi.Desktop.ActiveLayout
-    view = desk.CreateView('Property Panel', 'MSH Export')
+    view = desk.CreateView('Property Panel', 'MSH to TXT')
     view.BeginEdit()
-    view.Resize(400, 120)
+    view.Resize(400, 125)
     view.SetAttributeValue('targetcontent', pS.FullName)
     view.EndEdit()
     return True
