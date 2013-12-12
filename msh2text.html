@@ -6,6 +6,7 @@
         <title>XSI ZE Tools by Ande</title>
         <link rel="stylesheet" href="stylesheets/styles.css">
         <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+		<link rel="stylesheet" href="stylesheets/ande.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
         <script src="javascripts/respond.js"></script>
         <!--[if lt IE 9]>
@@ -42,6 +43,209 @@
 					<li><strong>4: geobone</strong> - Animated geometry (only SegmentGeometry segments).</li>
 					<li><strong>5: geostatic</strong> - Standard geometry, no envelope or deformers.</li>
 					<li><strong>6: geoshadow</strong> - Shadow geometry (ShadowGeometry segments).</li>
+				</ul>
+
+
+
+				<h2><a name="structure"></a>File Structure and Naming Conventions</h2>
+				MSH Name = <span id="number">name</span><br>
+				<br>
+				<span id="number">name</span>.txt<br>
+				<blockquote>
+                    bool has_shadowvolume: Does this MSH have a shadow volume (SHDW)?
+				</blockquote><br>
+
+				<span id="number">name</span> nfo.txt<br>
+				<blockquote>
+                    string name: Scene Name<br>
+                    float[2] frame_range: Start Frame, End Frame<br>
+                    float fps: Scene FPS<br>
+                    float[3] scale: Scene scale<br>
+                    BBox bbox: Scene BBox<br>
+                </blockquote><br>
+                <br>
+                For every Model:<br>
+                <span id="number">name</span> mdl <span id="string">model_name</span>.txt<br>
+                <blockquote>
+                    <strong>string name:</strong>
+                        Model Name<br>
+                    <strong>string parent:</strong>
+                        Parent Name<br>
+                    <strong>string model_type:</strong>
+                        One of the available <a href="#modeltypes">Model Types</a><br>
+                    <strong>int visible:</strong>
+                        1 == visible, 0 == hidden<br>
+                    <strong>bool collprim:</strong>
+                        Is this model a collision primitive?<br>
+                    <strong>[int, float, float, float] primitive:</strong>
+                        Primitive type, value 0, value 1, value 2<br>
+                    <strong>int num_deformers:</strong>
+                        Number of deformers on save, ignored when loading<br>
+                    <strong>string[] deformers:</strong>
+                        Deformer names<br>
+                    <strong>BBox bbox:</strong>
+                        Model BBox<br>
+                    <strong>Transform transform:</strong>
+                        Model Transform<br>
+                </blockquote><br>
+                For every segment (SEGM/CLTH/SHDW) in the models geometry:<br>
+                <span id="number">name</span> mdl <span id="string">model_name</span> seg <span id="other">#_of_segment</span>.txt<br>
+                <blockquote>
+                    <strong>SegmentGeometry:</strong><br>
+                        <strong>string type:</strong>
+                            SegmentGeometry | ShadowGeometry | ClothGeometry<br>
+                        <strong>string material:</strong>
+                            Material name<br>
+                        <strong>int num_vertices:</strong>
+                            Number of vertices on save, ignored when loading<br>
+                        <strong>Vertex[] vertices:</strong>
+                            Segment vertices<br>
+                        <strong>int num_faces:</strong>
+                            Number of faces on save, ignored when loading<br>
+                        <strong>Face[] faces:</strong>
+                            Segment faces<br><br>
+                    <strong>ShadowGeometry:</strong><br>
+                        <strong>string type:</strong>
+                            See above<br>
+                        <strong>int num_positions:</strong>
+                            Number of positions on save, ignored when loading<br>
+                        <strong>float[3][] positions:</strong>
+                            Positions, currently only used to store the information<br>
+                        <strong>int num_faces:</strong>
+                            Number of faces on save, ignored when loading<br>
+                        <strong>Face[] faces:</strong>
+                            Faces, currently only used to store the information<br><br>
+                    <strong>ClothGeometry:</strong><br>
+                        <strong>string type:</strong>
+                            See above<br>
+                        <strong>string texture:</strong>
+                            Cloth texture<br>
+                        <strong>int num_vertices:</strong>
+                            Number of vertices on save, ignored when loading<br>
+                        <strong>ClothVertex[] vertices:</strong>
+                            Cloth vertices<br>
+                        <strong>int num_faces:</strong>
+                            Number of faces on save, ignored when loading<br>
+                        <strong>int[2][] stretch:</strong>
+                            Stretch constraint value pairs<br>
+                        <strong>int[2][] cross:</strong>
+                            Cross constraint value pairs<br>
+                        <strong>int[2][] bend:</strong>
+                            Bend constraint value pairs<br>
+                        <strong>ClothCollision[] collisions:</strong>
+                            Collisions<br>
+                </blockquote><br>
+                <br>
+                For every Material:<br>
+                <span id="number">name</span> mtl <span id="string">material_name</span>.txt<br>
+                <blockquote>
+                    <strong>string name:</strong>
+                        Material name<br>
+                    <strong>int index:</strong>
+                        Initial index on save, recalculated on load<br>
+                    <strong>string tex0:</strong>
+                        Diffuse texture<br>
+                    <strong>string tex1:</strong>
+                        Special texture 1<br>
+                    <strong>string tex2:</strong>
+                        Special texture 2<br>
+                    <strong>string tex3:</strong>
+                        Special texture 3<br>
+                    <strong>Flag[8] flags:</strong>
+                        [string name, bool active, int enum_value]<br>
+                    <strong>int render_type:</strong>
+                        Render type<br>
+                    <strong>int data0:</strong>
+                        Shader data 0<br>
+                    <strong>int data1:</strong>
+                        Shader data 1<br>
+                    <strong>Color diffuse:</strong>
+                        Diffuse color<br>
+                    <strong>Color specular:</strong>
+                        Specular color<br>
+                    <strong>Color ambient:</strong>
+                        Ambient color<br>
+                    <strong>float gloss:</strong>
+                        Gloss value<br>
+                </blockquote><br><br><br>
+
+
+                <strong>BBox</strong><br>
+                <blockquote>
+                    <strong>float[3] rotation:</strong>
+                        Rotation in degrees<br>
+                    <strong>float[3] extents:</strong>
+                        BBox extents<br>
+                    <strong>float[3] center:</strong>
+                        BBox center<br>
+                    <strong>float radius:</strong>
+                        BBox radius<br>
+                </blockquote><br>
+
+                <strong>Transform</strong><br>
+                <blockquote>
+                    <strong>float[3] rotation:</strong>
+                        Rotation in degrees<br>
+                    <strong>float[3] position:</strong>
+                        Position<br>
+                    <strong>float[3] sacle:</strong>
+                        Scale<br>
+                </blockquote><br>
+
+                <a id="color"></a><strong>Color</strong><br>
+                <blockquote>
+                    <strong>float[4] rgba:</strong><br>
+                        Channel values (0.0 to 1.0)<br>
+                        OR<br>
+                    <strong>int[4] rgba:</strong><br>
+                        Channel values (0 to 255)<br>
+                </blockquote><br>
+
+                <strong>Vertex</strong><br>
+                <blockquote>
+                    <strong>float[3] position:</strong><br>
+                        Position in world space<br>
+                    <strong>float[2] uv:</strong><br>
+                        UV coordinate<br>
+                    <strong>float[3] normal:</strong><br>
+                        Vertex normal<br>
+                    <strong>string[4] deformers:</strong><br>
+                        Deformers for this vertex<br>
+                    <strong>float[4] weights:</strong><br>
+                        Weights for the corresponding deformer<br>
+                    <strong><a href="#color">Color</a> color:</strong><br>
+                        Vertex color<br>
+                </blockquote><br>
+
+                <strong>Face</strong><br>
+                <blockquote>
+                    <strong>int[] vertices:</strong><br>
+                        Indices to the vertices forming this polygon<br>
+                </blockquote><br>
+
+                <strong>ClothVertex</strong><br>
+                <blockquote>
+                    <strong>float[3] position:</strong><br>
+                        Position in world space<br>
+                    <strong>float[2] uv:</strong><br>
+                        UV coordinate<br>
+                    <strong>string deformer:</strong><br>
+                        Joint this point moves with<br>
+                    <strong>bool is_fixed:</strong><br>
+                        If true, does not get simulated and moves with deformer (if it exists)<br>
+                </blockquote><br>
+
+                <strong>ClothCollision</strong><br>
+                <blockquote>
+                    <strong>string name:</strong><br>
+                        Collision name<br>
+                    <strong>string parent:</strong><br>
+                        Parent of the collision object<br>
+                    <strong>int unknown_long:</strong><br>
+                        Unknown purpose<br>
+                    <strong>float[3] collision_primitive:</strong><br>
+                        [value 0, value 1, value 2]<br>
+                </blockquote>
                 </div>
             </section>
         </div>
