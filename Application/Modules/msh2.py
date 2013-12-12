@@ -124,7 +124,11 @@ class Msh(Packer):
             fh.write(json.dumps(data, indent=4, separators=(',', ': ')))
         return True
 
-    def save_segmented_json(self, folder, name):
+    def save_segmented_json(self, folder, name=None):
+        # If no name argument was passed assume that a full path was passed.
+        if not name:
+            folder, name = os.path.dirname(folder), os.path.basename(folder)
+            name = name.split('.')[0]
         if not os.path.isdir(folder):
             os.mkdir(folder)
         with open(os.path.join(folder, name + '.txt'), 'w') as fh:
@@ -635,10 +639,11 @@ class Model(Packer):
             'name': self.name,
             'parent': self.parent_name,
             'model_type': self.model_type,
-            'vis': self.vis,
+            'visible': not self.vis,  # vis == hidden
             'segments': self.segments.get_json(),
             'collprim': self.collprim,
             'primitive': self.primitive,
+            'num_deformers': len(self.deformers),
             'deformers': self.deformers,
             'bbox': self.bbox.get_json(),
             'transform': self.transform.get_json(),
@@ -681,7 +686,8 @@ class Model(Packer):
         model.name = data['name']
         model.parent_name = data['parent']
         model.model_type = data['model_type']
-        model.vis = data['vis']
+        model.vis = data.get('visible', False)
+        model.vis = data.get('vis', model.vis)  # Older format used that.
         # In case this is loaded from a segmented json.
         if data.get('segments', None):
             model.segments = SegmentCollection.from_json(data['segments'], model)
@@ -1089,7 +1095,9 @@ class SegmentGeometry(Packer):
         data = {
             'type': self.classname,
             'material': self.material.name.encode('utf-8'),
+            'num_vertices': len(self.vertices),
             'vertices': self.vertices.get_json(),
+            'num_faces': len(self.faces),
             'faces': self.faces.get_json(),
         }
         return data
@@ -1168,7 +1176,9 @@ class ShadowGeometry(Packer):
     def get_json(self):
         data = {
             'type': self.classname,
+            'num_positions': len(self.positions),
             'positions': self.positions,
+            'num_edges': len(self.edges),
             'edges': self.edges,
         }
         return data
@@ -1199,6 +1209,42 @@ class ShadowGeometry(Packer):
         data.append(struct.pack('<L', len(self.edges)))
         for edge in self.edges:
             data.append(struct.pack('<HHHH', *edge))
+        data[1] = struct.pack('<L', 4 + 4 + 6 * len(self.edges) + 12 * len(self.positions))
+        return ''.join(data)
+
+
+class ClothCollision(Packer):
+    def __init__(self, cloth_geo=None):
+        self.cloth = cloth_geo
+        self.name = ''
+        self.parent = ''
+        self.unknown_long = 0
+        self.collision_prim = 4, 4, 4
+
+    def get_json(self):
+        data = {
+            'name': self.name,
+            'parent': self.parent,
+            'unknown_long': self.unknown_long,
+            'collision_primitive': self.collision_prim,
+        }
+        return data
+
+    @classmethod
+    def from_json(cls, data, cloth=None):
+        cc = cls()
+        cc.cloth = cloth
+        cc.name = data['name']
+        cc.parent = data['parent']
+        cc.unknown_long = data['unknown_long']
+        cc.collision_prim = data['collision_primitive']
+        return cc
+
+    def get(self):
+        data = [self.name + '\x00',
+                self.parent + '\x00',
+                struct.pack('<L', self.unknown_long),
+                struct.pack('<fff', *self.collision_prim)]
         return ''.join(data)
 
 
@@ -1215,19 +1261,26 @@ class ClothGeometry(Packer):
         # These are only for repack. As of now I can't recreate
         # the constraints exactly so they will stay in packed form.
         self.stretch = ''
+        self.stretch_constraints = []
         self.cross = ''
+        self.cross_constraints = []
         self.bend = ''
+        self.bend_constraints = []
         self.collision = ''
+        self.collisions = []
 
     def get_json(self):
         data = {
             'type': self.classname,
-            'vertices': ClothVertexCollection.get_json(),
-            'faces': FaceCollection.get_json(),
-            'stretch': self.stretch,
-            'cross': self.cross,
-            'bend': self.bend,
-            'collision': self.collision,
+            'texture': self.texture,
+            'num_vertices': len(self.vertices),
+            'vertices': self.vertices.get_json(),
+            'num_faces': len(self.faces),
+            'faces': self.faces.get_json(),
+            'stretch': self.stretch_constraints,
+            'cross': self.cross_constraints,
+            'bend': self.bend_constraints,
+            'collisions': [c.get_json() for c in self.collisions],
         }
         return data
 
@@ -1237,10 +1290,10 @@ class ClothGeometry(Packer):
         geo.collection = collection
         geo.vertices = ClothVertexCollection.from_json(data['vertices'], geo)
         geo.faces = FaceCollection.from_json(data['faces'], geo)
-        geo.stretch = data['stretch']
-        geo.cross = data['cross']
-        geo.bend = data['bend']
-        geo.collision = data['collision']
+        geo.stretch_constraints = data['stretch']
+        geo.cross_constraints = data['cross']
+        geo.bend_constraints = data['bend']
+        geo.collisions = [ClothCollision.from_json(collision, geo) for collision in data['collisions']]
         return geo
 
     def dump(self, fh):
@@ -1255,13 +1308,10 @@ class ClothGeometry(Packer):
         self.faces.segment = self
 
     def pack_stretch(self):
-        # TODO: remove edges between fixed.
-        data = ['SPRS', 'size', 'num']
-        edges = self.faces.stretch_edges()
-        for edge in edges:
-            data.append(struct.pack('<HH', *edge))
-        data[1] = struct.pack('<L', 4 * len(edges) + 4)
-        data[2] = struct.pack('<L', len(edges))
+        data = ['SPRS', struct.pack('<LL', 4 * len(self.stretch_constraints), len(self.stretch_constraints))]
+        for item in self.stretch_constraints:
+            data.append(struct.pack('<HH', *item))
+        return ''.join(data)
         return ''.join(data)
 
     def repack_stretch(self):
@@ -1272,12 +1322,9 @@ class ClothGeometry(Packer):
         return ''.join(data)
 
     def pack_cross(self):
-        data = ['CPRS', 'size', 'num']
-        edges = self.faces.cross_edges()
-        for edge in edges:
-            data.append(struct.pack('<HH', *edge))
-        data[1] = struct.pack('<L', 4 * len(edges) + 4)
-        data[2] = struct.pack('<L', len(edges))
+        data = ['CPRS', struct.pack('<LL', 4 * len(self.cross_constraints), len(self.cross_constraints))]
+        for item in self.cross_constraints:
+            data.append(struct.pack('<HH', *item))
         return ''.join(data)
 
     def repack_cross(self):
@@ -1287,10 +1334,9 @@ class ClothGeometry(Packer):
         return ''.join(data)
 
     def pack_bend(self):
-        data = ['BPRS', 'size', 'num']
-        data[1] = struct.pack('<L', 0 * 4 + 4)
-        data[2] = struct.pack('<L', 0)
-        #data.append(struct.pack('<HHHH', 1, 3, 0, 2))
+        data = ['BPRS', struct.pack('<LL', 4 * len(self.bend_constraints), len(self.bend_constraints))]
+        for item in self.bend_constraints:
+            data.append(struct.pack('<HH', *item))
         return ''.join(data)
 
     def repack_bend(self):
@@ -1300,9 +1346,12 @@ class ClothGeometry(Packer):
         return ''.join(data)
 
     def pack_collision(self):
-        data = ['COLL', 'size', 'num']
-        data[1] = struct.pack('<L', 4)
-        data[2] = struct.pack('<L', 0)
+        data = ['COLL', 'size', struct.pack('<L', len(self.collisions))]
+        size = 0
+        for coll in self.collisions:
+            data.append(coll.get())
+            size += len(data[-1])
+        data[1] = struct.pack('<L', size)
         return ''.join(data)
 
     def repack_collision(self):
@@ -2313,41 +2362,6 @@ class BoneCollection(Packer):
         return ''.join(data)
 
 
-class BBox(object):
-    def __init__(self):
-        self.rotation = 0.0, 0.0, 0.0, 1.0
-        self.extents = 4.0, 4.0, 4.0
-        self.center = 0.0, 0.0, 0.0
-        self.radius = 6.92
-        self.classname = 'BBox'
-
-    def get_json(self):
-        data = {
-            'rotation': self.rotation,
-            'extents': self.extents,
-            'center': self.center,
-            'radius': self.radius,
-        }
-        return data
-
-    @staticmethod
-    def from_json(data):
-        b = BBox()
-        b.rotation = data['rotation']
-        b.extents = data['extents']
-        b.center = data['center']
-        b.radius = data['radius']
-        return b
-
-    def pack(self):
-        data = ['BBOX', struct.pack('<L', 44)]
-        data.append(struct.pack('<ffff', *self.rotation))
-        data.append(struct.pack('<fff', *self.center))
-        data.append(struct.pack('<fff', *self.extents))
-        data.append(struct.pack('<f', self.radius))
-        return ''.join(data)
-
-
 class Color(object):
     def __init__(self, color=None):
         if color:
@@ -2516,3 +2530,38 @@ class Transform(object):
     def reversed_quaternion(self):
         '''Returns the Quaternion as W, X, Y, Z.'''
         return self.rotation[3], self.rotation[0], self.rotation[1], self.rotation[2]
+
+
+class BBox(Transform):
+    def __init__(self):
+        self.rotation = 0.0, 0.0, 0.0, 1.0
+        self.extents = 4.0, 4.0, 4.0
+        self.center = 0.0, 0.0, 0.0
+        self.radius = 6.92
+        self.classname = 'BBox'
+
+    def get_json(self):
+        data = {
+            'rotation': self.euler_angles(),
+            'extents': self.extents,
+            'center': self.center,
+            'radius': self.radius,
+        }
+        return data
+
+    @staticmethod
+    def from_json(data):
+        b = BBox()
+        b.rotation = b.euler_to_quaternion(data['rotation'])
+        b.extents = data['extents']
+        b.center = data['center']
+        b.radius = data['radius']
+        return b
+
+    def pack(self):
+        data = ['BBOX', struct.pack('<L', 44)]
+        data.append(struct.pack('<ffff', *self.rotation))
+        data.append(struct.pack('<fff', *self.center))
+        data.append(struct.pack('<fff', *self.extents))
+        data.append(struct.pack('<f', self.radius))
+        return ''.join(data)

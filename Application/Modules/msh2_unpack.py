@@ -294,9 +294,9 @@ class ClothUnpacker(Unpacker):
                 logging.debug('Cloth Deformers: {0}'.format(weights))
                 logging.debug('Cloth Fixed Points: {0}'.format(len(fixed)))
                 weights.remove('')
-                for index, vertindex in enumerate(fixed):
-                    #logging.debug('Cloth Vertex Deformer: {0}'.format(self.seg.vertices[vertindex].deformer))
-                    self.seg.vertices[vertindex].deformer = weights[index]
+                if len(weights) > 0:
+                    for index, vertindex in enumerate(fixed):
+                        self.seg.vertices[vertindex].deformer = weights[index]
             elif hdr == 'CMSH':
                 num = unpack('<L', self.fh.read(4))[0]
                 facecoll = msh2.FaceCollection(self.seg)
@@ -306,13 +306,45 @@ class ClothUnpacker(Unpacker):
                     facecoll.add(face)
                 self.seg.faces = facecoll
             elif hdr == 'SPRS':
-                self.seg.stretch = self.fh.read(size)
+                num_constraints = self.long(self.fh.read(4))
+                s_constraints = []
+                for n in xrange(num_constraints):
+                    s_constraints.append(unpack('<HH', self.fh.read(4)))
+                self.seg.stretch_constraints = s_constraints
             elif hdr == 'CPRS':
-                self.seg.cross = self.fh.read(size)
+                num_constraints = self.long(self.fh.read(4))
+                c_constraints = []
+                for n in xrange(num_constraints):
+                    c_constraints.append(unpack('<HH', self.fh.read(4)))
+                self.seg.cross_constraints = c_constraints
             elif hdr == 'BPRS':
-                self.seg.bend = self.fh.read(size)
+                num_constraints = self.long(self.fh.read(4))
+                b_constraints = []
+                for n in xrange(num_constraints):
+                    b_constraints.append(unpack('<HH', self.fh.read(4)))
+                self.seg.bend_constraints = b_constraints
             elif hdr == 'COLL':
-                self.seg.collision = self.fh.read(size)
+                num_colls = self.long(self.fh.read(4))
+                for n in xrange(num_colls):
+                    collision = msh2.ClothCollision()
+                    collision.cloth = self.seg
+                    name = []
+                    while 1:
+                        char = self.fh.read(1)
+                        name.append(char)
+                        if char == '\x00':
+                            break
+                    collision.name = ''.join(name)
+                    parent = []
+                    while 1:
+                        char = self.fh.read(1)
+                        parent.append(char)
+                        if char == '\x00':
+                            break
+                    collision.parent = ''.join(parent)
+                    collision.unknown_long = unpack('<L', self.fh.read(4))
+                    collision.collision_prim = unpack('<fff', self.fh.read(12))
+                    self.seg.collisions.append(collision)
             else:
                 self.log('Unrecognized chunk {0} in ClothUnpack.'.format(hdr))
                 # Return to the position before the header.
