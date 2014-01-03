@@ -41,30 +41,48 @@
                     <li><a href="#maininfo">Main Info</a></li>
                     <li><a href="#download">Download & Installation</a></li>
                     <li><a href="#guidelines">Guidelines</a></li>
+                        <ol>
+                            <li><a href="#gl-import">Import - Notes</a></li>
+                            <li><a href="#gl-ex-avoid">Export - Avoid</a></li>
+                            <li><a href="#gl-export-coll">Export - Collisions</a></li>
+                            <li><a href="#gl-export-weight">Export - Weighting</a></li>
+                            <li><a href="#gl-export-mat">Export - Materials</a></li>
+                            <li><a href="#gl-export-general">Export - General</a></li>
+                        </ol>
                     <li><a href="#contributors">Contributors</a></li>
                     <li><a href="#changelog">Changelog</a></li>
 					<li><a href="msh2text.html">MSH to TXT Information</a></li>
                 </ol>
 				<br><br><br>
                 <h2><a name="maininfo"></a>Main Info</h2>
-                XSIZETools is an addon for Softimage (tested with ModTool 7.5, 2012 SP1 and 2014). The main features are full export and import of 3D .msh files for ZeroEngine (Star Wars Battlefront I and II). That includes geometry, materials with all ZeroEngine-specific flags, animations and collisions.
+                XSIZETools is an addon for Softimage (tested with ModTool 7.5, 2012 SP1 and 2014).<br>
+                The main features are full export and import of 3D .msh files for ZeroEngine (Star Wars Battlefront I and II). That includes geometry, materials with all ZeroEngine-specific flags, animations and collisions.<br><br>
+
                 This began as a small collection of scripts to help setup hierarchies and the like and turned into a full-fledged exporter/importer for the .msh format. As only a small amount of the .msh file format structure was known when I began writing the exporter I had to reverse-engineer (with contributions from a handful of other people) the rest (which was about 70% of the chunks).
                 <br><br><br>
 				<h2><a name="download"></a>Download & Installation</h2>
                 The main chunk of the project is hosted on <a href="https://github.com/Schlechtwetterfront/xsizetools" target="_blank">Github</a>. The source for the CGeometryAccessorWrappers can be found <a href="XSIZETools_src.7z">here</a>.
-                Use the <strong>Download ZIP </strong>button on Github to download the repository. If you are familiar with Git you can clone the repository, too.
-                Installation instructions for the addon are included on Github/the readme.
+                Use the <strong>ZIP</strong> button at the top of this page to download the addon.<br>
+                <br>
+				To install ZETools, unzip the downloaded archive into<br>
+				<blockquote>
+                    <strong>C:/users/%user%/Autodesk/Softimage_%version%/Addons/</strong><br>
+                    OR<br>
+                    <strong>C:/users/%user%/Softimage/Softimage_%version%/Addons/</strong><br>
+                </blockquote>
+                Make sure you use this path and not the factory addon path.<br>
+
                 The low-level geometry functions are written in C++, so the Visual C++ 2010 redist is required.  <a href="http://www.microsoft.com/download/en/details.aspx?id=5555" target="_blank">x86</a>  |  <a href="http://www.microsoft.com/downloads/de-de/details.aspx?FamilyID=bd512d9e-43c8-4655-81bf-9350143d5867" target="_blank">x64 </a>(only if x86 didn't work).
                 <br><br><br>
 				<h2><a name="guidelines"></a>Guidelines</h2>
-                <h3>Import - Notes</h3>
+                <h3><a name="gl-import"></a>Import - Notes</h3>
                 <ul>
                     <li>Animations will be imported as linear animations on a per-frame basis.</li>
                     <li>It should be possible to re-export animations directly after import. For SWBF1 you need to have at least one material though.</li>
                     <li>.msh files exported with MshEx won't import.</li>
                     <li>There might be some misplaced edges.</li>
                 </ul>
-                <h3>Export - Avoid</h3>
+                <h3><a name="gl-export-avoid"></a>Export - Avoid</h3>
 				The CheckSel function in the export dialog can detect some problems.
                 <ul>
                     <li><b>Overlapping clusters:</b> Might break the .msh file. Might mess up the exported .msh's UVs/Weights/Vertex Colors.</li>
@@ -72,7 +90,7 @@
                     <li><b>Unsupported Model types:</b> The supported model types are: poly mesh, null, bone.</li>
                     <li><b>No Materials:</b> You should have at least one material named Scene_Material when exporting. If you have at least one material you don't need Scene_Material.</li>
                 </ul>
-                <h3>Export - Collisions</h3>
+                <h3><a name="gl-export-coll"></a>Export - Collisions</h3>
                 <ul>
                     <li>Collision meshes can be created by naming the model <b><span style="color: #3d85c6;">collision_*</span></b> or <b><span style="color: #3d85c6;">*_collision</span></b>.</li>
                     <li>
@@ -94,13 +112,17 @@
                         </ol>
                     </li>
                 </ul>
-                <h3>Export - Weighting</h3>
+                <h3><a name="gl-export-weight"></a>Export - Weighting</h3>
                 <ul>
                     <li><b>Always apply the envelope to ALL bones.</b> This might slow your workflow down but it ensures the points are weighted to the correct bone after export.</li>
                     <li><b>Only weight to objects with bone in their name(NOT: root, eff).</b></li>
                     <li><b>Try to apply the envelope only to models which won't be merged after weighting.</b> This does not have to break the .msh, it could though.</li>
                 </ul>
-                <h3>Export - General</h3>
+                <h3><a name="gl-export-mat"></a>Export - Materials</h3>
+                <ul>
+                    <li><b>Material/Render flags are applied per material.</b>You can apply them by opening the ZETools Material Manager, selecting a material and then clicking "ZE-ify". This will add all the ZeroEngine material flags to the material. Afterwards inspect your material (click the "Edit" button) and change those settings in the appended options.</li>
+                </ul>
+                <h3><a name="gl-export-general"></a>Export - General</h3>
                 <ul>
                     <li>It's not important how you animate bones (FK or IK etc), the exporter will go through all frames one-by-one and get the current local transforms of every bone.</li>
                     <li>The currently selected object + all it's children will be exported.</li>
