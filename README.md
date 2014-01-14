@@ -2,7 +2,7 @@ XSIZETools
 ========
 
 
-**NOTE:** This might be a dev build. For the latest stable build look [**here**] (https://github.com/Schlechtwetterfront/xsizetools/tree/8438be14f6e84f383e0899b7b78aa297d3d65654 "here")
+**NOTE:** This might be a dev build. For the latest stable build look [**here**] (https://github.com/Schlechtwetterfront/xsizetools/ "here")
 
 
 Main
