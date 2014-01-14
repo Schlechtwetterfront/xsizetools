@@ -45,13 +45,14 @@ def XSILoadPlugin(in_reg):
     in_reg.Author = 'Ande'
     in_reg.Name = 'XSIZETools'
     in_reg.Email = 'schlchtwtrfrnt@gmail.com'
-    in_reg.URL = 'https://sites.google.com/site/andescp/'
+    in_reg.URL = 'http://schlechtwetterfront.github.io/xsizetools/'
     in_reg.Major = 1
     in_reg.Minor = 0
 
     in_reg.RegisterMenu(const.siMenuMainTopLevelID, 'ZE Tools', False)
     in_reg.RegisterCommand('XSIZETools', 'XSIZETools')
     in_reg.RegisterCommand('ZETHelp', 'ZETHelp')
+    in_reg.RegisterCommand('OpenZETWebsite', 'OpenZETWebsite')
     in_reg.RegisterCommand('MSHExport', 'MSHExport')
     in_reg.RegisterCommand('MSHImport', 'MSHImport')
     in_reg.RegisterCommand('MaterialEdit', 'MaterialEdit')
@@ -112,7 +113,23 @@ def ZETools_Init(in_ctxt):
     sub_menu.AddCommandItem('MSH to TXT...', 'MshJson')
     sub_menu2 = win32com.client.Dispatch(oMenu.AddItem('General Tools', const.siMenuItemSubmenu))
     sub_menu2.AddCommandItem('Info...', 'ZETHelp')
+    sub_menu2.AddCommandItem('Help and Documentation', 'OpenZETWebsite')
     sub_menu2.AddCommandItem('Open Import Log', 'OpenImportLog')
+    return True
+
+
+def OpenZETWebsite_Init(in_ctxt):
+    oCmd = in_ctxt.Source
+    oCmd.Description = ''
+    oCmd.ReturnValue = True
+
+    return True
+
+
+def OpenZETWebsite_Execute():
+    import webbrowser
+    url = 'http://schlechtwetterfront.github.io/xsizetools/'
+    webbrowser.open_new_tab(url)
     return True
 
 

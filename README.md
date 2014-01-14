@@ -2,9 +2,6 @@ XSIZETools
 ========
 
 
-**NOTE:** This might be a dev build. For the latest stable build look [**here**] (https://github.com/Schlechtwetterfront/xsizetools/ "here")
-
-
 Main
 --------
 
