@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="chrome=1">
+        <title>ZETools - MSH Import</title>
+        <link rel="stylesheet" href="stylesheets/styles.css">
+        <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+		<link rel="stylesheet" href="stylesheets/ande.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+        <script src="javascripts/respond.js"></script>
+        <!--[if lt IE 9]>
+        <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <!--[if lt IE 8]>
+        <link rel="stylesheet" href="stylesheets/ie.css">
+        <![endif]-->
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    </head>
+    <body>
+        <div id="header">
+            <nav>
+                <li class="home"><a href="index.html">Home</a></li>
+            </nav>
+        </div>
+        <!-- end header -->
+        <div class="wrapper">
+            <section>
+                <div id="title">
+                    <h1>.msh Import</h1>
+                    <p></p>
+                    <hr>
+                    <span class="credits left">Project maintained by <a href="https://Schlechtwetterfront.github.com/">Schlechtwetterfront</a></span>
+                    <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+                </div>
+                <h2>Settings</h2>
+                <h3>Texture Folder</h3>
+                If the textures for the to-be-imported .msh file are not located in the same folder as the .msh file.<br>
+                <br><br>
+                <h3>Set Frame Range</h3>
+                Will set the frame range to that stored in the .msh file.<br>
+                <br><br>
+                <h3>Apply animation to selected hierarchy</h3>
+                If you have already imported a .msh file (like a unit) then you can apply an animation stored in another .msh file to the previously imported mesh (root of that hierarchy must be selected).<br>
+                <br><br>
+                <h3>Null Display Size</h3>
+                Set the display size of nulls.<br>
+                <br><br>
+                <h3>Ignore Geometry</h3>
+                Will replace any meshes with nulls, use this if you're applying an animation to a hierarchy.<br>
+                <br><br>
+                <h3>Ignore Animation</h3>
+                Ignores any animation. Use this if you're importing baseposes to later apply animations (and just generally if you don't need the animation).<br>
+                <br><br>
+                <h3>Color Nulls</h3>
+                Will color nulls if the importer can find out which type they are (bones, effs and roots).<br>
+                <br><br>
+                <h3>Hide Roots/Effectors</h3>
+                Will hide roots and effectors in the hierarchy so they aren't accidentally animated.<br>
+                <br><br>
+                <h3>Wield Boundary Edges</h3>
+                Imported meshes usually have splits along the UV seams. This option will wield any of these edges after geometry import.<br>
+                <br><br><br>
+                <h2>Buttons</h2><br>
+                <h3>Store Flags</h3>
+                Will store the current settings.<br>
+                </div>
+            </section>
+        </div>
+    </body>
+</html>

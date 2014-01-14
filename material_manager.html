@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="chrome=1">
+        <title>ZETools - Material Manager</title>
+        <link rel="stylesheet" href="stylesheets/styles.css">
+        <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+		<link rel="stylesheet" href="stylesheets/ande.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+        <script src="javascripts/respond.js"></script>
+        <!--[if lt IE 9]>
+        <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <!--[if lt IE 8]>
+        <link rel="stylesheet" href="stylesheets/ie.css">
+        <![endif]-->
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    </head>
+    <body>
+        <div id="header">
+            <nav>
+                <li class="home"><a href="index.html">Home</a></li>
+            </nav>
+        </div>
+        <!-- end header -->
+        <div class="wrapper">
+            <section>
+                <div id="title">
+                    <h1>Material Manager</h1>
+                    <p></p>
+                    <hr>
+                    <span class="credits left">Project maintained by <a href="https://Schlechtwetterfront.github.com/">Schlechtwetterfront</a></span>
+                    <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+                </div>
+                This is a simple Material Manager which has some ZE specific functionality.<br>
+                A <strong>ZE</strong> next to a material name shows that this material has ZeroEngine specific flags (example: <em>stone_material - ZE</em>).<br>
+                <br><br>
+                <h3>Create</h3>
+                Creates a new Phong material with the name in the box to the left of the button.<br>
+                <br><br>
+                <h3>Edit</h3>
+                Will inspect the currently selected material for editing.<br>
+                <br><br>
+                <h3>ZEify</h3>
+                Will add ZeroEngine specific material and shader settings to the selected material(s). This lets you add features like scrolling textures, glow, bump mapping and many more.<br>
+                For more information on render types <a href="http://schlechtwetterfront.github.io/ze_filetypes/rendertypes.html">look here</a>. Textures listed under <strong>Additional</strong> on that page will need to be put into the <em>Texture 1-3</em> slots.<br>
+                <br><br>
+                <h3>De-ZEify</h3>
+                Removes ZeroEngine specific settings.<br>
+                <br><br>
+                <h3>Remove</h3>
+                Deletes the currently selected material(s).<br>
+                <br><br>
+                <h3>Assign Tex</h3>
+                Opens a dialog to assign a color/diffuse texture to the selected material.<br>
+                <br><br>
+                <h3>Assign</h3>
+                Assigns the currently selected material to the currently selected component/object in the scene.<br>
+                <br><br>
+                <h3>Unassign</h3>
+                Unassigns the material.<br>
+                </div>
+            </section>
+        </div>
+    </body>
+</html>

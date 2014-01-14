@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="chrome=1">
+        <title>ZETools - Guidelines</title>
+        <link rel="stylesheet" href="stylesheets/styles.css">
+        <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+        <link rel="stylesheet" href="stylesheets/ande.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+        <script src="javascripts/respond.js"></script>
+        <!--[if lt IE 9]>
+        <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <!--[if lt IE 8]>
+        <link rel="stylesheet" href="stylesheets/ie.css">
+        <![endif]-->
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    </head>
+    <body>
+        <div id="header">
+            <nav>
+                <li class="home"><a href="index.html">Home</a></li>
+            </nav>
+        </div>
+        <!-- end header -->
+        <div class="wrapper">
+            <section>
+                <div id="title">
+                    <h1>Guidelines</h1>
+                    <p></p>
+                    <hr>
+                    <span class="credits left">Project maintained by <a href="https://Schlechtwetterfront.github.com/">Schlechtwetterfront</a></span>
+                    <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+                </div>
+                <div>
+                    <div class="column">
+                        <h2><a href="#gl-import">Import - Notes</a></h2><br>
+                        <h2><a href="#gl-export-weight">Export - Weighting</a></h2><br>
+                    </div>
+                    <div class="column">
+                        <h2><a href="#gl-export-avoid">Export - Avoid</a></h2><br>
+                        <h2><a href="#gl-export-mat">Export - Materials</a></h2><br>
+                    </div>
+                    <div class="column">
+                        <h2><a href="#gl-export-coll">Export - Collision</a></h2><br>
+                        <h2><a href="#gl-export-general">Export - General</a></h2><br>
+                    </div>
+                </div>
+                <br><br><br>
+                <h3><a name="gl-import"></a>Import - Notes</h3>
+                <ul>
+                    <li>Animations will be imported as linear animations on a per-frame basis.</li>
+                    <li>It should be possible to re-export animations directly after import. For SWBF1 you need to have at least one material though.</li>
+                    <li>.msh files exported with MshEx won't import.</li>
+                    <li>There might be some misplaced edges.</li>
+                </ul>
+                <h3><a name="gl-export-avoid"></a>Export - Avoid</h3>
+                The CheckSel function in the export dialog can detect some problems.
+                <ul>
+                    <li><b>Overlapping clusters:</b> Might break the .msh file. Might mess up the exported .msh's UVs/Weights/Vertex Colors.</li>
+                    <li><b>5-Sided(or more) Polygons:</b> Might break the .msh file. Will mess up export result(missing polies).</li>
+                    <li><b>Unsupported Model types:</b> The supported model types are: poly mesh, null, bone.</li>
+                    <li><b>No Materials:</b> You should have at least one material named Scene_Material when exporting. If you have at least one material you don't need Scene_Material.</li>
+                </ul>
+                <h3><a name="gl-export-coll"></a>Export - Collisions</h3>
+                <ul>
+                    <li>Collision meshes can be created by naming the model <b><span style="color: #3d85c6;">collision_*</span></b> or <b><span style="color: #3d85c6;">*_collision</span></b>.</li>
+                    <li>
+                        To create collision primitives you have to follow some guidelines:
+                        <ol>
+                            <li>The type has to appear in the name of the object.</li>
+                            <li>The object's name has to begin with <b>p_</b>.</li>
+                            <li>And of course the labelling for the engine(-svbot- or whichever entities you want it to collide with).</li>
+                            <li><b>DON'T FREEZE THE COLLISION PRIMITIVE. </b>This will remove some properties the exporter needs to produce a working collision primitive.</li>
+                        </ol>
+                    </li>
+                    <li>
+                        So, the final product will be something like these:
+                        <ol>
+                            <li>p_-svbot-cube</li>
+                            <li>p_-svb-cylinder</li>
+                            <li>p_-ot-sphere</li>
+                            <li>p_-svt-cube_back_left_semmel</li>
+                        </ol>
+                    </li>
+                </ul>
+                <h3><a name="gl-export-weight"></a>Export - Weighting</h3>
+                <ul>
+                    <li><b>Always apply the envelope to ALL bones.</b> This might slow your workflow down but it ensures the points are weighted to the correct bone after export.</li>
+                    <li><b>Only weight to objects with bone in their name(NOT: root, eff).</b></li>
+                    <li><b>Try to apply the envelope only to models which won't be merged after weighting.</b> This does not have to break the .msh, it could though.</li>
+                </ul>
+                <h3><a name="gl-export-mat"></a>Export - Materials</h3>
+                <ul>
+                    <li><b>Material/Render flags are applied per material.</b>You can apply them by opening the ZETools Material Manager, selecting a material and then clicking "ZE-ify". This will add all the ZeroEngine material flags to the material. Afterwards inspect your material (click the "Edit" button) and change those settings in the appended options.</li>
+                </ul>
+                <h3><a name="gl-export-general"></a>Export - General</h3>
+                <ul>
+                    <li>It's not important how you animate bones (FK or IK etc), the exporter will go through all frames one-by-one and get the current local transforms of every bone.</li>
+                    <li>The currently selected object + all it's children will be exported.</li>
+                    <li>Only apply one 'master' UV projection to a object. All subsequent projections should be Sub-projections.</li>
+                </ul>
+            </section>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="chrome=1">
+        <title>ZETools - Animation Export</title>
+        <link rel="stylesheet" href="stylesheets/styles.css">
+        <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+		<link rel="stylesheet" href="stylesheets/ande.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+        <script src="javascripts/respond.js"></script>
+        <!--[if lt IE 9]>
+        <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <!--[if lt IE 8]>
+        <link rel="stylesheet" href="stylesheets/ie.css">
+        <![endif]-->
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    </head>
+    <body>
+        <div id="header">
+            <nav>
+                <li class="home"><a class="navitem" href="index.html">Home</a></li>
+            </nav>
+        </div>
+        <!-- end header -->
+        <div class="wrapper">
+            <section>
+                <div id="title">
+                    <h1>ZETools Animations</h1>
+                    <p></p>
+                    <hr>
+                    <span class="credits left">Maintained by <a href="https://Schlechtwetterfront.github.io/">Schlechtwetterfront</a></span>
+                    <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+                </div>
+    			Every of the following steps will produce one .msh file.<br><br>
+                <p style="padding-left:30px;"><strong>SWBF 1 NOTE:</strong>
+                The ZenAsset.exe which comes with the SWBF1 mod tools seems to need at least one material to work. Just add a small primitive(eg: cube, you can hide it, too) to the scene. It needs to be in the exported hierarchy for animations so don't move it out when you do the HALFSTEP. To minimize filesize you could replace one of the needed nulls with the primitive(maybe dummyroot).
+                HELLO. Sereja got his animation into SWBF1 by using a textured primitive as DummyRoot. It's not important what type of model the other models are.</p>
+                
+
+                <strong>STEP 1: Placeable model for ZeroEditor</strong>
+                Export the model which will be called in the odf and placed in ZE.
+                To do this move the frame cursor to the first frame of your animation(usually 1, it's not important what the frame range is[ie 0 to 100]).Then select your root, uncheck Export Animation and export.
+                .MSH File: stuff_door.msh
+                <img alt="" src="to_be_placed.jpg" width="545" height="398" />
+                <br>
+                <p style="padding-left:30px;"><strong>HALFSTEP: Animation preparation</strong>
+                To cut down on possible problems we will now drag'n'drop all object which are not a part of the skeleton(collisions, meshes, shadows) out of our current hierarchy. Best way to do this is select them all and drag'n'drop them onto Scene_Root. In my example I only move out thing_(that's the model with Stuff painted on it). You can move out hard points, too.
+                Animations don't need this as basepose and open/whatever you called your animation will end up in .zafbin/.zaabin files which don't hold geometry etc.
+                Note: I forgot to move out thing_ for the main animation in the screenshot at step 2. It should be not be a (direct or indirect) children of the root you're exporting though.</p>
+                
+
+                <strong>STEP 2: Animation export</strong>
+                This will contain the actual animation.
+                Here it's important to set the right frame range. It's not important where the frame cursor is, but theframe range must be correct. In my example it's 1 - 20. Make sure you did the halfstep, check Export Animation and HIT THE LIGH.....export button.
+                .MSH File: ie open.msh
+                <img alt="" src="anim_open.jpg" width="527" height="400" />
+                <br><br>
+                
+
+                <strong>STEP 3: Basepose of the animation</strong>
+                This will be the pose the model is in when it's not animated.
+                If your first frame is 1 move the frame cursor to frame 0. Check Export Animation and Current frame as Basepose. If you check Current frame as Basepose you can ignore the last frame. If you want to do it 'old-fashioned' set your frame range to 0 - 1 and uncheck Current frame as Basepose.
+                I assume you use the Current frame as Basepose way.
+                Now the preparation is finished. All boxes are checked and the hierarchy is set up. Do the deed andselect your root and hit export.
+                .MSH File: basepose.msh
+                <br>
+                <img alt="" src="anim_basepose.jpg" width="529" height="401" />
+            </section>
+        </div>
+    </body>
+</html>

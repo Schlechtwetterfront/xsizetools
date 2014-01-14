@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="chrome=1">
+        <title>ZETools - MSH Export</title>
+        <link rel="stylesheet" href="stylesheets/styles.css">
+        <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+		<link rel="stylesheet" href="stylesheets/ande.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+        <script src="javascripts/respond.js"></script>
+        <!--[if lt IE 9]>
+        <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <!--[if lt IE 8]>
+        <link rel="stylesheet" href="stylesheets/ie.css">
+        <![endif]-->
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    </head>
+    <body>
+        <div id="header">
+            <nav>
+                <li class="home"><a href="index.html">Home</a></li>
+            </nav>
+        </div>
+        <!-- end header -->
+        <div class="wrapper">
+            <section>
+                <div id="title">
+                    <h1>.msh Export</h1>
+                    <p></p>
+                    <hr>
+                    <span class="credits left">Project maintained by <a href="https://Schlechtwetterfront.github.com/">Schlechtwetterfront</a></span>
+                    <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+                </div>
+                <h2>Settings</h2><br>
+                <h3>Auto-Overwrite</h3>
+                Overwrites any output files if they already exist.<br>
+                <br><br>
+                <h3>Use root model name for .msh file name</h3>
+                Will use the name of the topmost object in the currently selected hierarchy as the .msh file name.<br>
+                Has to be enabled when Batch Exporting.<br>
+                <br><br>
+                <h3>Batch Export</h3>
+                Example Hierarchy:<br>
+                root<br>
+                sub_root_1<br>
+                sub_root_2  <br>
+                <br>
+                In this case it will export 2 .msh files named *sub_root_1.msh* and *sub_root_2.msh* if *root* is selected when pressing export. **Use root model name for .msh file name** needs to be enabled.<br>
+                <br><br>
+                <h3>Export Animation</h3>
+                Exports animation for the current frame range.<br>
+                <br><br>
+                <h3>Current frame as basepose</h3>
+                Exports only the currently selected and following frame to minimize file size.<br>
+                <br><br>
+                <h2>Buttons</h2><br>
+                <h3>Check Sel</h3>
+                Loops through all objects in the currently selected hierarchy and analyzes it for problems which could cause a bad export.<br>
+                <br>
+                <strong>Errors and their explanation:</strong>
+                <ul>
+                    <li><strong>Bad model type</strong> Only nulls, bones and polygon meshes should be used.</li>
+                    <li><strong>Bad Faces</strong> Faces should not have more than 4 sides. To fix use Modify>PolygonMesh>Triangulate or Select>Select n-sided polygons>Five sides or more.</li>
+                    <li><strong>Bad Clusters</strong> Overlapping clusters, should be fixed.</li>
+                    <li><strong>Unnecessary clusters</strong> Don't need to be fixed, just warnings.</li>
+                </ul>
+                <br><br>
+                <h3>Store Flags</h3>
+                Stores the current export configuration (path, check boxes etc).<br>
+            </div>
+            </section>
+        </div>
+    </body>
+</html>
