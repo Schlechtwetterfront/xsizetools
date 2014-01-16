@@ -656,12 +656,19 @@ class Import(andesicore.SIGeneral):
         self.notifications = None
         self.stats = None
         self.pb = andesicore.SIProgressBar()
-        logpath = os.path.join(self.xsi.InstallationPath(const.siUserAddonPath),
-                               'XSIZETools', 'import_log.log')
+        logpath = os.path.join(self.get_origin(), 'import_log.log')
         logging.basicConfig(format='%(levelname)s (%(lineno)d, %(funcName)s): %(message)s',
                             filename=logpath,
                             filemode='w',
                             level=logging.DEBUG)
+
+    def get_origin(self):
+        orig_path = ''
+        plugins = self.xsi.Plugins
+        for p in plugins:
+            if p.Name == 'XSIZETools':
+                orig_path = p.OriginPath[:-20]
+        return orig_path
 
     def notify(self, text):
         if self.notifications:
@@ -692,9 +699,9 @@ class Import(andesicore.SIGeneral):
 
     def abort_checklog(self):
         path = self.xsi.InstallationPath(const.siUserAddonPath)
-        path = os.path.join(path, 'XSIZETools', 'import_log.log')
+        path = os.path.join(self.get_origin(), 'import_log.log')
         if os.path.isfile(path):
-            if self.msg('Encountered an error. Check <SI User Addon Dir>\\XSIZETools\\import_log.log for more info.\nOpen log now?', const.siMsgYesNo) == 6:
+            if self.msg('Encountered an error. Check {0} for more info.\nOpen log now?'.format(path), const.siMsgYesNo) == 6:
                 os.startfile(path)
         else:
             self.msg('Encountered an error but cannot find log file.')
