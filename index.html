@@ -43,14 +43,14 @@
                     <li><a href="#maininfo">Main Info</a></li>
                     <li><a href="#download">Download & Installation</a></li>
                     <li><a href="guidelines.html#guidelines">Guidelines</a>
-                        <ol>
+                        <ul>
                             <li><a href="guidelines.html#gl-import">Import - Notes</a></li>
                             <li><a href="guidelines.html#gl-export-avoid">Export - Avoid</a></li>
                             <li><a href="guidelines.html#gl-export-coll">Export - Collisions</a></li>
                             <li><a href="guidelines.html#gl-export-weight">Export - Weighting</a></li>
                             <li><a href="guidelines.html#gl-export-mat">Export - Materials</a></li>
                             <li><a href="guidelines.html#gl-export-general">Export - General</a></li>
-                        </ol>
+                        </ul>
                     </li>
                     <li>Documentation
                         <ul>
@@ -74,20 +74,25 @@
                 XSIZETools is an addon for Softimage (tested with ModTool 7.5, 2012 SP1 and 2014).<br>
                 The main features are full export and import of 3D .msh files for ZeroEngine (Star Wars Battlefront I and II). That includes geometry, materials with all ZeroEngine-specific flags, animations and collisions.<br><br>
 
-                This began as a small collection of scripts to help setup hierarchies and the like and turned into a full-fledged exporter/importer for the .msh format. As only a small amount of the .msh file format structure was known when I began writing the exporter I had to reverse-engineer (with contributions from a handful of other people) the rest (which was about 70% of the chunks).
-                <br><br><br>
+                This began as a small collection of scripts to help setup hierarchies and the like and turned into a full-fledged exporter/importer for the .msh format. As only a small amount of the .msh file format structure was known when I began writing the exporter I had to reverse-engineer (with contributions from a handful of other people) the rest (which was about 70% of the chunks).<br>
+                <br>
+                Current Feature Status: <a style="color: #33FF00;">Static Meshes</a> | <a style="color: #33FF00;">Dynamic Meshes</a> | <a style="color: #33FF00;">Animations</a> | <a style="color: #33FF00;">ZE Materials</a> | <a style="color: #CC0000;">Cloth</a><br> 
+                <br><br>
 				<h2><a name="download"></a>Download & Installation</h2> <br>
                 The main chunk of the project is hosted on <a href="https://github.com/Schlechtwetterfront/xsizetools" target="_blank">Github</a>. The source for the CGeometryAccessorWrappers can be found <a href="XSIZETools_src.7z">here</a>.
                 Use the <strong>ZIP</strong> button at the top of this page to download the addon.<br>
                 <br>
 				To install ZETools, unzip the downloaded archive into<br>
 				<blockquote>
-                    <strong>C:/users/%user%/Autodesk/Softimage_%version%/Addons/</strong><br>
+                    C:/users/%user%/Autodesk/Softimage_%version%/Addons/<br>
                     OR<br>
-                    <strong>C:/users/%user%/Softimage/Softimage_%version%/Addons/</strong><br>
+                    C:/users/%user%/Softimage/Softimage_%version%/Addons/<br>
                 </blockquote>
                 Make sure you use this path and not the factory addon path.<br>
-
+                <br>
+                If you have any Softimage version up to (and including) 2010 you need to install <a href="http://www.python.org/ftp/python/2.6.6/python-2.6.6.msi">python</a> and <a href="http://sourceforge.net/projects/pywin32/files/pywin32/Build%20217/pywin32-217.win32-py2.6.exe/download">pywin32</a>.<br>
+                If python and pywin32 was installed correctly it should look something like <a href="installed_python.jpg">this</a>.<br>
+                <br>
                 The low-level geometry functions are written in C++, so the Visual C++ 2010 redist is required.  <a href="http://www.microsoft.com/download/en/details.aspx?id=5555" target="_blank">x86</a>  |  <a href="http://www.microsoft.com/downloads/de-de/details.aspx?FamilyID=bd512d9e-43c8-4655-81bf-9350143d5867" target="_blank">x64 </a>(only if x86 didn't work).
                 <br><br><br>
                 <h2><a name="contributors"></a>Contributors</h2> &nbsp;&nbsp;&nbsp; <green_button><a href="javascript:toggleHide('contributors_list');">Show/Hide</a></green_button> <br>
