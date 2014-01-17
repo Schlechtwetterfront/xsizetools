@@ -10,31 +10,27 @@
 #########################################################
 from win32com.client import constants as const
 import win32com.client
-import andesicore
+import softimage
 import andezetcore
 import andezetexport
 reload(andezetcore)
-reload(andesicore)
+reload(softimage)
 reload(andezetexport)
 xsi = Application
 addonpath = xsi.InstallationPath(const.siUserAddonPath)
-sigen = andesicore.SIGeneral()
+sigen = softimage.SIGeneral()
 
 
 def store_flags_OnClicked():
-    params = andezetcore.Config()
-    params.from_ppg(PPG.Inspected(0))
-    params.store(addonpath + '\\XSIZETools\\Resources\\Config\\export.tcnt')
-    params.preview()
+    settings = andezetcore.load_settings('export', PPG.Inspected(0))
+    andezetcore.save_settings('export', settings)
     sigen.msg('Stored.')
     return
 
 
 def exportbutton_OnClicked():
-    params = andezetcore.Config()
-    params.from_ppg(PPG.Inspected(0))
-    params.preview()
-    export = andezetexport.Export(xsi, params)
+    settings = andezetcore.load_settings('export', PPG.Inspected(0))
+    export = andezetexport.Export(xsi, settings)
     try:
         export.export()
     except SystemExit:
@@ -47,7 +43,7 @@ def check_sel_OnClicked():
     if not mdls:
         sigen.msg('No models selected.')
         return
-    checksel = andezetcore.CheckSel(xsi, mdls, xsi.ActiveSceneRoot, andesicore.SIProgressBar())
+    checksel = andezetcore.CheckSel(xsi, mdls, xsi.ActiveSceneRoot, softimage.SIProgressBar())
     checksel.check()
     checksel.build_UI()
 

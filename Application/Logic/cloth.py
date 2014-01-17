@@ -11,8 +11,8 @@
 xsi = Application
 from win32com.client import constants as const
 import win32com.client
-import andesicore
-sigen = andesicore.SIGeneral()
+import softimage
+sigen = softimage.SIGeneral()
 ADDONPATH = xsi.InstallationPath(const.siUserAddonPath)
 
 

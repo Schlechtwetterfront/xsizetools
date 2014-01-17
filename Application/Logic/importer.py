@@ -8,22 +8,21 @@
 #####                                               #####
 #####    https://sites.google.com/site/andescp/     #####
 #########################################################
-import andesicore
+import softimage
 import andezetcore
 import andezetimport
-reload(andesicore)
+reload(softimage)
 reload(andezetcore)
 reload(andezetimport)
 from win32com.client import constants as const
 xsi = Application
 ADDONPATH = xsi.InstallationPath(const.siUserAddonPath)
-sigen = andesicore.SIGeneral()
+sigen = softimage.SIGeneral()
 
 
 def store_flags_OnClicked():
-    params = andezetcore.ImportConfig()
-    params.from_ppg(PPG.Inspected(0))
-    params.store(ADDONPATH + '\\XSIZETools\\Resources\\Config\\import.tcnt')
+    settings = andezetcore.load_settings('import', PPG.Inspected(0))
+    andezetcore.save_settings('import', settings)
     sigen.msg('Stored.')
     return
 
@@ -86,9 +85,8 @@ will persist after the import.''')
 
 
 def importbutton_OnClicked():
-    params = andezetcore.ImportConfig()
-    params.from_ppg(PPG.Inspected(0))
-    import_ = andezetimport.Import(xsi, params)
+    settings = andezetcore.load_settings('import', PPG.Inspected(0))
+    import_ = andezetimport.Import(xsi, settings)
     try:
         import_.import_()
     except SystemExit:

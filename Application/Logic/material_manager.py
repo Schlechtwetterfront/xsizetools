@@ -64,12 +64,8 @@ def del_mat_OnClicked():
     lay = ppg.PPGLayout
     listbox = lay.Item('materials')
     items = listbox.UIItems
-    print items
-    print split
     items2 = list(items[:])
-    print items2
     for matname in split:
-        print matname
         for mat in materials:
             if mat.Name == matname:
                 xsi.DeleteObj(mat)

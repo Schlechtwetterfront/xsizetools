@@ -12,8 +12,10 @@ import os
 import sys
 import logging
 reload(logging)
-import andesicore
-reload(andesicore)
+import softimage
+reload(softimage)
+import andezetcore
+reload(andezetcore)
 from pythoncom import com_error
 import msh2
 reload(msh2)
@@ -80,10 +82,10 @@ class MaterialBuilder(object):
 
             # Image.
             if mat.tex0:
-                if self.imp.config.retrieve('btexpath'):
-                    imgfolder = self.imp.config.retrieve('texpath')
+                if self.imp.config.get('btexpath'):
+                    imgfolder = self.imp.config.get('texpath')
                 else:
-                    imgfolder = os.path.dirname(self.imp.config.retrieve('path'))
+                    imgfolder = os.path.dirname(self.imp.config.get('path'))
                 imgshader = self.xsi.CreateShaderFromPreset('$XSI_DSPRESETS\\Shaders\\Texture\\Image.Preset', simat)
                 imgpath = os.path.join(imgfolder, mat.tex0)
                 img_clip = self.xsi.SICreateImageClip2(imgpath)
@@ -154,7 +156,7 @@ class MaterialBuilder(object):
         lay.EndGroup()
 
 
-class ChainItemBuilder(andesicore.SIModel):
+class ChainItemBuilder(softimage.SIModel):
     prim_types = {0: 'Sphere',
                   1: 'Sphere',
                   2: 'Cylinder',
@@ -165,7 +167,7 @@ class ChainItemBuilder(andesicore.SIModel):
         self.chainbuilder = chainbuilder
         self.xsi = self.chainbuilder.xsi
         self.imp = self.chainbuilder.imp
-        if self.imp.config.retrieve('ignoregeo'):
+        if self.imp.config.get('ignoregeo'):
             self.build_geo = self.build_null
             self.build_prim = self.build_null
             self.build_shadow = self.build_null
@@ -423,10 +425,10 @@ class ChainItemBuilder(andesicore.SIModel):
         logging.info('Building {0} as null(originally {1}).'.format(self.model.name, self.model.model_type))
         self.si_model = self.xsi.GetPrim('Null', self.model.name, self.model.parent_name)
         # Set Null display size.
-        self.si_model.Parameters('Size').Value = float(self.imp.config.retrieve('nullsize'))
-        if self.imp.config.retrieve('wirecol'):
+        self.si_model.Parameters('Size').Value = float(self.imp.config.get('nullsize'))
+        if self.imp.config.get('wirecol'):
             if 'eff' in self.model.name:
-                col = self.imp.config.retrieve('effcol')
+                col = self.imp.config.get('effcol')
                 r, g, b = [float(item) for item in col.split(' ')]
                 wirecol = self.chainbuilder.scn.wirecol(r, g, b)
                 display = self.si_model.Properties('Display')
@@ -434,7 +436,7 @@ class ChainItemBuilder(andesicore.SIModel):
                     display = self.xsi.MakeLocal(display, const.siNodePropagation)[0]
                 display.wirecol.Value = wirecol
             elif 'root' in self.model.name:
-                col = self.imp.config.retrieve('rootcol')
+                col = self.imp.config.get('rootcol')
                 r, g, b = [float(item) for item in col.split(' ')]
                 wirecol = self.chainbuilder.scn.wirecol(r, g, b)
                 display = self.si_model.Properties('Display')
@@ -442,18 +444,18 @@ class ChainItemBuilder(andesicore.SIModel):
                     display = self.xsi.MakeLocal(display, const.siNodePropagation)[0]
                 display.wirecol.Value = wirecol
             elif 'bone' in self.model.name:
-                col = self.imp.config.retrieve('bonecol')
+                col = self.imp.config.get('bonecol')
                 r, g, b = [float(item) for item in col.split(' ')]
                 wirecol = self.chainbuilder.scn.wirecol(r, g, b)
                 display = self.si_model.Properties('Display')
                 if display.IsA(const.siSharedPSet):
                     display = self.xsi.MakeLocal(display, const.siNodePropagation)[0]
                 display.wirecol.Value = wirecol
-        if self.imp.config.retrieve('hideeffs'):
+        if self.imp.config.get('hideeffs'):
             if 'eff' in self.model.name:
                 if self.model.vis != 1:
                     self.xsi.ToggleVisibility(self.si_model, None, None)
-        elif self.imp.config.retrieve('hideroots'):
+        elif self.imp.config.get('hideroots'):
             if 'root' in self.model.name:
                 if self.model.vis != 1:
                     self.xsi.ToggleVisibility(self.si_model, None, None)
@@ -491,7 +493,7 @@ class ChainBuilder(object):
         self.xsi = self.imp.xsi
         self.pb = self.imp.pb
         self.materials = materials
-        self.scn = andesicore.SIScene()
+        self.scn = softimage.SIScene()
         self.name_dict = {}
 
     def build(self):
@@ -600,7 +602,7 @@ class Enveloper(object):
                 coll.AddItems(deformers)
                 item.ApplyEnvelope(coll)
                 weights = self.make_cloth_weights(model)
-                simd = andesicore.SIModel(item)
+                simd = softimage.SIModel(item)
                 simd.set_weights(0, weights)
                 logging.info('Finished enveloping {0}.'.format(item.Name))
                 continue
@@ -612,7 +614,7 @@ class Enveloper(object):
             coll.AddItems(deformers)
             item.ApplyEnvelope(coll)
             weights = self.make_weights(model)
-            simd = andesicore.SIModel(item)
+            simd = softimage.SIModel(item)
             simd.set_weights(0, weights)
             logging.info('Finished enveloping {0}.'.format(item.Name))
         logging.info('Finished enveloping.')
@@ -649,26 +651,18 @@ class Enveloper(object):
         return weights
 
 
-class Import(andesicore.SIGeneral):
+class Import(softimage.SIGeneral):
     def __init__(self, app, config=None):
         self.xsi = app
         self.config = config
         self.notifications = None
         self.stats = None
-        self.pb = andesicore.SIProgressBar()
-        logpath = os.path.join(self.get_origin(), 'import_log.log')
+        self.pb = softimage.SIProgressBar()
+        logpath = os.path.join(softimage.Softimage.get_plugin_origin('XSIZETools'), 'import_log.log')
         logging.basicConfig(format='%(levelname)s (%(lineno)d, %(funcName)s): %(message)s',
                             filename=logpath,
                             filemode='w',
                             level=logging.DEBUG)
-
-    def get_origin(self):
-        orig_path = ''
-        plugins = self.xsi.Plugins
-        for p in plugins:
-            if p.Name == 'XSIZETools':
-                orig_path = p.OriginPath[:-20]
-        return orig_path
 
     def notify(self, text):
         if self.notifications:
@@ -683,7 +677,7 @@ class Import(andesicore.SIGeneral):
             return ''
 
     def check_filepath(self):
-        path = self.config.retrieve('path')
+        path = self.config.get('path')
         if os.path.isfile(path):
             return True
 
@@ -708,7 +702,7 @@ class Import(andesicore.SIGeneral):
         sys.exit()
 
     def store_flags(self):
-        self.config.store(self.xsi.InstallationPath(const.siUserAddonPath) + '\\XSIZETools\\Resources\\Config\\import.tcnt')
+        andezetcore.save_settings('import', self.config)
 
     def import_(self):
         '''Prepares the import.'''
@@ -716,7 +710,7 @@ class Import(andesicore.SIGeneral):
         self.pb.set(1, 'Preparing...')
         self.pb.show()
         if not self.check_filepath():
-            self.abort('File {0} does not exist..'.format(self.config.retrieve('path')))
+            self.abort('File {0} does not exist..'.format(self.config.get('path')))
         self.pb.inc()
         self.do_import()
         self.import_msg()
@@ -726,26 +720,26 @@ class Import(andesicore.SIGeneral):
     def do_import(self):
         '''Actual import function.'''
         # Disable logging temporarily.
-        print self.config.retrieve('path')
+        print self.config.get('path')
         logging.info('Starting import at {0}.'.format(dt.now()))
-        logging.info('.msh file path: {0}'.format(self.config.retrieve('path')))
+        logging.info('.msh file path: {0}'.format(self.config.get('path')))
         prefs = self.xsi.Preferences
         originalcmd = prefs.GetPreferenceValue('scripting.cmdlog')
         originalins = prefs.GetPreferenceValue('Interaction.autoinspect')
         prefs.SetPreferenceValue('scripting.cmdlog', False)
         prefs.SetPreferenceValue('Interaction.autoinspect', False)
         # Cut path for better display.
-        short_path = self.config.retrieve('path').split('\\')
+        short_path = self.config.get('path').split('\\')
         short_path = short_path[-3], short_path[-2], short_path[-2], short_path[-1]
         short_path_fin = '...{0}'.format('\\'.join(short_path))
         self.pb.set(1, 'Unpacking {0}...'.format(short_path_fin))
         start = dt.now()
-        unpacker_config = {'do_logging': self.config.retrieve('log'),
-                           'ignore_geo': self.config.retrieve('ignoregeo'),
-                           'triangulate': self.config.retrieve('triangulate'),
+        unpacker_config = {'do_logging': self.config.get('log'),
+                           'ignore_geo': self.config.get('ignoregeo'),
+                           'triangulate': self.config.get('triangulate'),
                            'modulepath': os.path.join(self.xsi.InstallationPath(const.siUserAddonPath), 'XSIZETools\\Application\\Modules')}
-        print self.config.retrieve('path')
-        unpacker = msh2_unpack.MSHUnpack(self.config.retrieve('path'), unpacker_config)
+        print self.config.get('path')
+        unpacker = msh2_unpack.MSHUnpack(self.config.get('path'), unpacker_config)
         try:
             logging.info('Starting unpack.')
             self.msh = unpacker.unpack()
@@ -754,7 +748,7 @@ class Import(andesicore.SIGeneral):
             logging.exception('')
             self.abort_checklog()
         self.pb.inc()
-        if self.config.retrieve('applyonly'):
+        if self.config.get('applyonly'):
             logging.info('Applyonly set, setting chain from selection.')
             if not self.xsi.Selection(0):
                 self.abort('Aborted. No selection. Select the root of the hierarchy.')
@@ -762,7 +756,7 @@ class Import(andesicore.SIGeneral):
             logging.info('Selection item count: {0}, msh2 Model count: {1}.'.format(len(self.chain),
                                                                                     len(self.msh.models)))
         else:
-            if not self.config.retrieve('ignoregeo'):
+            if not self.config.get('ignoregeo'):
                 logging.info('Ignore Geo is unchecked, building with geo.')
                 matbuilder = MaterialBuilder(self, self.msh)
                 materials = matbuilder.build()
@@ -776,18 +770,18 @@ class Import(andesicore.SIGeneral):
                 self.abort_checklog()
             enveloper = Enveloper(self, self.msh, self.chain)
             enveloper.envelope()
-            if self.config.retrieve('weld'):
-                if not self.config.retrieve('ignoregeo'):
+            if self.config.get('weld'):
+                if not self.config.get('ignoregeo'):
                     for item in self.chain:
                         if not item.Type == 'polymsh':
                             continue
                         self.xsi.ApplyTopoOp('WeldEdges', item)
                         self.xsi.SetValue('{0}.polymsh.weldedgesop.distance'.format(item.Name), 0.02)
-        if not self.msh.animation.empty and not self.config.retrieve('ignoreanim'):
+        if not self.msh.animation.empty and not self.config.get('ignoreanim'):
             anim = AnimationImport(self, self.chain, self.msh.animation.bones)
             anim.import_()
-        if self.config.retrieve('framerange'):
-            scn = andesicore.SIScene()
+        if self.config.get('framerange'):
+            scn = softimage.SIScene()
             pc = scn.get_playcontrol()
             pc.Parameters('In').Value = self.msh.info.frame_range[0]
             pc.Parameters('Out').Value = self.msh.info.frame_range[1]

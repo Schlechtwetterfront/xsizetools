@@ -6,7 +6,9 @@
 #####                                               #####
 #####    https://sites.google.com/site/andescp/     #####
 #########################################################
-from xml.etree.ElementTree import ElementTree, Element, SubElement, dump
+import json
+import softimage
+import os
 
 
 def get_current_version(versionpath):
@@ -178,159 +180,70 @@ class ExportStats(object):
         return self.result.seconds
 
 
-class Config(object):
-    def __init__(self):
-        self.tree = None
-        self.path = None
-
-    def from_file(self, path):
-        self.path = path
-        try:
-            self.tree = ElementTree(file=path)
-        except (SyntaxError, IOError):
-            self.default()
-
-    def from_ppg(self, ppg):
-        config = Element('config')
-        path = SubElement(config, 'path')
-        path.text = ppg.Parameters('mshpath').Value
-        overwrite = SubElement(config, 'overwrite')
-        overwrite.text = int(ppg.Parameters('overwrite').Value) * 'True'
-        anim = SubElement(config, 'anim')
-        anim.text = int(ppg.Parameters('anim').Value) * 'True'
-        basepose = SubElement(config, 'basepose')
-        basepose.text = int(ppg.Parameters('basepose').Value) * 'True'
-        rootname = SubElement(config, 'rootname')
-        rootname.text = int(ppg.Parameters('rootname').Value) * 'True'
-        batch = SubElement(config, 'batch')
-        batch.text = int(ppg.Parameters('batch').Value) * 'True'
-        self.tree = ElementTree(element=config)
-
-    def default(self):
-        config = Element('config')
-        path = SubElement(config, 'path')
-        path.text = 'C:'
-        overwrite = SubElement(config, 'overwrite')
-        overwrite.text = ''
-        anim = SubElement(config, 'anim')
-        anim.text = ''
-        basepose = SubElement(config, 'basepose')
-        basepose.text = ''
-        rootname = SubElement(config, 'rootname')
-        rootname.text = ''
-        batch = SubElement(config, 'batch')
-        batch.text = ''
-
-        self.tree = ElementTree(element=config)
-
-    def retrieve(self, tagname):
-        tag = self.tree.find(tagname)
-        try:
-            return tag.text
-        except Exception:
-            self.default()
-            return self.retrieve(tagname)
-
-    def preview(self):
-        dump(self.tree.getroot())
-
-    def set(self, tagname, text):
-        tag = self.tree.find(tagname)
-        tag.text = text
-
-    def store(self, path=None):
-        if path:
-            self.tree.write(path)
-            return
-        self.tree.write(self.path)
-        return
+def load_settings(settings_name='export', ppg=None):
+    if ppg:
+        return settings_from_ppg(settings_name, ppg)
+    path = os.path.join(softimage.Softimage.get_plugin_origin('XSIZETools'), 'Resources', settings_name)
+    try:
+        with open(path, 'r') as f:
+            return json.load(f)
+    except IOError:
+        print 'Could not load settings from {0}.'.format(path)
+        settings = get_default_settings(settings_name)
+        save_settings(settings_name, settings)
+        return settings
 
 
-class ImportConfig(Config):
-    def from_ppg(self, ppg):
-        config = Element('config')
-        path = SubElement(config, 'path')
-        path.text = ppg.Parameters('mshpath').Value
-        print 'ImportConfig path: {0}'.format(path.text)
-        texpath = SubElement(config, 'texpath')
-        texpath.text = ppg.Parameters('texpath').Value
-        btexpath = SubElement(config, 'btexpath')
-        btexpath.text = int(ppg.Parameters('btexpath').Value) * 'True'
-        framerange = SubElement(config, 'framerange')
-        framerange.text = int(ppg.Parameters('framerange').Value) * 'True'
-        applyonly = SubElement(config, 'applyonly')
-        applyonly.text = int(ppg.Parameters('applyonly').Value) * 'True'
-        log = SubElement(config, 'log')
-        log.text = int(ppg.Parameters('log').Value) * 'True'
-        triangulate = SubElement(config, 'triangulate')
-        triangulate.text = int(ppg.Parameters('triangulate').Value) * 'True'
-        nullsize = SubElement(config, 'nullsize')
-        nullsize.text = str(ppg.Parameters('nullsize').Value)
-        ignoregeo = SubElement(config, 'ignoregeo')
-        ignoregeo.text = int(ppg.Parameters('ignoregeo').Value) * 'True'
-        ignoreanim = SubElement(config, 'ignoreanim')
-        ignoreanim.text = int(ppg.Parameters('ignoreanim').Value) * 'True'
-        wirecol = SubElement(config, 'wirecol')
-        wirecol.text = int(ppg.Parameters('wirecol').Value) * 'True'
-        bonecol = SubElement(config, 'bonecol')
-        bonecol.text = '{0} {1} {2}'.format(ppg.Parameters('Rbone').Value,
-                                            ppg.Parameters('Gbone').Value,
-                                            ppg.Parameters('Bbone').Value)
-        rootcol = SubElement(config, 'rootcol')
-        rootcol.text = '{0} {1} {2}'.format(ppg.Parameters('Rroot').Value,
-                                            ppg.Parameters('Groot').Value,
-                                            ppg.Parameters('Broot').Value)
-        effcol = SubElement(config, 'effcol')
-        effcol.text = '{0} {1} {2}'.format(ppg.Parameters('Reff').Value,
-                                           ppg.Parameters('Geff').Value,
-                                           ppg.Parameters('Beff').Value)
-        hideeffs = SubElement(config, 'hideeffs')
-        hideeffs.text = int(ppg.Parameters('hideeffs').Value) * 'True'
-        hideroots = SubElement(config, 'hideroots')
-        hideroots.text = int(ppg.Parameters('hideroots').Value) * 'True'
-        weld = SubElement(config, 'weld')
-        weld.text = int(ppg.Parameters('weld').Value) * 'True'
-        self.tree = ElementTree(element=config)
+def save_settings(settings_name, settings):
+    path = os.path.join(softimage.Softimage.get_plugin_origin('XSIZETools'), 'Resources', settings_name)
+    print path
+    with open(path, 'w') as f:
+        f.write(json.dumps(settings, f))
 
-    def default(self):
-        print 'default called'
-        config = Element('config')
-        path = SubElement(config, 'path')
-        path.text = 'C:'
-        texpath = SubElement(config, 'texpath')
-        texpath.text = 'C:'
-        btexpath = SubElement(config, 'btexpath')
-        btexpath.text = ''
-        framerange = SubElement(config, 'framerange')
-        framerange.text = ''
-        applyonly = SubElement(config, 'applyonly')
-        applyonly.text = ''
-        log = SubElement(config, 'log')
-        log.text = ''
-        debug = SubElement(config, 'debug')
-        debug.text = ''
-        safe = SubElement(config, 'safe')
-        safe.text = ''
-        triangulate = SubElement(config, 'triangulate')
-        triangulate.text = ''
-        ignoregeo = SubElement(config, 'ignoregeo')
-        ignoregeo.text = ''
-        ignoreanim = SubElement(config, 'ignoreanim')
-        ignoreanim.text = ''
-        nullsize = SubElement(config, 'nullsize')
-        nullsize.text = '0.2'
-        wirecol = SubElement(config, 'wirecol')
-        wirecol.text = ''
-        bonecol = SubElement(config, 'bonecol')
-        bonecol.text = '0.452 0.918 0.4'
-        rootcol = SubElement(config, 'rootcol')
-        rootcol.text = '0.2 0.3 0.8'
-        effcol = SubElement(config, 'effcol')
-        effcol.text = '0.5 0.23 0.1'
-        hideeffs = SubElement(config, 'hideeffs')
-        hideeffs.text = ''
-        hideroots = SubElement(config, 'hideroots')
-        hideroots.text = ''
-        weld = SubElement(config, 'weld')
-        weld.text = ''
-        self.tree = ElementTree(element=config)
+
+def settings_from_ppg(settings_name, ppg):
+    settings = get_default_settings(settings_name)
+    params = ppg.Parameters
+    for key in settings.keys():
+        settings[key] = params(key).Value
+    return settings
+
+
+def get_default_settings(settings_name):
+    if settings_name == 'export':
+        sett = {
+            'path': 'C:',
+            'overwrite': False,
+            'anim': False,
+            'basepose': False,
+            'rootname': False,
+            'batch': False,
+        }
+        return sett
+    elif settings_name == 'import':
+        sett = {
+            'path': 'C:',
+            'texpath': 'C:',
+            'btexpath': False,
+            'framerange': True,
+            'applyonly': False,
+            'log': False,
+            'triangulate': False,
+            'nullsize': 0.2,
+            'ignoregeo': False,
+            'ignoreanim': False,
+            'wirecol': False,
+            'Rbone': 0.452,
+            'Gbone': 0.918,
+            'Bbone': 0.4,
+            'Rroot': 0.2,
+            'Groot': 0.3,
+            'Broot': 0.8,
+            'Reff': 0.5,
+            'Geff': 0.23,
+            'Beff': 0.1,
+            'hideeffs': False,
+            'hideroots': False,
+            'weld': True
+        }
+        return sett

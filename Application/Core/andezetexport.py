@@ -18,11 +18,11 @@
 #   - PS2Optimize |= 32
 
 
-import andesicore
+import softimage
 import andezetcore
 import andecore
 reload(andezetcore)
-reload(andesicore)
+reload(softimage)
 reload(andecore)
 import sys
 import os
@@ -99,7 +99,7 @@ class BoneConverter(object):
         return self.bone
 
 
-class AnimationConverter(andesicore.SIScene):
+class AnimationConverter(softimage.SIScene):
     def __init__(self, export):
         self.export = export
         self.anim = msh2.Animation(self.export.msh)
@@ -111,7 +111,7 @@ class AnimationConverter(andesicore.SIScene):
         cycle.frames = pc.Parameters('In').Value, pc.Parameters('Out').Value
         self.anim.cycle = cycle
         bonecoll = msh2.BoneCollection(self.anim)
-        basepose = self.export.ppg_params.retrieve('basepose')
+        basepose = self.export.ppg_params.get('basepose')
         nummodels = len(self.export.si_models)
         self.export.pb.inc()
         self.export.pb.set(nummodels, 'Iterating Models...')
@@ -130,7 +130,7 @@ class AnimationConverter(andesicore.SIScene):
         return self.anim
 
 
-class SceneInfoConverter(andesicore.SIScene):
+class SceneInfoConverter(softimage.SIScene):
     def __init__(self, export):
         self.export = export
         self.sinfo = msh2.SceneInfo(self.export.msh)
@@ -166,7 +166,7 @@ class SceneInfoConverter(andesicore.SIScene):
         return self.sinfo
 
 
-class ModelConverter(andesicore.SIModel):
+class ModelConverter(softimage.SIModel):
     '''Converts a XSI polymsh to a msh2 mesh.'''
     def __init__(self, si_mdl, export, immediate_conversion=False):
         # Set some stuff.
@@ -534,7 +534,7 @@ class ModelConverter(andesicore.SIModel):
         return self.msh2_model
 
 
-class MaterialConverter(andesicore.SIMaterial):
+class MaterialConverter(softimage.SIMaterial):
     '''Converts a XSI Material to a msh2 material.'''
     def __init__(self, si_mat, export, index, immediate_conversion=False):
         self.export = export
@@ -639,7 +639,7 @@ class MaterialConverter(andesicore.SIMaterial):
 
 # Inherit from SIGeneral which contains general functions
 #  for working with XSI.
-class Export(andesicore.SIGeneral):
+class Export(softimage.SIGeneral):
     '''Main export class. Handles selection and data.'''
     def __init__(self, app, config=None):
         self.xsi = app
@@ -649,13 +649,12 @@ class Export(andesicore.SIGeneral):
         self.stats = andezetcore.ExportStats()
         self.dontexport = []
         # pb = progress bar
-        self.pb = andesicore.SIProgressBar()
+        self.pb = softimage.SIProgressBar()
         if config:
             self.ppg_params = config
         else:
             return
-            self.ppg_params = andezetcore.Config()
-            self.ppg_params.from_ppg(PPG.Inspected(0))
+            self.ppg_params = andezetcore.load_settings('export', PPG.Inspected(0))
 
     def export_msg(self):
         notifs = ['\n\n']
@@ -705,8 +704,8 @@ class Export(andesicore.SIGeneral):
     def check_filepath(self):
         '''Checks if the filepath exists and if there is a file. Asks to
         overwrite the file.'''
-        path = self.ppg_params.retrieve('path')
-        if bool(self.ppg_params.retrieve('rootname')):
+        path = self.ppg_params.get('path')
+        if bool(self.ppg_params.get('rootname')):
             splitpath = path.split('\\')
             splitpath[-1] = self.si_root.Name.encode(STR_CODEC) + '.msh'
             path = '\\'.join(splitpath)
@@ -714,8 +713,7 @@ class Export(andesicore.SIGeneral):
         splitpath = path.split('\\')
         filepath_items = ['...', splitpath[-3], splitpath[-2], splitpath[-1]]
         filepath = '\\'.join(filepath_items)
-        if os.path.isfile(path) and \
-            self.ppg_params.retrieve('overwrite') != 'True':
+        if os.path.isfile(path) and self.ppg_params.get('overwrite') != 'True':
             if self.msg('{0} already exists, overwrite?'.format(filepath), const.siMsgYesNo) != 6:
                 self.abort()
 
@@ -723,11 +721,11 @@ class Export(andesicore.SIGeneral):
         '''Prepares export.'''
         self.stats.start = datetime.now()
         self.pb.inc()
-        self.ppg_params.store(self.ADDONPATH + '\\XSIZETools\\Resources\\Config\\export.tcnt')
+        andezetcore.save_settings(self.xsi, self.ppg_params, 'export')
         self.si_root = self.xsi.Selection(0)
         if not self.si_root:
             self.abort('No models selected.')
-        if self.ppg_params.retrieve('batch'):
+        if self.ppg_params.get('batch'):
             direct_children = self.si_root.Children
             for child in direct_children:
                 self.si_root = child
@@ -787,7 +785,7 @@ class Export(andesicore.SIGeneral):
         self.pb.inc()
         # Animation.
         self.pb.set(2, 'Processing Animation...')
-        if self.ppg_params.retrieve('anim'):
+        if self.ppg_params.get('anim'):
             anim = AnimationConverter(self)
             self.msh.animation = anim.convert()
         else:
@@ -804,8 +802,8 @@ class Export(andesicore.SIGeneral):
             self.msg('Failed {0}.'.format(self.si_root.Name))
 
     def write_msh(self, data):
-        path = self.ppg_params.retrieve('path')
-        if bool(self.ppg_params.retrieve('rootname')):
+        path = self.ppg_params.get('path')
+        if bool(self.ppg_params.get('rootname')):
             splitpath = path.split('\\')
             splitpath[-1] = self.si_root.Name.encode(STR_CODEC) + '.msh'
             path = '\\'.join(splitpath)

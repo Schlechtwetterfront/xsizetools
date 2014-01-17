@@ -9,8 +9,8 @@
 #####    https://sites.google.com/site/andescp/     #####
 #########################################################
 from win32com.client import constants as const
-import andesicore
-reload(andesicore)
+import softimage
+reload(softimage)
 xsi = Application
 addonpath = xsi.InstallationPath(const.siUserAddonPath)
 
@@ -18,10 +18,10 @@ addonpath = xsi.InstallationPath(const.siUserAddonPath)
 def makeaddon_OnClicked():
     oPPG = PPG.Inspected(0)
     addon_bone = oPPG.Parameters("addon_bone").Value
-    print addon_bone
-    # Make sure the item is a string (the bone name).
-    # If no bones are found it will be a int.
-    if not isinstance(addon_bone, (unicode, str)):
+    print addon_bone, type(addon_bone)
+    # Make sure the item is valid.
+    # If no bones were found the item will be set to '1'.
+    if addon_bone == '1':
         return
     addon_root_name = oPPG.Parameters("addon_root_name").Value
     xsi.GetPrim("Null", addon_root_name)
@@ -34,7 +34,7 @@ def setmesh_OnClicked():
         params = PPG.Inspected(0).Parameters
         root_name = params("addon_root_name").Value
         is_shadowvolume = params("addon_is_shadowvolume").Value
-        if andesicore.Softimage.get_object(root_name):
+        if softimage.Softimage.get_object(root_name):
             if is_shadowvolume is True:
                 xsi.CopyPaste(sel[0], '', root_name)
                 selected_name = sel[0].Name
@@ -45,6 +45,6 @@ def setmesh_OnClicked():
 
 
 def groupbones_OnClicked():
-    bones = andesicore.Softimage.get_objects('bone*')
+    bones = softimage.Softimage.get_objects('bone*')
     if bones:
         xsi.CreateGroup('Bones', bones)
