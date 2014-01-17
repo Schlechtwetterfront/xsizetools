@@ -12,19 +12,12 @@ from xml.etree.ElementTree import ElementTree, Element, SubElement, dump
 def get_current_version(versionpath):
     major = 0
     minor = 0
-    export = 0
-    import_ = 0
+    build = 0000
     with open(versionpath, 'r') as fh:
         for index, line in enumerate(fh):
-            if index == 0:
-                major = int(line.strip())
-            elif index == 1:
-                minor = int(line.strip())
-            elif index == 2:
-                export = int(line.strip())
-            elif index == 3:
-                import_ = int(line.strip())
-    return major, minor, export, import_
+            major, minor, build = line.split('.')
+            break
+    return major, minor, build
 
 
 class CheckSel(object):

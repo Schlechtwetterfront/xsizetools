@@ -21,6 +21,13 @@ utils = XSIUtils
 
 ADDONPATH = xsi.InstallationPath(const.siUserAddonPath)
 
+OLD_VERSION_MSG = '''You are using an old version of XSIZETools ({0}.{1}.{2}), please update to the latest ({3}.{4}.{5}).
+Go to XSIZETools download page?'''
+
+UP_TO_DATE_MSG = '''Build up to date (local: {0}.{1}.{2}, remote: {3}.{4}.{5}).'''
+
+CHECK_VERSION_ERROR_MSG = 'Could not connect to github or timed out, version check not successful.'
+
 
 def add_to_path():
     orig_path = get_origin()
@@ -41,6 +48,42 @@ def get_origin():
     return orig_path
 
 
+def check_version(quiet=False):
+    add_to_path()
+    import requests as req
+    import webbrowser
+    pb = uitk.ProgressBar
+    pb.Caption = 'Checking XSIZETools Version...'
+    pb.Visible = True
+    pb.Maximum = 1
+
+    origin = get_origin()
+    verdir = os.path.abspath(os.path.join(origin, 'xsizet.ver'))
+    with open(verdir, 'r') as fh:
+        local_major, local_minor, local_build = fh.readline().split('.')
+    try:
+        latest = req.get('http://raw.github.com/Schlechtwetterfront/xsizetools/master/xsizet.ver')
+    except (req.ConnectionError, req.Timeout):
+        if quiet:
+            pb.Visible = False
+            return
+        uitk.MsgBox(CHECK_VERSION_ERROR_MSG)
+        pb.Visible = False
+        return
+    major, minor, build = latest.text.split('.')
+    pb.Value = 1
+    if int(build) > int(local_build):
+        if uitk.MsgBox(OLD_VERSION_MSG.format(local_major, local_minor, local_build, major, minor, build), 4) == 6:
+            webbrowser.open('http://schlechtwetterfront.github.io/xsizetools/')
+    else:
+        if quiet:
+            pb.Visible = False
+            return
+        uitk.MsgBox(UP_TO_DATE_MSG.format(local_major, local_minor,
+                                          local_build, major, minor, build))
+    pb.Visible = False
+
+
 def XSILoadPlugin(in_reg):
     in_reg.Author = 'Ande'
     in_reg.Name = 'XSIZETools'
@@ -52,7 +95,7 @@ def XSILoadPlugin(in_reg):
     in_reg.RegisterMenu(const.siMenuMainTopLevelID, 'ZE Tools', False)
     in_reg.RegisterCommand('XSIZETools', 'XSIZETools')
     in_reg.RegisterCommand('ZETHelp', 'ZETHelp')
-    in_reg.RegisterCommand('OpenZETWebsite', 'OpenZETWebsite')
+    in_reg.RegisterCommand('ZETOpenWebsite', 'ZETOpenWebsite')
     in_reg.RegisterCommand('MSHExport', 'MSHExport')
     in_reg.RegisterCommand('MSHImport', 'MSHImport')
     in_reg.RegisterCommand('MaterialEdit', 'MaterialEdit')
@@ -60,6 +103,7 @@ def XSILoadPlugin(in_reg):
     in_reg.RegisterCommand('EditCloth', 'EditCloth')
     in_reg.RegisterCommand('OpenImportLog', 'OpenImportLog')
     in_reg.RegisterCommand('MshJson', 'MshJson')
+    in_reg.RegisterCommand('ZETCheckVersion', 'ZETCheckVersion')
 
     in_reg.RegisterEvent('ZEToolsStartupEvent', const.siOnStartup)
     in_reg.RegisterTimerEvent('ZEToolsDelayedStartupEvent', 0, 1000)
@@ -113,12 +157,13 @@ def ZETools_Init(in_ctxt):
     sub_menu.AddCommandItem('MSH to TXT...', 'MshJson')
     sub_menu2 = win32com.client.Dispatch(oMenu.AddItem('General Tools', const.siMenuItemSubmenu))
     sub_menu2.AddCommandItem('Info...', 'ZETHelp')
-    sub_menu2.AddCommandItem('Help and Documentation', 'OpenZETWebsite')
+    sub_menu2.AddCommandItem('Help and Documentation', 'ZETOpenWebsite')
     sub_menu2.AddCommandItem('Open Import Log', 'OpenImportLog')
+    sub_menu2.AddCommandItem('Check Version', 'ZETCheckVersion')
     return True
 
 
-def OpenZETWebsite_Init(in_ctxt):
+def ZETOpenWebsite_Init(in_ctxt):
     oCmd = in_ctxt.Source
     oCmd.Description = ''
     oCmd.ReturnValue = True
@@ -126,10 +171,22 @@ def OpenZETWebsite_Init(in_ctxt):
     return True
 
 
-def OpenZETWebsite_Execute():
+def ZETOpenWebsite_Execute():
     import webbrowser
     url = 'http://schlechtwetterfront.github.io/xsizetools/'
     webbrowser.open_new_tab(url)
+    return True
+
+
+def ZETCheckVersion_Init(in_ctxt):
+    oCmd = in_ctxt.Source
+    oCmd.Description = ''
+    oCmd.ReturnValue = True
+    return True
+
+
+def ZETCheckVersion_Execute():
+    check_version()
     return True
 
 
