@@ -1,3 +1,0 @@
-[submodule "Application/Modules/softimage"]
-	path = Application/Modules/softimage
-	url = https://github.com/Schlechtwetterfront/softimage.git
