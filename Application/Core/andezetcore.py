@@ -2,9 +2,9 @@
 #####                 andezetcore                   #####
 #####                                               #####
 #####             code copyright (C)                #####
-#####         Benedikt Schatz 2012-2013             #####
+#####            Benedikt Schatz 2014               #####
 #####                                               #####
-#####    https://sites.google.com/site/andescp/     #####
+#####    https://schlechtwetterfront.github.com     #####
 #########################################################
 import json
 import softimage

@@ -4,9 +4,9 @@
 #####            Main Export classes                #####
 #####                                               #####
 #####             code copyright (C)                #####
-#####         Benedikt Schatz 2012-2013             #####
+#####            Benedikt Schatz 2014               #####
 #####                                               #####
-#####       http://byentech.wordpress.com           #####
+#####    https://schlechtwetterfront.github.com     #####
 #########################################################
 
 # TODO: FLGS:
@@ -721,7 +721,7 @@ class Export(softimage.SIGeneral):
         '''Prepares export.'''
         self.stats.start = datetime.now()
         self.pb.inc()
-        andezetcore.save_settings(self.xsi, self.ppg_params, 'export')
+        andezetcore.save_settings('export', self.ppg_params)
         self.si_root = self.xsi.Selection(0)
         if not self.si_root:
             self.abort('No models selected.')
