@@ -1,6 +1,9 @@
 XSIZETools
 ========
 
+**Note** If you encounter any problems with this plugin, try an earlier version by choosing one from
+[this link](https://github.com/Schlechtwetterfront/xsizetools/commits/master, "this link") and clicking
+"Browse Code" on the right, then using the "Download ZIP" button from the page you end up on.
 
 Main
 --------
