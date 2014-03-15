@@ -241,24 +241,42 @@ class ChainItemBuilder(softimage.SIModel):
                                             self.model.parent_name)
         self.set_transform()
         self.set_vis()
+        self.add_prim_property()
         if self.model.primitive[0] == 0:
             self.si_model.radius = self.model.primitive[1]
+            self.set_prim_scale()
         elif self.model.primitive[0] == 1:
             self.si_model.radius = self.model.primitive[1]
+            self.set_prim_scale()
         elif self.model.primitive[0] == 2:
             self.si_model.radius = self.model.primitive[1]
             self.si_model.height = self.model.primitive[2]
+            self.set_prim_scale()
         elif self.model.primitive[0] == 4:
             self.si_model.length = 1.0
             self.set_prim_scale()
         else:
             logging.error('{0} is unknown prim type({1}).'.format(self.model.name, self.model.primitive[0]))
 
+    def add_prim_property(self):
+        property_set = self.si_model.AddProperty('CustomProperty', False, 'collprim')
+        property_set.AddParameter3('type', const.siInt4, self.model.primitive[0])
+
     def set_prim_scale(self):
+        if self.model.parent_name:
+            parent = self.chainbuilder.name_dict[self.model.parent_name]
+        else:
+            parent = self.xsi.ActiveSceneRoot
+        parent_transform = parent.Kinematics.Local.Transform
         transform = self.si_model.Kinematics.Local.Transform
-        transform.SetScalingFromValues(self.model.primitive[1],
-                                       self.model.primitive[2],
-                                       self.model.primitive[3])
+        if self.model.primitive[0] == 4:
+            transform.SetScalingFromValues(self.model.primitive[1] / parent_transform.SclX,
+                                           self.model.primitive[2] / parent_transform.SclY,
+                                           self.model.primitive[3] / parent_transform.SclZ)
+        else:
+            transform.SetScalingFromValues(1.0 / parent_transform.SclX,
+                                           1.0 / parent_transform.SclY,
+                                           1.0 / parent_transform.SclZ)
         self.si_model.Kinematics.Local.Transform = transform
 
     def build_geo(self):
@@ -468,18 +486,42 @@ class ChainItemBuilder(softimage.SIModel):
             self.xsi.ToggleVisibility(self.si_model, None, None)
 
     def set_transform(self):
-        transform = self.si_model.Kinematics.Local.Transform
-        transform.SetTranslationFromValues(*self.model.transform.translation)
-        quat = xsimath.CreateQuaternion()
-        quat.Set(*self.model.transform.reversed_quaternion())
-        transform.SetRotationFromQuaternion(quat)
-        transform.SetScalingFromValues(*self.model.transform.scale)
-        # It seems we have to pipe the transform in we got before.
-        self.si_model.Kinematics.Local.Transform = transform
-        logging.debug('''Set tranform for {0} to:
-\t\t\t\t\t\tPosition: {1}, {2}, {3};
-\t\t\t\t\t\tRotation: {4}, {5}, {6};
-\t\t\t\t\t\tScale:    {7}, {8}, {9}.'''.format(self.si_model.Name,
+        if ('geo' in self.model.model_type) and self.model.collprim and 'p_' in self.si_model.Parent.FullName:
+            transform = self.si_model.Kinematics.Local.Transform
+            # parent_transform = self.si_model.Kinematics.Local.Transform
+            quat = xsimath.CreateQuaternion()
+            quat.Set(*self.model.transform.reversed_quaternion())
+            transform.SetRotationFromQuaternion(quat)
+            # It seems we have to pipe the transform in we got before.
+            self.si_model.Kinematics.Local.Transform = transform
+            transform = self.si_model.Kinematics.Global.Transform
+            transform.SetScalingFromValues(*self.model.transform.scale)
+            pos = self.model.transform.translation
+            transform.SetTranslationFromValues(pos[0],
+                                               pos[1],
+                                               pos[2])
+            self.si_model.Kinematics.Global.Transform = transform
+            logging.debug('''Set global tranform for {0} to:
+\t\t\t\t\t\t\tPosition: {1}, {2}, {3};
+\t\t\t\t\t\t\tRotation: {4}, {5}, {6};
+\t\t\t\t\t\t\tScale:    {7}, {8}, {9}.'''.format(self.si_model.Name,
+                                               transform.PosX, transform.PosY, transform.PosZ,
+                                               transform.RotX, transform.RotY, transform.RotZ,
+                                               transform.SclX, transform.SclY, transform.SclZ))
+
+        else:
+            transform = self.si_model.Kinematics.Local.Transform
+            transform.SetTranslationFromValues(*self.model.transform.translation)
+            quat = xsimath.CreateQuaternion()
+            quat.Set(*self.model.transform.reversed_quaternion())
+            transform.SetRotationFromQuaternion(quat)
+            transform.SetScalingFromValues(*self.model.transform.scale)
+            # It seems we have to pipe the transform in we got before.
+            self.si_model.Kinematics.Local.Transform = transform
+            logging.debug('''Set local tranform for {0} to:
+\t\t\t\t\t\t\tPosition: {1}, {2}, {3};
+\t\t\t\t\t\t\tRotation: {4}, {5}, {6};
+\t\t\t\t\t\t\tScale:    {7}, {8}, {9}.'''.format(self.si_model.Name,
                                                transform.PosX, transform.PosY, transform.PosZ,
                                                transform.RotX, transform.RotY, transform.RotZ,
                                                transform.SclX, transform.SclY, transform.SclZ))

@@ -406,17 +406,26 @@ class ModelConverter(softimage.SIModel):
         self.msh2_model.collprim = True
         sm = self.si_model
         mm = self.msh2_model
-        if 'cube' in sm.Name:
+        if sm.Parent:
+            parent_transform = sm.Parent.Kinematics.Local.Transform
+        else:
+            parent_transform = self.export.xsi.ActiveSceneRoot.Kinematics.Local.Transform
+        prim_type = None
+        for prop in self.si_model.Properties:
+                if 'collprim' in prop.FullName:
+                    prim_type = prop.Parameters('type').Value
+        if 'cube' in sm.Name or prim_type == 4:
+            # Half the values (only the 'extents' are stored, not the exact length).
             mm.primitive = (4,
-                            sm.length.Value * mm.transform.scale[0],
-                            sm.length.Value * mm.transform.scale[1],
-                            sm.length.Value * mm.transform.scale[2])
-        elif 'cyl' in sm.Name:
+                            sm.length.Value * mm.transform.scale[0] * 0.5 * parent_transform.SclX,
+                            sm.length.Value * mm.transform.scale[1] * 0.5 * parent_transform.SclY,
+                            sm.length.Value * mm.transform.scale[2] * 0.5 * parent_transform.SclZ)
+        elif 'cyl' in sm.Name or prim_type == 2:
             mm.primitive = (2,
                             sm.radius.Value,
                             sm.height.Value,
                             0)
-        elif 'sphere' in sm.Name:
+        elif 'sphere' in sm.Name or prim_type == 0:
             mm.primitive = (0,
                             sm.radius.Value,
                             0,

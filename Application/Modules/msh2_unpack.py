@@ -245,7 +245,13 @@ class ModelUnpacker(Unpacker):
                         break
             elif hdr == 'SWCI':
                 self.mdl.collprim = True
-                self.mdl.primitive = unpack('<Lfff', self.fh.read(16))
+                prim_data = unpack('<Lfff', self.fh.read(16))
+                if prim_data[0] == 4:
+                    self.mdl.primitive = (prim_data[0], prim_data[1] * 2,
+                                          prim_data[2] * 2, prim_data[3] * 2)
+                else:
+                    self.mdl.primitive = (prim_data[0], prim_data[1],
+                                          prim_data[2], prim_data[3])
             else:
                 self.log('Unrecognized chunk {0} in ModelUnpack.'.format(hdr))
                 # Return to the position before the header.
