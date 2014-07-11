@@ -604,6 +604,7 @@ def MSHImport_Execute():
     mLay.AddItem('hideroots', 'Hide Roots')
     mLay.AddItem('hideeffs', 'Hide Effectors')
     mLay.AddItem('weld', 'Weld Boundary Edges')
+    mLay.AddItem('log', 'Log MSH Unpack')
     mLay.EndGroup()
     mLay.AddRow()
     mLay.AddStaticText('')

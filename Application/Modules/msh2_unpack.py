@@ -195,9 +195,10 @@ class ModelUnpacker(Unpacker):
             self.log('Model: Header, Size: {0}, {1}'.format(hdr, size))
             if hdr == 'MTYP':
                 self.mdl.model_type = msh2.MODEL_TYPES_INT[unpack('<L', self.fh.read(4))[0]]
-            # RepSharpshooters MshEx exports MTYP as MYTP.
+            # RepSharpshooters MshEx exports MTYP as MYTP. Should work since the format update.
             elif hdr == 'MYTP':
-                raise UnpackError('Unpacking .msh files exported with MshEx is not supported.')
+                logging.info('Found RepSharpshooter MshEx type .msh. Continuing the import.')
+                self.mdl.model_type = msh2.MODEL_TYPES_INT[unpack('<L', self.fh.read(4))[0]]
             elif hdr == 'NAME':
                 self.mdl.name = self.fh.read(size).strip('\x00')
             elif hdr == 'MNDX':

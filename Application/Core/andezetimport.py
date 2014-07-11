@@ -290,6 +290,10 @@ class ChainItemBuilder(softimage.SIModel):
         if not parent:
             logging.error('Cant find parent {0} for {1}.'.format(self.model.parent_name,
                                                                  self.model.name))
+        if len(vertex_positions) == 0:
+            logging.info('Building {0} as null (originally {1}) because no geometry information was found.'.format(self.model.name, self.model.model_type))
+            self.build_null()
+            return
         try:
             self.si_model = parent.AddPolygonMesh(vertex_positions,
                                                   faces,
@@ -735,7 +739,7 @@ class Import(softimage.SIGeneral):
 
     def abort_checklog(self):
         path = self.xsi.InstallationPath(const.siUserAddonPath)
-        path = os.path.join(self.get_origin(), 'import_log.log')
+        path = os.path.join(softimage.get_plugin_origin('XSIZETools'), 'import_log.log')
         if os.path.isfile(path):
             if self.msg('Encountered an error. Check {0} for more info.\nOpen log now?'.format(path), const.siMsgYesNo) == 6:
                 os.startfile(path)
@@ -763,6 +767,7 @@ class Import(softimage.SIGeneral):
         '''Actual import function.'''
         # Disable logging temporarily.
         print self.config.get('path')
+        logging.info('==========================================')
         logging.info('Starting import at {0}.'.format(dt.now()))
         logging.info('.msh file path: {0}'.format(self.config.get('path')))
         prefs = self.xsi.Preferences
