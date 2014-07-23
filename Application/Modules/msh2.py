@@ -1607,7 +1607,7 @@ class FaceCollection(object):
         the faces to the newly calculated ones.'''
         new_faces = []
         for ndx, face in enumerate(self.faces):
-            if face.sides > 4:
+            if face.sides > 3:
                 nface = Face(self)
                 numtris = face.sides - 2
                 # Just triangulate every face with more than 4 sides.

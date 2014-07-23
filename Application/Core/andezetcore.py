@@ -228,7 +228,7 @@ def get_default_settings(settings_name):
             'framerange': True,
             'applyonly': False,
             'log': False,
-            'triangulate': False,
+            'triangulate': True,
             'nullsize': 0.2,
             'ignoregeo': False,
             'ignoreanim': False,

@@ -605,6 +605,7 @@ def MSHImport_Execute():
     mLay.AddItem('hideeffs', 'Hide Effectors')
     mLay.AddItem('weld', 'Weld Boundary Edges')
     mLay.AddItem('log', 'Log MSH Unpack')
+    mLay.AddItem('triangulate', 'Triangulate')
     mLay.EndGroup()
     mLay.AddRow()
     mLay.AddStaticText('')
