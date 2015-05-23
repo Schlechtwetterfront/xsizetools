@@ -1120,7 +1120,7 @@ class SegmentGeometry(Packer):
             index_original = None
             try:
                 index_original = new_vertices.index(vert)
-                print 'Original: {0}; Double: {1}'.format(new_vertices[index_original].normal, vert.normal)
+                # print 'Original: {0}; Double: {1}'.format(new_vertices[index_original].normal, vert.normal)
             except ValueError:
                 #print 'ValueError', vert
                 pass
@@ -1308,10 +1308,9 @@ class ClothGeometry(Packer):
         self.faces.segment = self
 
     def pack_stretch(self):
-        data = ['SPRS', struct.pack('<LL', 4 * len(self.stretch_constraints), len(self.stretch_constraints))]
+        data = ['SPRS', struct.pack('<LL', 4 + 4 * len(self.stretch_constraints), len(self.stretch_constraints))]
         for item in self.stretch_constraints:
             data.append(struct.pack('<HH', *item))
-        return ''.join(data)
         return ''.join(data)
 
     def repack_stretch(self):
@@ -1322,7 +1321,7 @@ class ClothGeometry(Packer):
         return ''.join(data)
 
     def pack_cross(self):
-        data = ['CPRS', struct.pack('<LL', 4 * len(self.cross_constraints), len(self.cross_constraints))]
+        data = ['CPRS', struct.pack('<LL', 4 + 4 * len(self.cross_constraints), len(self.cross_constraints))]
         for item in self.cross_constraints:
             data.append(struct.pack('<HH', *item))
         return ''.join(data)
@@ -1334,7 +1333,7 @@ class ClothGeometry(Packer):
         return ''.join(data)
 
     def pack_bend(self):
-        data = ['BPRS', struct.pack('<LL', 4 * len(self.bend_constraints), len(self.bend_constraints))]
+        data = ['BPRS', struct.pack('<LL', 4 + 4 * len(self.bend_constraints), len(self.bend_constraints))]
         for item in self.bend_constraints:
             data.append(struct.pack('<HH', *item))
         return ''.join(data)
@@ -1347,10 +1346,15 @@ class ClothGeometry(Packer):
 
     def pack_collision(self):
         data = ['COLL', 'size', struct.pack('<L', len(self.collisions))]
-        size = 0
+        # Length of size indicator = 4.
+        size = 4
         for coll in self.collisions:
             data.append(coll.get())
             size += len(data[-1])
+        # Make the length of the chunk even.
+        if size % 2 != 0:
+            size += 1
+            data.append('\x00')
         data[1] = struct.pack('<L', size)
         return ''.join(data)
 
@@ -1428,6 +1432,19 @@ class Face(object):
         face.vertices = data['vertices']
         return face
 
+    def get_connections(self, vertex):
+        index = self.vertices.index(vertex)
+        connections = []
+        if index - 1 < 0:
+            connections.append(self.vertices[-1])
+        else:
+            connections.append(self.vertices[index - 1])
+        if index + 1 == len(self.vertices):
+            connections.append(self.vertices[0])
+        else:
+            connections.append(self.vertices[index + 1])
+        return connections
+
     def replace(self, verts):
         '''Replaces the local vertices list with a new one.'''
         self.vertices = verts
@@ -1485,29 +1502,42 @@ class Face(object):
 
     def pack_tris(self):
         '''Packs the vertex indices as tris for the CMSH chunk.'''
-        index_map = self.collection.segment.index_map
-        if (self.sides == 4) and (index_map is not None):
-            return (struct.pack('<LLL', index_map[self.vertices[0]],
-                    index_map[self.vertices[1]],
-                    index_map[self.vertices[2]]),
-                    struct.pack('<LLL', index_map[self.vertices[0]],
-                                index_map[self.vertices[2]],
-                                index_map[self.vertices[3]]))
-        elif (self.sides == 3) and (index_map is not None):
-            return (struct.pack('<LLL', index_map[self.vertices[0]],
-                                index_map[self.vertices[1]],
-                                index_map[self.vertices[2]]),)
-        elif (self.sides == 4) and (index_map is None):
+        # index_map = self.collection.segment.index_map
+        # if (self.sides == 4) and (index_map is not None):
+        #     return (struct.pack('<LLL', index_map[self.vertices[0]],
+        #             index_map[self.vertices[1]],
+        #             index_map[self.vertices[2]]),
+        #             struct.pack('<LLL', index_map[self.vertices[0]],
+        #                         index_map[self.vertices[2]],
+        #                         index_map[self.vertices[3]]))
+        # elif (self.sides == 3) and (index_map is not None):
+        #     return (struct.pack('<LLL', index_map[self.vertices[0]],
+        #                         index_map[self.vertices[1]],
+        #                         index_map[self.vertices[2]]),)
+        # elif (self.sides == 4) and (index_map is None):
+        #     return (struct.pack('<LLL', self.vertices[0],
+        #             self.vertices[1],
+        #             self.vertices[2]),
+        #             struct.pack('<LLL', self.vertices[0],
+        #                         self.vertices[2],
+        #                         self.vertices[3]))
+        # elif (self.sides == 3) and (index_map is None):
+        #     return (struct.pack('<LLL', self.vertices[0],
+        #                         self.vertices[1],
+        #                         self.vertices[2]),)
+        # else:
+        #     return ()
+        if self.sides == 4:
             return (struct.pack('<LLL', self.vertices[0],
-                    self.vertices[1],
-                    self.vertices[2]),
+                                        self.vertices[1],
+                                        self.vertices[2]),
                     struct.pack('<LLL', self.vertices[0],
-                                self.vertices[2],
-                                self.vertices[3]))
-        elif (self.sides == 3) and (index_map is None):
+                                        self.vertices[2],
+                                        self.vertices[3]))
+        elif self.sides == 3:
             return (struct.pack('<LLL', self.vertices[0],
-                                self.vertices[1],
-                                self.vertices[2]),)
+                                        self.vertices[1],
+                                        self.vertices[2]))
         else:
             return ()
 
@@ -2063,6 +2093,9 @@ class ClothVertexCollection(Packer):
         coll.uved = data['uved']
         coll.vertices = [ClothVertex.from_json(vdata, coll) for vdata in data['vertices']]
         return coll
+
+    def fixed(self):
+        return [point for point in self.vertices if point.is_fixed]
 
     def add(self, vert):
         '''Adds a vertex to the collection and sets its

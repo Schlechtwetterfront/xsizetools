@@ -352,6 +352,13 @@ class ClothUnpacker(Unpacker):
                     collision.unknown_long = unpack('<L', self.fh.read(4))
                     collision.collision_prim = unpack('<fff', self.fh.read(12))
                     self.seg.collisions.append(collision)
+                # COLL chunk seems to be padded with \x00 at the end to get an even size indicator.
+                while True:
+                    if self.fh.read(1) == '\x00':
+                        continue
+                    else:
+                        self.fh.seek(self.fh.tell() - 1)
+                        break
             else:
                 self.log('Unrecognized chunk {0} in ClothUnpack.'.format(hdr))
                 # Return to the position before the header.

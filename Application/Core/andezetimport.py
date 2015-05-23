@@ -739,7 +739,7 @@ class Import(softimage.SIGeneral):
 
     def abort_checklog(self):
         path = self.xsi.InstallationPath(const.siUserAddonPath)
-        path = os.path.join(softimage.get_plugin_origin('XSIZETools'), 'import_log.log')
+        path = os.path.join(softimage.Softimage.get_plugin_origin('XSIZETools'), 'import_log.log')
         if os.path.isfile(path):
             if self.msg('Encountered an error. Check {0} for more info.\nOpen log now?'.format(path), const.siMsgYesNo) == 6:
                 os.startfile(path)
