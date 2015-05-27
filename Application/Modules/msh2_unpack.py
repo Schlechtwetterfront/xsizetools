@@ -338,16 +338,16 @@ class ClothUnpacker(Unpacker):
                     name = []
                     while 1:
                         char = self.fh.read(1)
-                        name.append(char)
                         if char == '\x00':
                             break
+                        name.append(char)
                     collision.name = ''.join(name)
                     parent = []
                     while 1:
                         char = self.fh.read(1)
-                        parent.append(char)
                         if char == '\x00':
                             break
+                        parent.append(char)
                     collision.parent = ''.join(parent)
                     collision.unknown_long = unpack('<L', self.fh.read(4))
                     collision.collision_prim = unpack('<fff', self.fh.read(12))

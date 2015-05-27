@@ -35,6 +35,15 @@ def exportbutton_OnClicked():
         export.export()
     except SystemExit:
         return
+    except Exception as e:
+        if sigen.msg('Encountered an error while exporting, copy error to clipboard?', const.siMsgYesNo) == 6:
+            import win32clipboard, traceback
+            win32clipboard.OpenClipboard()
+            win32clipboard.EmptyClipboard()
+            win32clipboard.SetClipboardText(traceback.format_exc(), win32clipboard.CF_TEXT)
+            win32clipboard.CloseClipboard()
+        else:
+            raise
     return
 
 

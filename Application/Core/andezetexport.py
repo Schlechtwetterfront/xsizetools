@@ -510,51 +510,7 @@ class ModelConverter(softimage.SIModel):
         clothgeo.faces, clothgeo.vertices = self.get_cloth_geo()
         clothgeo.assign_parents()
         clothgeo.texture = self.get_cloth_tex()
-
-        for face in clothgeo.faces:
-            last_vertex = face.vertices[-1]
-            # Stretch constraints.
-            for vert in face.vertices:
-                clothgeo.stretch_constraints.append((last_vertex, vert))
-                last_vertex = vert
-            # Cross constraints.
-            if len(face.vertices) == 4:
-                clothgeo.cross_constraints.extend(((face.vertices[0], face.vertices[2]), (face.vertices[1], face.vertices[3])))
-
-        for face in clothgeo.faces:
-            for face2 in clothgeo.faces:
-                if face is face2:
-                    continue
-                shared_vertices = []
-                share_map = {}
-                not_shared_vertices = []
-                for vertex in face2.vertices:
-                    # Shares an index.
-                    if vertex in face.vertices:
-                        shared_vertices.append(vertex)
-                    else:
-                        not_shared_vertices.append(vertex)
-                connections = {}
-                for shared_vertex in shared_vertices:
-                    connections1 = []
-                    for connection_vertex in face.get_connections(shared_vertex):
-                        if connection_vertex not in shared_vertices:
-                            connections1.append(connection_vertex)
-                    connections2 = []
-                    for connection_vertex in face2.get_connections(shared_vertex):
-                        if connection_vertex not in shared_vertices:
-                            connections2.append(connection_vertex)
-                    for v1, v2 in zip(connections1, connections2):
-                        clothgeo.bend_constraints.append((v1, v2))
-                continue        
-                if len(shared_vertices) == 2:
-                    for vertex in face.vertices:
-                        if vertex not in shared_vertices:
-                            for not_shared_vertex in not_shared_vertices:
-                                # Don't add the pair if both are fixed points.
-                                if (not_shared_vertex not in clothgeo.vertices.fixed()) and (vertex not in clothgeo.vertices.fixed()):
-                                    clothgeo.bend_constraints.append((vertex, not_shared_vertex))
-
+        clothgeo.create_constraints()
         coll.add(clothgeo)
         return coll
 

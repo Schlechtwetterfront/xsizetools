@@ -161,6 +161,8 @@ class ChainItemBuilder(softimage.SIModel):
                   1: 'Sphere',
                   2: 'Cylinder',
                   4: 'Cube'}
+    cloth_prim_types = {0: 'Sphere',
+                        1: 'Cylinder'}
 
     def __init__(self, model, chainbuilder):
         self.model = model
@@ -180,6 +182,8 @@ class ChainItemBuilder(softimage.SIModel):
         elif 'geo' in self.model.model_type:
             if self.model.collprim:
                 self.build_prim()
+            elif self.model.name.startswith('c_'):
+                self.build_c_prim()
             else:
                 self.build_geo()
         elif self.model.model_type == 'cloth':
@@ -227,6 +231,39 @@ class ChainItemBuilder(softimage.SIModel):
         self.si_model = self.xsi.GetPrim('Null', '{0}(shadow)'.format(self.model.name), self.model.parent_name)
         self.set_transform()
         self.set_vis()
+
+    def build_c_prim(self):
+        logging.info('Building {0} as cloth prim(originally {1}).'.format(self.model.name, self.model.model_type))
+
+        # Find a cloth which has this cloth primitive as cloth collision so we can retrieve the necessary primitive data.
+        my_collision = None
+        for model in self.imp.msh.models:
+            if model.model_type == 'cloth':
+                cloth_geo = model.segments[0]
+                for collision in cloth_geo.collisions:
+                    print self.model.name, len(self.model.name)
+                    print collision.name, len(collision.name)
+                    if collision.name == self.model.name:
+                        my_collision = collision
+                        print 'Found it'
+                        break
+
+        self.si_model = self.xsi.CreatePrim(self.cloth_prim_types[my_collision.primitive_type],
+                                            'MeshSurface',
+                                            self.model.name,
+                                            self.model.parent_name)
+        self.set_transform()
+        self.set_vis()
+        # self.add_prim_property()
+        if my_collision.primitive_type == 0:
+            self.si_model.radius = my_collision.collision_prim[0]
+            self.set_cloth_prim_scale(my_collision)
+        elif my_collision.primitive_type == 1:
+            self.si_model.radius = my_collision.collision_prim[0]
+            self.si_model.height = my_collision.collision_prim[1]
+            self.set_cloth_prim_scale(my_collision)
+        else:
+            logging.error('{0} is unknown prim type({1}).'.format(self.model.name, self.model.primitive[0]))
 
     def build_prim(self):
         logging.info('Building {0} as prim(originally {1}).'.format(self.model.name, self.model.model_type))
@@ -277,6 +314,18 @@ class ChainItemBuilder(softimage.SIModel):
             transform.SetScalingFromValues(1.0 / parent_transform.SclX,
                                            1.0 / parent_transform.SclY,
                                            1.0 / parent_transform.SclZ)
+        self.si_model.Kinematics.Local.Transform = transform
+
+    def set_cloth_prim_scale(self, collision):
+        if self.model.parent_name:
+            parent = self.chainbuilder.name_dict[self.model.parent_name]
+        else:
+            parent = self.xsi.ActiveSceneRoot
+        parent_transform = parent.Kinematics.Local.Transform
+        transform = self.si_model.Kinematics.Local.Transform
+        transform.SetScalingFromValues(1.0 / parent_transform.SclX,
+                                       1.0 / parent_transform.SclY,
+                                       1.0 / parent_transform.SclZ)
         self.si_model.Kinematics.Local.Transform = transform
 
     def build_geo(self):
@@ -699,6 +748,7 @@ class Enveloper(object):
 
 class Import(softimage.SIGeneral):
     def __init__(self, app, config=None):
+        self.msh = None
         self.xsi = app
         self.config = config
         self.notifications = None

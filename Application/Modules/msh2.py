@@ -1218,14 +1218,15 @@ class ClothCollision(Packer):
         self.cloth = cloth_geo
         self.name = ''
         self.parent = ''
-        self.unknown_long = 0
+        # 0: Sphere, 1: Cylinder
+        self.primitive_type = 0
         self.collision_prim = 4, 4, 4
 
     def get_json(self):
         data = {
             'name': self.name,
             'parent': self.parent,
-            'unknown_long': self.unknown_long,
+            'primitive_type': self.primitive_type,
             'collision_primitive': self.collision_prim,
         }
         return data
@@ -1236,14 +1237,14 @@ class ClothCollision(Packer):
         cc.cloth = cloth
         cc.name = data['name']
         cc.parent = data['parent']
-        cc.unknown_long = data['unknown_long']
+        cc.primitive_type = data['primitive_type']
         cc.collision_prim = data['collision_primitive']
         return cc
 
-    def get(self):
+    def pack(self):
         data = [self.name + '\x00',
                 self.parent + '\x00',
-                struct.pack('<L', self.unknown_long),
+                struct.pack('<L', self.primitive_type),
                 struct.pack('<fff', *self.collision_prim)]
         return ''.join(data)
 
@@ -1307,6 +1308,44 @@ class ClothGeometry(Packer):
         self.vertices.segment = self
         self.faces.segment = self
 
+    def create_constraints(self):
+        for face in self.faces:
+            last_vertex = face.vertices[-1]
+            # Stretch constraints.
+            for vert in face.vertices:
+                self.stretch_constraints.append((last_vertex, vert))
+                last_vertex = vert
+            # Cross constraints.
+            if len(face.vertices) == 4:
+                self.cross_constraints.extend(((face.vertices[0], face.vertices[2]), (face.vertices[1], face.vertices[3])))
+
+        for face in self.faces:
+            for face2 in self.faces:
+                if face is face2:
+                    continue
+                shared_vertices = []
+                share_map = {}
+                not_shared_vertices = []
+                for vertex in face2.vertices:
+                    # Shares an index.
+                    if vertex in face.vertices:
+                        shared_vertices.append(vertex)
+                    else:
+                        not_shared_vertices.append(vertex)
+                connections = {}
+                for shared_vertex in shared_vertices:
+                    connections1 = []
+                    for connection_vertex in face.get_connections(shared_vertex):
+                        if connection_vertex not in shared_vertices:
+                            connections1.append(connection_vertex)
+                    connections2 = []
+                    for connection_vertex in face2.get_connections(shared_vertex):
+                        if connection_vertex not in shared_vertices:
+                            connections2.append(connection_vertex)
+                    for v1, v2 in zip(connections1, connections2):
+                        self.bend_constraints.append((v1, v2))
+                continue
+
     def pack_stretch(self):
         data = ['SPRS', struct.pack('<LL', 4 + 4 * len(self.stretch_constraints), len(self.stretch_constraints))]
         for item in self.stretch_constraints:
@@ -1349,10 +1388,10 @@ class ClothGeometry(Packer):
         # Length of size indicator = 4.
         size = 4
         for coll in self.collisions:
-            data.append(coll.get())
+            data.append(coll.pack())
             size += len(data[-1])
-        # Make the length of the chunk even.
-        if size % 2 != 0:
+        # Make the length of the chunk a multiple of 4.
+        while size % 4 != 0:
             size += 1
             data.append('\x00')
         data[1] = struct.pack('<L', size)
