@@ -226,6 +226,12 @@ class ChainItemBuilder(softimage.SIModel):
         self.set_transform()
         self.set_vis()
 
+        import utils
+        cloth_prop = utils.add_cloth_property(self.si_model)
+        cloth_prop.Parameters('collisions').Value = ','.join([c.name for c in self.model.segments[0].collisions])
+        cloth_prop.Parameters('texture').Value = self.model.segments[0].texture
+        self.geo.AddCluster(const.siVertexCluster, 'ZEFixedPoints', self.model.segments[0].vertices.fixed_indices())
+
     def build_shadow(self):
         logging.info('Building {0} as shadow(originally {1}).'.format(self.model.name, self.model.model_type))
         self.si_model = self.xsi.GetPrim('Null', '{0}(shadow)'.format(self.model.name), self.model.parent_name)

@@ -150,10 +150,11 @@ def ZETools_Init(in_ctxt):
     oMenu.AddCommandItem('Scripts...', 'XSIZETools')
     oMenu.AddCommandItem('Export .MSH...', 'MSHExport')
     oMenu.AddCommandItem('Import .MSH...', 'MSHImport')
+    oMenu.AddCommandItem('Cloth...', 'EditCloth')
     sub_menu = win32com.client.Dispatch(oMenu.AddItem('.MSH Tools', const.siMenuItemSubmenu))
     sub_menu.AddCommandItem('Manage Materials...', 'MaterialEdit')
-    sub_menu.AddCommandItem('Create Cloth...', 'ClothCreate')
-    sub_menu.AddCommandItem('Edit Cloth...', 'EditCloth')
+    # sub_menu.AddCommandItem('Create Cloth...', 'ClothCreate')
+    # sub_menu.AddCommandItem('Edit Cloth...', 'EditCloth')
     sub_menu.AddCommandItem('MSH to TXT...', 'MshJson')
     sub_menu2 = win32com.client.Dispatch(oMenu.AddItem('General Tools', const.siMenuItemSubmenu))
     sub_menu2.AddCommandItem('Info...', 'ZETHelp')
@@ -734,17 +735,18 @@ def CLothCreate_Init(in_ctxt):
 
 
 def ClothCreate_Execute():
-    uitk.MsgBox('''Note: Cloth isnt fully implemented yet.
-Cloth will be exported as cloth. However, it could crash
-your game or not appear at all.''')
+    add_to_path()
     if not xsi.Selection(0):
         uitk.MsgBox('No Model selected.')
         return
     prop = get_cloth_prop(xsi.Selection(0))
     if prop:
-        uitk.MsgBox('Already is cloth.')
-        return
-    add_prop(xsi.Selection(0))
+        if uitk.MsgBox('Already is cloth, delete the existing cloth and create a new one?', 4) == 6:
+            xsi.DeleteObj(prop)
+        else:
+            return
+    import utils
+    utils.add_cloth_property(xsi.Selection(0))
     edit_prop(xsi.Selection(0))
 
 
@@ -756,10 +758,17 @@ def EditCloth_Init(in_ctxt):
 
 
 def EditCloth_Execute():
+    add_to_path()
     if not xsi.Selection(0):
         uitk.MsgBox('No Model selected.')
         return
-    edit_prop(xsi.Selection(0))
+    prop = get_cloth_prop(xsi.Selection(0))
+    if prop:
+        edit_prop(xsi.Selection(0))
+    else:
+        import utils
+        utils.add_cloth_property(xsi.Selection(0))
+        edit_prop(xsi.Selection(0))
 
 
 def MshJson_Init(in_ctxt):
@@ -825,50 +834,9 @@ def MshJson_Execute():
 def edit_prop(model):
     prop = get_cloth_prop(model)
     if prop:
-        xsi.InspectObj(prop)
+        xsi.InspectObj(prop, '', 'Edit Cloth', const.siLockAndForceNew)
     else:
         uitk.MsgBox('Model is no cloth.')
-
-
-def add_prop(model):
-    import softimage
-    reload(softimage)
-    ps = model.AddProperty('CustomProperty', False, 'ZECloth')
-    ps.AddParameter3('collisions', const.siString)
-    ps.AddParameter3('texture', const.siString)
-    ps.AddParameter3('fixedcluster', const.siString)
-    ps.AddParameter3('modelname', const.siString, model.Name)
-    lay = ps.PPGLayout
-    lay.SetAttribute(const.siUILogicFile, softimage.Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\cloth.py')
-    lay.Language = 'pythonscript'
-    arow = lay.AddRow
-    erow = lay.EndRow
-    agr = lay.AddGroup
-    egr = lay.EndGroup
-    item = lay.AddItem
-    button = lay.AddButton
-
-    agr('Fixed Points', 1)
-    arow()
-    button('pick_fixed', 'Pick Fixed Points')
-    button('add_fixed', 'Add Fixed Points')
-    button('remove_fixed', 'Clear Fixed Points')
-    erow()
-    egr()
-    agr('Texture')
-    item('texture', 'Texture')
-    egr()
-    agr('Collision')
-    item('collisions', 'Collisions')
-    arow()
-    button('pick_coll', 'Pick Collisions')
-    button('add_coll', 'Add Collisions')
-    button('remove_colls', 'Clear Collisions')
-    erow()
-    egr()
-    arow()
-    button('del_prop', 'Remove Cloth')
-    erow()
 
 
 def get_cloth_prop(model):

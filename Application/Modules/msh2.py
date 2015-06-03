@@ -626,6 +626,7 @@ class Model(Packer):
         self.vis = 0
         self.segments = SegmentCollection(self)
         self.collprim = False
+        self.cloth_collprim = False
         self.primitive = 4, 0.0, 0.0, 0.0
         self.deformers = []
         self.deformer_indices = []
@@ -888,6 +889,20 @@ class ModelCollection(object):
         '''Assign collection attribute for every Model.'''
         for model in self.models:
             model.collection = self
+
+    def assign_cloth_collisions(self):
+        '''Assign collision data to every cloth that has collisions referenced.'''
+        cloth_collision_primitives = {}
+        for model in self.models:
+            if model.cloth_collprim:
+                cloth_collision_primitives[model.name] = model
+
+        for model in self.models:
+            for segment in model.segments:
+                if isinstance(segment, ClothGeometry):
+                    for collision in segment.collisions:
+                        collision.primitive_type = cloth_collision_primitives[collision.name].primitive[0]
+                        collision.primitive_data = cloth_collision_primitives[collision.name].primitive[1:]
 
     def get_index(self, modelname):
         '''Get model.index for model with name modelname.'''
@@ -1220,14 +1235,14 @@ class ClothCollision(Packer):
         self.parent = ''
         # 0: Sphere, 1: Cylinder
         self.primitive_type = 0
-        self.collision_prim = 4, 4, 4
+        self.primitive_data = 4, 4, 4
 
     def get_json(self):
         data = {
             'name': self.name,
             'parent': self.parent,
             'primitive_type': self.primitive_type,
-            'collision_primitive': self.collision_prim,
+            'primitive_data': self.primitive_data,
         }
         return data
 
@@ -1238,14 +1253,14 @@ class ClothCollision(Packer):
         cc.name = data['name']
         cc.parent = data['parent']
         cc.primitive_type = data['primitive_type']
-        cc.collision_prim = data['collision_primitive']
+        cc.primitive_data = data['primitive_data']
         return cc
 
     def pack(self):
         data = [self.name + '\x00',
                 self.parent + '\x00',
                 struct.pack('<L', self.primitive_type),
-                struct.pack('<fff', *self.collision_prim)]
+                struct.pack('<fff', *self.primitive_data)]
         return ''.join(data)
 
 
@@ -1259,8 +1274,7 @@ class ClothGeometry(Packer):
         self.texture = 'no_texture'
         self.vertices = None
         self.faces = None
-        # These are only for repack. As of now I can't recreate
-        # the constraints exactly so they will stay in packed form.
+        # These are only for repack.
         self.stretch = ''
         self.stretch_constraints = []
         self.cross = ''
@@ -2135,6 +2149,9 @@ class ClothVertexCollection(Packer):
 
     def fixed(self):
         return [point for point in self.vertices if point.is_fixed]
+
+    def fixed_indices(self):
+        return [index for index, point in enumerate(self.vertices) if point.is_fixed]
 
     def add(self, vert):
         '''Adds a vertex to the collection and sets its

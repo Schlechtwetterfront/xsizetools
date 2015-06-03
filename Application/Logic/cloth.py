@@ -24,6 +24,8 @@ def del_prop_OnClicked():
 
 
 def pick_fixed_OnClicked():
+    ppg = PPG.Inspected(0)
+    xsi.SelectObj(ppg.Parent)
     xsi.SetPointSelectionFilter()
     picked = xsi.PickElement('point', 'Pick Points', 'Pick Points')
     remove_fixed(PPG.Inspected(0))
@@ -42,6 +44,32 @@ def add_fixed_OnClicked():
         xsi.SIAddToCluster(fixed, picked[2])
         return
     xsi.CreateClusterFromSubComponent(picked[2], 'ZEFixedPoints')
+
+
+def pick_coll_OnClicked():
+    picked = xsi.PickElement('object', 'Pick Collision Object(s)', 'Pick Collision Object(s)')
+    ppg = PPG.Inspected(0)
+    print picked.Count
+    print picked[2]
+    print type(picked[2])
+    ppg.Parameters('collisions').Value = ','.join(element.FullName for element in picked[2])
+
+
+def remove_coll_OnClicked():
+    ppg = PPG.Inspected(0)
+    ppg.Parameters('collisions').Value = ''
+
+
+def add_coll_OnClicked():
+    ppg = PPG.Inspected(0)
+    ppg.Parameters('collisions').Value = ','.join(element.FullName for element in xsi.Selection)
+
+
+def select_coll_OnClicked():
+    ppg = PPG.Inspected(0)
+    if ppg.Parameters('collisions').Value:
+        collisions = ppg.Parameters('collisions').Value.split(',')
+        xsi.SelectObj(collisions)
 
 ####################################################################
 

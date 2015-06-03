@@ -33,36 +33,6 @@ from win32com.client import constants as const
 STR_CODEC = 'utf-8'
 
 
-'''def cloth_Create_vlist():
-    i = 0
-    uvPositions, nUV = segment.GetUVCoords()
-    v3Positions, nPositions = segment.GetPositions()
-
-    polylist = segment.GetPolyList()
-
-    m_ClothParticleToVertexIndexMapCount = nPositions
-    m_ClothParticleToVertexIndexMap = [0] * nPositions
-
-    m_ClothUV = copy(uvPositions) or 0
-
-    vertexPool = copy(v3Positions)
-
-    m_ClothParticlesCount = nPositions
-    for n in range(nPositions):
-        m_ClothParticleToVertexIndexMap[n] = n
-
-    m_ClothParticles = copy(vertexPool)
-
-    for poly in polylist:
-        indexCount = 0
-        index = [0] * 256
-
-        for what in poly:
-            i = poly_index # ?
-            index[indexCount] = m_ClothParticleToVertexIndexMap[i]
-            indexCount += 1'''
-
-
 class BoneConverter(object):
     def __init__(self, si_mdl, anim, is_basepose):
         self.anim = anim
@@ -185,10 +155,17 @@ class ModelConverter(softimage.SIModel):
     def is_collprim(self):
         if 'p_' in self.si_model.Name:
             return True
+        return False
+
+    def is_cloth_collprim(self):
+        if 'c_' in self.si_model.Name:
+            return True
+        return False
 
     def is_cloth(self):
         if self.get_cloth_prop():
             return True
+        return False
 
     def get_cloth_prop(self):
         print self.si_model.Name
@@ -405,6 +382,29 @@ class ModelConverter(softimage.SIModel):
         self.msh2_model.bbox.center = bbox[0], bbox[1], bbox[2]
         self.msh2_model.bbox.radius = bsphere[3]
 
+    def process_c_collision_primitive(self):
+        self.msh2_model.cloth_collprim = True
+
+        sm = self.si_model
+        mm = self.msh2_model
+        if sm.Parent:
+            parent_transform = sm.Parent.Kinematics.Local.Transform
+        else:
+            parent_transform = self.export.xsi.ActiveSceneRoot.Kinematics.Local.Transform
+        try:
+            radius = self.export.xsi.GetValue('{0}.polymsh.geom.sphere.radius'.format(sm.Name)) * mm.transform.scale[0]
+            mm.primitive = (0, radius, radius, radius)
+        except:
+            try:
+                radius = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.radius') * mm.transform.scale[0]
+                height = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.height') * mm.transform.scale[0]
+                mm.primitive = (1, radius, height, 0)
+            except:
+                self.msh2_model.cloth_collprim = False
+                self.export.notify('Could not find valid Primitive (sphere or cylinder) for Cloth Collision Primitive "{0}".'.format(sm.Name))
+                return
+        mm.transform.scale = 1.0, 1.0, 1.0
+
     def process_collision_prim(self):
         self.msh2_model.collprim = True
         sm = self.si_model
@@ -435,7 +435,7 @@ class ModelConverter(softimage.SIModel):
                             0)
         else:
             self.msh2_model.collprim = False
-            self.export.notify('{0} missing primitive type name(cube, cyl, sphere).'.format(sm.Name))
+            self.export.notify('{0} missing primitive type name(cube, cyl, sphere) and no Collision Primitive property exists.'.format(sm.Name))
             return
         mm.transform.scale = 1.0, 1.0, 1.0
 
@@ -504,6 +504,22 @@ class ModelConverter(softimage.SIModel):
             if 'ZEC' in ps.Name:
                 return ps.Parameters('texture').Value.encode(STR_CODEC)
 
+    def get_cloth_collisions(self, geo):
+        collision_names = []
+        collisions = []
+        for ps in self.si_model.Properties:
+            if 'ZEC' in ps.Name:
+                collision_names = ps.Parameters('collisions').Value.encode(STR_CODEC).split(',')
+                break
+        print collision_names
+        for collision_name in collision_names:
+            print collision_name
+            collision = msh2.ClothCollision(geo)
+            collision.name = collision_name.encode(STR_CODEC)
+            collision.parent = self.export.xsi.Dictionary.GetObject(collision_name, False).Parent.Name.encode(STR_CODEC)
+            collisions.append(collision)
+        return collisions
+
     def get_cloth(self):
         coll = msh2.SegmentCollection(self.msh2_model)
         clothgeo = msh2.ClothGeometry(coll)
@@ -511,6 +527,9 @@ class ModelConverter(softimage.SIModel):
         clothgeo.assign_parents()
         clothgeo.texture = self.get_cloth_tex()
         clothgeo.create_constraints()
+
+        clothgeo.collisions = self.get_cloth_collisions(clothgeo)
+
         coll.add(clothgeo)
         return coll
 
@@ -539,6 +558,8 @@ class ModelConverter(softimage.SIModel):
             self.export.add_deformers(self.msh2_model.deformers)
         if self.is_collprim():
             self.process_collision_prim()
+        elif self.is_cloth_collprim():
+            self.process_c_collision_primitive()
         # Reset scale because we're using vertex world coordinates.
         # And do it after process_collision_prim because it needs the scale.
         self.msh2_model.transform.scale = 1.0, 1.0, 1.0
@@ -789,6 +810,7 @@ class Export(softimage.SIGeneral):
         self.msh.models.assign_indices()
         self.msh.models.assign_parents()
         self.msh.models.remove_multi(self.dontexport)
+        self.msh.models.assign_cloth_collisions()
         self.stats.models += len(self.msh.models)
         # Scene Info.
         self.pb.set(1, 'Getting Scene Info...')
