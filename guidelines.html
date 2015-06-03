@@ -32,6 +32,7 @@
                     <div class="column">
                         <h2><a href="#gl-import">Import - Notes</a></h2><br>
                         <h2><a href="#gl-export-weight">Export - Weighting</a></h2><br>
+                        <h2><a href="#gl-export-coll">Cloth</a></h2><br>
                     </div>
                     <div class="column">
                         <h2><a href="#gl-export-avoid">Export - Avoid</a></h2><br>
@@ -42,7 +43,7 @@
                         <h2><a href="#gl-export-general">Export - General</a></h2><br>
                     </div>
                 </div>
-                <br><br><br>
+                <br><br><br><br><br><br>
                 <h3><a name="gl-import"></a>Import - Notes</h3>
                 <ul>
                     <li>Animations will be imported as linear animations on a per-frame basis.</li>
@@ -95,6 +96,12 @@
                     <li>It's not important how you animate bones (FK or IK etc), the exporter will go through all frames one-by-one and get the current local transforms of every bone.</li>
                     <li>The currently selected object + all it's children will be exported.</li>
                     <li>Only apply one 'master' UV projection to a object. All subsequent projections should be Sub-projections.</li>
+                </ul>
+                <h3><a name="gl-cloth"></a>Cloth</h3>
+                <ul>
+                    <li>Try to avoid triangles in the cloth mesh. There's a high change triangles might produce artifacts in the cloth simulation.</li>
+                    <li>Cloth will be split along UV seams, so UV accordingly.</li>
+                    <li>If you have problems with cloth simulation artifacts, provide a screenshot from the debug SWBF.exe with "render_cloth_connections" enabled via the console.</li>
                 </ul>
             </section>
         </div>
