@@ -139,14 +139,17 @@ class MSHUnpack(Unpacker):
                     # Continue as this is only a header.
                     continue
                 elif hdr == 'CYCL':
-                    cycle = msh2.Cycle(self.msh.animation)
-                    # There should only be one cycle so ignore num cycles.
-                    mf.read(4)
-                    cycle.name = mf.read(64).strip('\x00')
-                    cycle.fps = unpack('<f', mf.read(4))[0]
-                    cycle.style = unpack('<L', mf.read(4))[0]
-                    cycle.frames = unpack('<LL', mf.read(8))
-                    self.msh.animation.cycle = cycle
+                    num_cycles = unpack('<L', mf.read(4))[0]
+                    cycles = []
+                    for n in xrange(num_cycles):
+                        cycle = msh2.Cycle(self.msh.animation)
+                        cycle.name = mf.read(64).strip('\x00')
+                        cycle.fps = unpack('<f', mf.read(4))[0]
+                        cycle.style = unpack('<L', mf.read(4))[0]
+                        cycle.frames = unpack('<LL', mf.read(8))
+                        cycles.append(cycle)
+                    self.msh.animation.cycles = cycles
+                    self.msh.animation.cycle = cycles[0]
                 elif hdr == 'KFR3':
                     numbones = unpack('<L', mf.read(4))[0]
                     for n in xrange(numbones):
@@ -156,19 +159,23 @@ class MSHUnpack(Unpacker):
                         bone.keyframe_type = unpack('<L', mf.read(4))[0]
                         numtran, numrot = unpack('<LL', mf.read(8))
                         tran = []
+                        translation_frame_indices = []
                         rot = []
+                        rotation_frame_indices = []
                         for i in xrange(numtran):
                             # Ignore the frame index.
-                            mf.read(4)
+                            translation_frame_indices.append(unpack('<L', mf.read(4))[0])
                             # Add X, Y, Z position tuple.
                             tran.append(unpack('<fff', mf.read(12)))
                         for i in xrange(numrot):
                             # Again, ignore the frame index.
-                            mf.read(4)
+                            rotation_frame_indices.append(unpack('<L', mf.read(4))[0])
                             # X, Y, Z, W quaternion translation tuple.
                             rot.append(unpack('<ffff', mf.read(16)))
                         bone.pos_keyframes = tran
+                        bone.pos_keyframe_indices = translation_frame_indices
                         bone.rot_keyframes = rot
+                        bone.rot_keyframe_indices = rotation_frame_indices
                 elif hdr == 'CL1L':
                     break
                 else:

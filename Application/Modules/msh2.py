@@ -2224,6 +2224,7 @@ class Animation(Packer):
         self.msh = msh
         self.bones = None
         self.cycle = None
+        self.cycles = []
         self.classname = 'Animation'
         if empty == 'empty':
             # If the animation export is disabled, replace pack function.
@@ -2309,8 +2310,10 @@ class Bone(object):
         self.keyframe_type = 0
         # List of position frames(x, y, z).
         self.pos_keyframes = None
+        self.pos_keyframe_indices = None
         # List of rotation frames(x, y, z, w).
         self.rot_keyframes = None
+        self.rot_keyframe_indices = None
 
     def dump(self, fh):
         w = fh.write

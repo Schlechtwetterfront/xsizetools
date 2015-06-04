@@ -100,12 +100,15 @@ class SIModel(object):
         sample = cls.Filter('sample')
         for cls in sample:
             props = cls.Properties.Filter('uvspace')
-            return props
+            if props.Count >= 1:
+                return props
 
     def get_normal_props(self):
         clusters = self.geo.Clusters.Filter('sample')
         for cluster in clusters:
-            return cluster.Properties.Filter('normal')
+            normal_clusters = cluster.Properties.Filter('normal')
+            if normal_clusters.Count >= 1:
+                return normal_clusters
 
     def set_normals(self, index, normals):
         prop = self.get_normal_props()[index]
@@ -116,14 +119,16 @@ class SIModel(object):
         for cluster in pnt_clusters:
             properties = cluster.Properties
             weight_props = properties.Filter('envweights')
-            return weight_props
+            if weight_props.Count >= 1:
+                return weight_props
 
     def get_vertex_color_props(self):
         cls = self.si_model.ActivePrimitive.GetGeometry2(0).Clusters
         sample = cls.Filter('sample')
         for cls in sample:
             props = cls.Properties.Filter('vertexcolor')
-            return props
+            if props.Count >= 1:
+                return props
 
     def set_weights(self, index, weights):
         prop = self.get_envelope_props()[index]

@@ -216,7 +216,12 @@ class ChainItemBuilder(softimage.SIModel):
         self.geo = self.si_model.ActivePrimitive.GetGeometry2(0)
         if self.model.vis == 1:
             self.xsi.ToggleVisibility(self.si_model, None, None)
-        if self.model.segments[0].vertices.uved:
+        is_uved = False
+        for segment in self.model.segments:
+            if segment.vertices.uved:
+                is_uved = True
+                break
+        if is_uved:
             uvs = self.make_uvs_persample()
             self.xsi.CreateProjection(self.si_model)
             self.xsi.FreezeObj(self.si_model)
@@ -364,7 +369,12 @@ class ChainItemBuilder(softimage.SIModel):
         self.set_normals(0, self.make_normals())
         if self.model.vis == 1:
             self.xsi.ToggleVisibility(self.si_model, None, None)
-        if self.model.segments[0].vertices.uved:
+        is_uved = False
+        for segment in self.model.segments:
+            if segment.vertices.uved:
+                is_uved = True
+                break
+        if is_uved:
             uvs = self.make_uvs_persample()
             self.xsi.CreateProjection(self.si_model)
             self.xsi.FreezeObj(self.si_model)
@@ -377,7 +387,12 @@ class ChainItemBuilder(softimage.SIModel):
         else:
             self.xsi.SIAssignMaterial(self.si_model,
                                       self.chainbuilder.materials[self.model.segments[0].material.name])
-        if self.model.segments[0].vertices.colored:
+        is_colored = False
+        for segment in self.model.segments:
+            if segment.vertices.colored:
+                is_colored = True
+                break
+        if is_colored:
             colors = self.make_colors_persample()
             self.xsi.CreateVertexColorSupport('', 'Vertex_Color', [self.si_model])
             self.set_vertex_colors(0, colors)
@@ -403,7 +418,7 @@ class ChainItemBuilder(softimage.SIModel):
                     normals[1][sample.Index] = vert.ny
                     normals[2][sample.Index] = vert.nz
             offset += numverts
-        logging.debug('Created UVs for {0} samples/nodes.'.format(numsamples))
+        logging.debug('Created Normals for {0} samples/nodes.'.format(numsamples))
         return normals
 
     def make_colors_persample(self):
@@ -633,6 +648,7 @@ class AnimationImport(object):
             return
         lencoll = len(self.chain)
         self.pb.set(lencoll, 'Applying animation...')
+        logging.info('Animating cycle "{0}".'.format(self.bonecoll.animation.cycle.name))
         for ind, link in enumerate(self.chain):
             self.pb.setc('Animating {0}({1}/{2})...'.format(link.Name,
                                                             ind, lencoll))
@@ -646,7 +662,7 @@ class AnimationImport(object):
             keys_x = []
             keys_y = []
             keys_z = []
-            for frame, position in enumerate(bone.pos_keyframes):
+            for frame, position in zip(bone.pos_keyframe_indices, bone.pos_keyframes):
                 keys_x.append(frame + start_frame)
                 keys_x.append(position[0])
                 keys_y.append(frame + start_frame)
@@ -661,7 +677,7 @@ class AnimationImport(object):
             keys_x = []
             keys_y = []
             keys_z = []
-            for frame, rotation in enumerate(bone.rot_keyframes):
+            for frame, rotation in zip(bone.rot_keyframe_indices, bone.rot_keyframes):
                 quat = xsimath.CreateQuaternion()
                 quat.Set(rotation[3], rotation[0], rotation[1], rotation[2])
                 # Get radians rotation values from quaternion.
@@ -700,6 +716,7 @@ class Enveloper(object):
                 logging.debug('Model is cloth, trying some stuff.')
                 deformers = self.imp.get_objects_by_name(model.deformers)
                 coll = xsifact.CreateObject('XSI.Collection')
+                logging.info('Applying envelope with deformers "{0}".'.format(','.join(model.deformers)))
                 coll.AddItems(deformers)
                 item.ApplyEnvelope(coll)
                 weights = self.make_cloth_weights(model)
@@ -712,6 +729,7 @@ class Enveloper(object):
                 continue
             deformers = self.imp.get_objects_by_name(model.deformers)
             coll = xsifact.CreateObject('XSI.Collection')
+            logging.info('Applying envelope with deformers "{0}".'.format(', '.join(model.deformers)))
             coll.AddItems(deformers)
             item.ApplyEnvelope(coll)
             weights = self.make_weights(model)
@@ -873,13 +891,12 @@ class Import(softimage.SIGeneral):
                 self.abort_checklog()
             enveloper = Enveloper(self, self.msh, self.chain)
             enveloper.envelope()
-            if self.config.get('weld'):
-                if not self.config.get('ignoregeo'):
-                    for item in self.chain:
-                        if not item.Type == 'polymsh':
-                            continue
-                        self.xsi.ApplyTopoOp('WeldEdges', item)
-                        self.xsi.SetValue('{0}.polymsh.weldedgesop.distance'.format(item.Name), 0.02)
+            if self.config.get('weld') and not self.config.get('ignoregeo'):
+                for item in self.chain:
+                    if not item.Type == 'polymsh':
+                        continue
+                    self.xsi.ApplyTopoOp('WeldEdges', item)
+                    self.xsi.SetValue('{0}.polymsh.weldedgesop.distance'.format(item.Name), 0.02)
         if not self.msh.animation.empty and not self.config.get('ignoreanim'):
             anim = AnimationImport(self, self.chain, self.msh.animation.bones)
             anim.import_()
