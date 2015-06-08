@@ -356,7 +356,7 @@ class ClothUnpacker(Unpacker):
                             break
                         parent.append(char)
                     collision.parent = ''.join(parent)
-                    collision.unknown_long = unpack('<L', self.fh.read(4))
+                    collision.primitive_type = unpack('<L', self.fh.read(4))[0]
                     collision.collision_prim = unpack('<fff', self.fh.read(12))
                     self.seg.collisions.append(collision)
                 # COLL chunk seems to be padded with \x00 at the end to get an even size indicator.
