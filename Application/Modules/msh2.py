@@ -2153,6 +2153,9 @@ class ClothVertexCollection(Packer):
     def fixed_indices(self):
         return [index for index, point in enumerate(self.vertices) if point.is_fixed]
 
+    def get_deformers(self):
+        return [point.deformer for point in self.vertices if point.deformer]
+
     def add(self, vert):
         '''Adds a vertex to the collection and sets its
         collection property.'''

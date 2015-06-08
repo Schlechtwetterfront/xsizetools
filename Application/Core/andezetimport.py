@@ -714,7 +714,12 @@ class Enveloper(object):
                 continue
             if (model.model_type == 'cloth') and (model.deformers):
                 logging.debug('Model is cloth, trying some stuff.')
-                deformers = self.imp.get_objects_by_name(model.deformers)
+                deformers_original = model.deformers[:]
+                deformers_original.extend(model.segments[0].vertices.get_deformers())
+                deformer_set = set()
+                set_add = deformer_set.add
+                deformers = [deformer for deformer in deformers_original if not (deformer in deformer_set or set_add(deformer))]
+                deformers = self.imp.get_objects_by_name(deformers)
                 coll = xsifact.CreateObject('XSI.Collection')
                 logging.info('Applying envelope with deformers "{0}".'.format(','.join(model.deformers)))
                 coll.AddItems(deformers)
