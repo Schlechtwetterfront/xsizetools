@@ -703,6 +703,8 @@ class Enveloper(object):
         self.msh = msh
         self.chain = chain
         self.xsi = self.imp.xsi
+        # Model deformers and unique cloth vertex deformers combined.
+        self.deformers = []
 
     def envelope(self):
         logging.info('Starting enveloping.')
@@ -718,11 +720,11 @@ class Enveloper(object):
                 deformers_original.extend(model.segments[0].vertices.get_deformers())
                 deformer_set = set()
                 set_add = deformer_set.add
-                deformers = [deformer for deformer in deformers_original if not (deformer in deformer_set or set_add(deformer))]
-                deformers = self.imp.get_objects_by_name(deformers)
+                self.deformers = [deformer for deformer in deformers_original if not (deformer in deformer_set or set_add(deformer))]
+                deformer_objects = self.imp.get_objects_by_name(self.deformers)
                 coll = xsifact.CreateObject('XSI.Collection')
-                logging.info('Applying envelope with deformers "{0}".'.format(','.join(model.deformers)))
-                coll.AddItems(deformers)
+                logging.info('Applying envelope with deformers "{0}".'.format(','.join(self.deformers)))
+                coll.AddItems(deformer_objects)
                 item.ApplyEnvelope(coll)
                 weights = self.make_cloth_weights(model)
                 simd = softimage.SIModel(item)
@@ -732,10 +734,10 @@ class Enveloper(object):
             if not model.deformers:
                 logging.debug('No deformers for msh2 Model {0}, continuing.'.format(model.name))
                 continue
-            deformers = self.imp.get_objects_by_name(model.deformers)
+            deformers_objects = self.imp.get_objects_by_name(model.deformers)
             coll = xsifact.CreateObject('XSI.Collection')
             logging.info('Applying envelope with deformers "{0}".'.format(', '.join(model.deformers)))
-            coll.AddItems(deformers)
+            coll.AddItems(deformers_objects)
             item.ApplyEnvelope(coll)
             weights = self.make_weights(model)
             simd = softimage.SIModel(item)
@@ -745,13 +747,13 @@ class Enveloper(object):
 
     def make_cloth_weights(self, model):
         weights = []
-        num_deformers = len(model.deformers)
+        num_deformers = len(self.deformers)
         segment = model.segments[0]
         for n in xrange(num_deformers):
             weights.append([0.0] * len(segment.vertices))
         for vind, vert in enumerate(segment.vertices):
             if vert.deformer:
-                deformer_index = model.deformers.index(vert.deformer)
+                deformer_index = self.deformers.index(vert.deformer)
                 logging.debug('Vert: {0} - {1} - {2}'.format(vind, vert.deformer, deformer_index))
                 weights[deformer_index][vind] = 100
             else:

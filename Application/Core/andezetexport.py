@@ -30,6 +30,7 @@ from datetime import datetime
 import msh2
 reload(msh2)
 from win32com.client import constants as const
+from pythoncom import com_error
 STR_CODEC = 'utf-8'
 
 
@@ -153,12 +154,12 @@ class ModelConverter(softimage.SIModel):
         return False
 
     def is_collprim(self):
-        if 'p_' in self.si_model.Name:
+        if self.si_model.Name.startswith('p_'):
             return True
         return False
 
     def is_cloth_collprim(self):
-        if 'c_' in self.si_model.Name:
+        if self.si_model.Name.startswith('c_'):
             return True
         return False
 
@@ -168,11 +169,8 @@ class ModelConverter(softimage.SIModel):
         return False
 
     def get_cloth_prop(self):
-        print self.si_model.Name
         for prop in self.si_model.Properties:
-            print prop.Name
             if 'zecloth' in prop.Name.lower():
-                print 'Found one'
                 return prop
 
     def get_msh2_model_type(self, model):
@@ -383,6 +381,7 @@ class ModelConverter(softimage.SIModel):
         self.msh2_model.bbox.radius = bsphere[3]
 
     def process_c_collision_primitive(self):
+        print 'Processing {0} as c prim.'.format(self.si_model.Name)
         self.msh2_model.cloth_collprim = True
 
         sm = self.si_model
@@ -394,14 +393,17 @@ class ModelConverter(softimage.SIModel):
         try:
             radius = self.export.xsi.GetValue('{0}.polymsh.geom.sphere.radius'.format(sm.Name)) * mm.transform.scale[0]
             mm.primitive = (0, radius, radius, radius)
-        except:
+        except com_error as e1:
+            print e1
             try:
-                radius = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.radius') * mm.transform.scale[0]
-                height = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.height') * mm.transform.scale[0]
+                radius = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.radius'.format(sm.Name)) * mm.transform.scale[0]
+                height = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.height'.format(sm.Name)) * mm.transform.scale[0]
                 mm.primitive = (1, radius, height, 0)
-            except:
+            except com_error as e:
+                print 'Setting cloth_collprim to false for {0}'.format(self.si_model.Name)
                 self.msh2_model.cloth_collprim = False
                 self.export.notify('Could not find valid Primitive (sphere or cylinder) for Cloth Collision Primitive "{0}".'.format(sm.Name))
+                print e
                 return
         mm.transform.scale = 1.0, 1.0, 1.0
 
