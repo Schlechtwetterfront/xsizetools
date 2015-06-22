@@ -255,8 +255,8 @@ class ModelUnpacker(Unpacker):
                 self.mdl.collprim = True
                 prim_data = unpack('<Lfff', self.fh.read(16))
                 if prim_data[0] == 4:
-                    self.mdl.primitive = (prim_data[0], prim_data[1] * 2,
-                                          prim_data[2] * 2, prim_data[3] * 2)
+                    self.mdl.primitive = (prim_data[0], prim_data[1],
+                                          prim_data[2], prim_data[3])
                 else:
                     self.mdl.primitive = (prim_data[0], prim_data[1],
                                           prim_data[2], prim_data[3])
@@ -357,7 +357,7 @@ class ClothUnpacker(Unpacker):
                         parent.append(char)
                     collision.parent = ''.join(parent)
                     collision.primitive_type = unpack('<L', self.fh.read(4))[0]
-                    collision.collision_prim = unpack('<fff', self.fh.read(12))
+                    collision.primitive_data = unpack('<fff', self.fh.read(12))
                     self.seg.collisions.append(collision)
                 # COLL chunk seems to be padded with \x00 at the end to get an even size indicator.
                 while True:

@@ -179,6 +179,12 @@ class ExportStats(object):
         self.result = self.end - self.start
         return self.result.seconds
 
+def get_import_log_path():
+    path = os.path.join(softimage.Softimage.get_plugin_origin('XSIZETools'), 'import_log.log')
+    if os.path.exists(path):
+        return path
+    return None
+
 
 def load_settings(settings_name='export', ppg=None):
     if ppg:

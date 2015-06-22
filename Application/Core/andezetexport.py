@@ -399,12 +399,16 @@ class ModelConverter(softimage.SIModel):
                 radius = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.radius'.format(sm.Name)) * mm.transform.scale[0]
                 height = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.height'.format(sm.Name)) * mm.transform.scale[0]
                 mm.primitive = (1, radius, height, 0)
-            except com_error as e:
-                print 'Setting cloth_collprim to false for {0}'.format(self.si_model.Name)
-                self.msh2_model.cloth_collprim = False
-                self.export.notify('Could not find valid Primitive (sphere or cylinder) for Cloth Collision Primitive "{0}".'.format(sm.Name))
-                print e
-                return
+            except com_error as e2:
+                try:
+                    length = self.export.xsi.GetValue('{0}.polymsh.geom.cube.length'.format(sm.Name))
+                    mm.primitive = (2, length * mm.transform.scale[0] * .5, length * mm.transform.scale[1] * .5, length * mm.transform.scale[2] * .5)
+                except com_error as e3:
+                    print 'Setting cloth_collprim to false for {0}'.format(self.si_model.Name)
+                    self.msh2_model.cloth_collprim = False
+                    self.export.notify('Could not find valid Primitive (sphere/cube/cylinder) for Cloth Collision Primitive "{0}".'.format(sm.Name))
+                    print e3
+                    return
         mm.transform.scale = 1.0, 1.0, 1.0
 
     def process_collision_prim(self):

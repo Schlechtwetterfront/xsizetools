@@ -162,7 +162,8 @@ class ChainItemBuilder(softimage.SIModel):
                   2: 'Cylinder',
                   4: 'Cube'}
     cloth_prim_types = {0: 'Sphere',
-                        1: 'Cylinder'}
+                        1: 'Cylinder',
+                        2: 'Cube'}
 
     def __init__(self, model, chainbuilder):
         self.model = model
@@ -267,11 +268,14 @@ class ChainItemBuilder(softimage.SIModel):
         self.set_vis()
         # self.add_prim_property()
         if my_collision.primitive_type == 0:
-            self.si_model.radius = my_collision.collision_prim[0]
+            self.si_model.radius = my_collision.primitive_data[0]
             self.set_cloth_prim_scale(my_collision)
         elif my_collision.primitive_type == 1:
-            self.si_model.radius = my_collision.collision_prim[0]
-            self.si_model.height = my_collision.collision_prim[1]
+            self.si_model.radius = my_collision.primitive_data[0]
+            self.si_model.height = my_collision.primitive_data[1]
+            self.set_cloth_prim_scale(my_collision)
+        elif my_collision.primitive_type == 2:
+            self.si_model.length = 1.0 # my_collision.primitive_data[0]
             self.set_cloth_prim_scale(my_collision)
         else:
             logging.error('{0} is unknown prim type({1}).'.format(self.model.name, self.model.primitive[0]))
@@ -318,9 +322,9 @@ class ChainItemBuilder(softimage.SIModel):
         parent_transform = parent.Kinematics.Local.Transform
         transform = self.si_model.Kinematics.Local.Transform
         if self.model.primitive[0] == 4:
-            transform.SetScalingFromValues(self.model.primitive[1] / parent_transform.SclX,
-                                           self.model.primitive[2] / parent_transform.SclY,
-                                           self.model.primitive[3] / parent_transform.SclZ)
+            transform.SetScalingFromValues(self.model.primitive[1] * 2 / parent_transform.SclX,
+                                           self.model.primitive[2] * 2 / parent_transform.SclY,
+                                           self.model.primitive[3] * 2 / parent_transform.SclZ)
         else:
             transform.SetScalingFromValues(1.0 / parent_transform.SclX,
                                            1.0 / parent_transform.SclY,
@@ -334,9 +338,15 @@ class ChainItemBuilder(softimage.SIModel):
             parent = self.xsi.ActiveSceneRoot
         parent_transform = parent.Kinematics.Local.Transform
         transform = self.si_model.Kinematics.Local.Transform
-        transform.SetScalingFromValues(1.0 / parent_transform.SclX,
-                                       1.0 / parent_transform.SclY,
-                                       1.0 / parent_transform.SclZ)
+        if collision.primitive_type == 2:
+            print collision.primitive_data[0], parent_transform.SclX
+            transform.SetScalingFromValues(collision.primitive_data[0] * 2 / parent_transform.SclX,
+                                           collision.primitive_data[1] * 2 / parent_transform.SclY,
+                                           collision.primitive_data[2] * 2 / parent_transform.SclZ)
+        else:
+            transform.SetScalingFromValues(1.0 / parent_transform.SclX,
+                                           1.0 / parent_transform.SclY,
+                                           1.0 / parent_transform.SclZ)
         self.si_model.Kinematics.Local.Transform = transform
 
     def build_geo(self):
