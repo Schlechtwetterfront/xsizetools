@@ -1274,7 +1274,6 @@ class ClothGeometry(Packer):
         self.texture = 'no_texture'
         self.vertices = None
         self.faces = None
-        # These are only for repack.
         self.stretch = ''
         self.stretch_constraints = []
         self.cross = ''
@@ -1739,8 +1738,9 @@ class FaceCollection(object):
             facetris = face.pack_tris()
             num += len(facetris)
             data.extend(facetris)
-        data[1] = struct.pack('<L', num * 3 * 4 + 4)
-        data[2] = struct.pack('<L', num)
+        # Number of tris * number of points * size of float + size indicator size.
+        data[1] = struct.pack('<L', len(self.faces) * 3 * 4 + 4)
+        data[2] = struct.pack('<L', len(self.faces))
         return ''.join(data)
 
     def stretch_edges(self):

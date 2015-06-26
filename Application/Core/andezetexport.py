@@ -381,7 +381,6 @@ class ModelConverter(softimage.SIModel):
         self.msh2_model.bbox.radius = bsphere[3]
 
     def process_c_collision_primitive(self):
-        print 'Processing {0} as c prim.'.format(self.si_model.Name)
         self.msh2_model.cloth_collprim = True
 
         sm = self.si_model
@@ -394,7 +393,6 @@ class ModelConverter(softimage.SIModel):
             radius = self.export.xsi.GetValue('{0}.polymsh.geom.sphere.radius'.format(sm.Name)) * mm.transform.scale[0]
             mm.primitive = (0, radius, radius, radius)
         except com_error as e1:
-            print e1
             try:
                 radius = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.radius'.format(sm.Name)) * mm.transform.scale[0]
                 height = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.height'.format(sm.Name)) * mm.transform.scale[0]
@@ -404,10 +402,8 @@ class ModelConverter(softimage.SIModel):
                     length = self.export.xsi.GetValue('{0}.polymsh.geom.cube.length'.format(sm.Name))
                     mm.primitive = (2, length * mm.transform.scale[0] * .5, length * mm.transform.scale[1] * .5, length * mm.transform.scale[2] * .5)
                 except com_error as e3:
-                    print 'Setting cloth_collprim to false for {0}'.format(self.si_model.Name)
                     self.msh2_model.cloth_collprim = False
                     self.export.notify('Could not find valid Primitive (sphere/cube/cylinder) for Cloth Collision Primitive "{0}".'.format(sm.Name))
-                    print e3
                     return
         mm.transform.scale = 1.0, 1.0, 1.0
 
@@ -517,9 +513,7 @@ class ModelConverter(softimage.SIModel):
             if 'ZEC' in ps.Name:
                 collision_names = ps.Parameters('collisions').Value.encode(STR_CODEC).split(',')
                 break
-        print collision_names
         for collision_name in collision_names:
-            print collision_name
             collision = msh2.ClothCollision(geo)
             collision.name = collision_name.encode(STR_CODEC)
             collision.parent = self.export.xsi.Dictionary.GetObject(collision_name, False).Parent.Name.encode(STR_CODEC)
@@ -559,6 +553,8 @@ class ModelConverter(softimage.SIModel):
         if self.msh2_model.model_type == 'cloth':
             self.msh2_model.segments = None
             self.msh2_model.segments = self.get_cloth()
+            self.msh2_model.deformers = self.get_deformers()
+            self.export.add_deformers(self.msh2_model.deformers)
         if self.msh2_model.model_type == 'geodynamic':
             self.msh2_model.deformers = self.get_deformers()
             self.export.add_deformers(self.msh2_model.deformers)
@@ -753,7 +749,7 @@ class Export(softimage.SIGeneral):
         splitpath = path.split('\\')
         filepath_items = ['...', splitpath[-3], splitpath[-2], splitpath[-1]]
         filepath = '\\'.join(filepath_items)
-        if os.path.isfile(path) and self.ppg_params.get('overwrite') != 'True':
+        if os.path.isfile(path) and not self.ppg_params.get('overwrite'):
             if self.msg('{0} already exists, overwrite?'.format(filepath), const.siMsgYesNo) != 6:
                 self.abort()
 
