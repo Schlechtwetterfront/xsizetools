@@ -102,6 +102,7 @@ def XSILoadPlugin(in_reg):
     in_reg.RegisterCommand('ClothCreate', 'ClothCreate')
     in_reg.RegisterCommand('EditCloth', 'EditCloth')
     in_reg.RegisterCommand('OpenImportLog', 'OpenImportLog')
+    in_reg.RegisterCommand('OpenExportLog', 'OpenExportLog')
     in_reg.RegisterCommand('MshJson', 'MshJson')
     in_reg.RegisterCommand('ZETCheckVersion', 'ZETCheckVersion')
 
@@ -160,6 +161,7 @@ def ZETools_Init(in_ctxt):
     sub_menu2.AddCommandItem('Info...', 'ZETHelp')
     sub_menu2.AddCommandItem('Help and Documentation', 'ZETOpenWebsite')
     sub_menu2.AddCommandItem('Open Import Log', 'OpenImportLog')
+    sub_menu2.AddCommandItem('Open Export Log', 'OpenExportLog')
     sub_menu2.AddCommandItem('Check Version', 'ZETCheckVersion')
     return True
 
@@ -641,6 +643,27 @@ def OpenImportLog_Execute():
     path = p.join(softimage.Softimage.get_plugin_origin('XSIZETools'), 'import_log.log')
     if not p.isfile(path):
         uitk.MsgBox('Cant find {0}. Maybe you didnt import anything yet?'.format(path))
+        return True
+    webbrowser.open(path)
+    return True
+
+
+def OpenExportLog_Init(in_ctxt):
+    oCmd = in_ctxt.Source
+    oCmd.Description = ''
+    oCmd.ReturnValue = True
+    return True
+
+
+def OpenExportLog_Execute():
+    add_to_path()
+    import softimage
+    reload(softimage)
+    import webbrowser
+    import os.path as p
+    path = p.join(softimage.Softimage.get_plugin_origin('XSIZETools'), 'export_log.log')
+    if not p.isfile(path):
+        uitk.MsgBox('Cant find {0}. Maybe you didnt export anything yet?'.format(path))
         return True
     webbrowser.open(path)
     return True

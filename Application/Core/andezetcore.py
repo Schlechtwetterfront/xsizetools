@@ -186,6 +186,13 @@ def get_import_log_path():
     return None
 
 
+def get_export_log_path():
+    path = os.path.join(softimage.Softimage.get_plugin_origin('XSIZETools'), 'export_log.log')
+    if os.path.exists(path):
+        return path
+    return None
+
+
 def load_settings(settings_name='export', ppg=None):
     if ppg:
         return settings_from_ppg(settings_name, ppg)

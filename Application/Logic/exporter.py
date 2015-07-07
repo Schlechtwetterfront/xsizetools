@@ -38,9 +38,20 @@ def exportbutton_OnClicked():
     except Exception as e:
         if sigen.msg('Encountered an error while exporting, copy error to clipboard?', const.siMsgYesNo) == 6:
             import win32clipboard, traceback
+            log_path = andezetcore.get_export_log_path()
+            lines = []
+            if log_path:
+                with open(log_path, 'r') as file_handle:
+                    lines = file_handle.readlines()[-15:]
+            message = ['Last 15 log lines:', '\n']
+            message.extend(['\t{0}'.format(line.strip('\n')) for line in lines])
+            message.extend(('\n', 'Traceback:', '\n'))
+            message.extend(['\t{0}'.format(element) for element in traceback.format_exc().split('\n')])
+            message = '\n'.join(message)
+
             win32clipboard.OpenClipboard()
             win32clipboard.EmptyClipboard()
-            win32clipboard.SetClipboardText(traceback.format_exc(), win32clipboard.CF_TEXT)
+            win32clipboard.SetClipboardText(message, win32clipboard.CF_TEXT)
             win32clipboard.CloseClipboard()
         else:
             raise
