@@ -24,6 +24,8 @@ import andecore
 reload(andezetcore)
 reload(softimage)
 reload(andecore)
+import logging
+reload(logging)
 import sys
 import os
 from datetime import datetime
@@ -60,6 +62,7 @@ class BoneConverter(object):
             self.bone.pos_keyframes = pos
             self.bone.rot_keyframes = rot
             return self.bone
+
         for n in range(int(self.anim.anim.cycle.frames[0]), int(self.anim.anim.cycle.frames[1]) + 1):
             tran = self.mdl.Kinematics.Local.GetTransform2(n)
             pos.append((tran.PosX, tran.PosY, tran.PosZ))
@@ -74,6 +77,20 @@ class AnimationConverter(softimage.SIScene):
     def __init__(self, export):
         self.export = export
         self.anim = msh2.Animation(self.export.msh)
+
+    def is_animated(self, bone):
+        '''Check all relevant parameters if they are animated.'''
+        if bone.posx.IsAnimated() or \
+           bone.posy.IsAnimated() or \
+           bone.posz.IsAnimated() or \
+           bone.rotx.IsAnimated() or \
+           bone.roty.IsAnimated() or \
+           bone.rotz.IsAnimated() or \
+           bone.sclx.IsAnimated() or \
+           bone.scly.IsAnimated() or \
+           bone.sclz.IsAnimated():
+           return True
+        return False
 
     def convert(self):
         self.export.pb.set(1, 'Preparing Animation...')
@@ -90,9 +107,12 @@ class AnimationConverter(softimage.SIScene):
             self.export.pb.setc('Analyzing {0}({1}/{2})'.format(model.Name,
                                                                 index,
                                                                 nummodels))
-            if model.IsNodeAnimated():
+            # Originally this was used but it also reported constrained objects as animated: model.IsNodeAnimated()
+            if self.is_animated(model):
+                logging.info('Processing bone "{0}".'.format(model.Name))
                 boneconv = BoneConverter(model, self, basepose)
                 bonecoll.add(boneconv.convert())
+                logging.info('Finished processing bone.')
                 self.export.pb.setc('Building Bone {0}({1}/{2})'.format(model.Name,
                                                                         index,
                                                                         nummodels))
@@ -216,6 +236,7 @@ class ModelConverter(softimage.SIModel):
             normal = normals_list[n], normals_list[n + 1], normals_list[n + 2]
             n += 3
             coll.add(msh2.Vertex(coord, normal))
+        logging.info('Processed {0} vertices.'.format(len(coll)))
         self.export.stats.verts += len(coll)
         return coll
 
@@ -315,6 +336,7 @@ class ModelConverter(softimage.SIModel):
                 face.vertices[3] = p2
             fc += el
             coll.add(face)
+        logging.info('Processed {0} faces.'.format(len(coll)))
         self.export.stats.faces += len(coll)
         return coll
 
@@ -483,6 +505,7 @@ class ModelConverter(softimage.SIModel):
         if self.is_weighted():
             weights = self.get_cloth_weights()
             deformers = self.get_cloth_deformers()
+            logging.info('Retrieved cloth deformers: {0}'.format(deformers))
         facets = self.geo.Facets
         for facet in facets:
             pnts = facet.Points
@@ -490,6 +513,7 @@ class ModelConverter(softimage.SIModel):
             for pnt in pnts:
                 face.add(pnt.Index)
             facecoll.add(face)
+        logging.info('Processed {0} faces.'.format(len(facecoll)))
         for pnt in self.geo.Points:
             vert = msh2.ClothVertex((pnt.Position.X,
                                     pnt.Position.Y,
@@ -499,6 +523,7 @@ class ModelConverter(softimage.SIModel):
                 vert.is_fixed = True
             vert.deformer = deformers[weights[pnt.Index]].encode(STR_CODEC)
             vertcoll.add(vert)
+        logging.info('Processed {0} vertices.'.format(len(vertcoll)))
         return facecoll, vertcoll
 
     def get_cloth_tex(self):
@@ -547,20 +572,25 @@ class ModelConverter(softimage.SIModel):
         self.msh2_model.transform = msh2.Transform(*self.get_transform_quat(self.si_model))
         self.msh2_model.model_type = self.get_msh2_model_type(self.si_model)
         if 'geo' in self.msh2_model.model_type:
+            logging.info('Is geometry.')
             self.msh2_model.segments = None
             self.msh2_model.segments = self.get_segments()
             self.process_bbox()
         if self.msh2_model.model_type == 'cloth':
+            logging.info('Is cloth.')
             self.msh2_model.segments = None
             self.msh2_model.segments = self.get_cloth()
             self.msh2_model.deformers = self.get_deformers()
             self.export.add_deformers(self.msh2_model.deformers)
         if self.msh2_model.model_type == 'geodynamic':
+            logging.info('Is geodynamic.')
             self.msh2_model.deformers = self.get_deformers()
             self.export.add_deformers(self.msh2_model.deformers)
         if self.is_collprim():
+            logging.info('Is collision primitive.')
             self.process_collision_prim()
         elif self.is_cloth_collprim():
+            logging.info('Is cloth collision primitive.')
             self.process_c_collision_primitive()
         # Reset scale because we're using vertex world coordinates.
         # And do it after process_collision_prim because it needs the scale.
@@ -691,6 +721,11 @@ class Export(softimage.SIGeneral):
         else:
             return
             self.ppg_params = andezetcore.load_settings('export', PPG.Inspected(0))
+        logpath = os.path.join(softimage.Softimage.get_plugin_origin('XSIZETools'), 'export_log.log')
+        logging.basicConfig(format='%(levelname)s (%(lineno)d, %(funcName)s): %(message)s',
+                            filename=logpath,
+                            filemode='w',
+                            level=logging.DEBUG)
 
     def export_msg(self):
         notifs = ['\n\n']
@@ -781,6 +816,9 @@ class Export(softimage.SIGeneral):
     def do_export(self):
         '''Main export routine. Exports and writes a .msh file.'''
         self.check_filepath()
+        logging.info('==========================================')
+        logging.info('Starting export at {0}.'.format(datetime.now()))
+        logging.info('.msh file path: {0}'.format(self.ppg_params.get('path')))
         self.msh = None
         self.msh = msh2.Msh()
         # Convert materials from XSI to msh2.
@@ -789,11 +827,13 @@ class Export(softimage.SIGeneral):
         self.msh.materials = msh2.MaterialCollection(self.msh)
         self.msh.materials.replace([])
         for ndx, material in enumerate(self.si_materials):
+            logging.info('Processing material "{0}".'.format(material.Name))
             self.pb.setc('Processing Material {0}... {1}/{2}'.format(material.Name,
                                                                      ndx + 1,
                                                                      len(self.si_materials)))
             conv = MaterialConverter(material, self, ndx)
             self.msh.materials.add(conv.convert())
+            logging.info('Finished processing.')
             self.pb.inc()
         self.msh.materials.assign_indices()
         self.stats.mats += len(self.msh.materials)
@@ -806,30 +846,40 @@ class Export(softimage.SIGeneral):
             self.pb.setc('Processing Model {0}... {1}/{2}'.format(model.Name,
                                                                   ndx + 1,
                                                                   len(self.si_models)))
+            logging.info('Processing model "{0}".'.format(model.Name))
             conv = ModelConverter(model, self)
             self.msh.models.add(conv.convert())
+            logging.info('Finished processing.')
             self.pb.inc()
         self.msh.models.assign_indices()
         self.msh.models.assign_parents()
         self.msh.models.remove_multi(self.dontexport)
+        logging.info('Removed multiple vertices.')
         self.msh.models.assign_cloth_collisions()
+        logging.info('Assigned cloth collisions.')
         self.stats.models += len(self.msh.models)
         # Scene Info.
         self.pb.set(1, 'Getting Scene Info...')
+        logging.info('Processing Scene Info.')
         scnnfo = SceneInfoConverter(self)
         scnnfo.parent = self.msh
         self.msh.info = scnnfo.convert()
+        logging.info('Finished processing Scene Info.')
         self.pb.inc()
         # Animation.
         self.pb.set(2, 'Processing Animation...')
         if self.ppg_params.get('anim'):
+            logging.info('Processing animation.')
             anim = AnimationConverter(self)
             self.msh.animation = anim.convert()
+            logging.info('Finished processing animation.')
         else:
+            logging.info('Setting empty animation.')
             self.msh.animation = msh2.Animation(None, 'empty')
         self.pb.inc()
         # Make nulls which are used as envelopes bones.
         if self.model_deformers:
+            logging.info('Setting model type to "bone" for {0}.'.format(self.model_deformers))
             for mdl in self.msh.models:
                 if mdl.name in self.model_deformers:
                     mdl.model_type = 'bone'
