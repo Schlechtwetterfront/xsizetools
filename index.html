@@ -59,9 +59,9 @@
     
         <a class="rectangle_button" href="#material-docs">Material Manager</a>
     
-        <a class="rectangle_button" href="/msh2text.html">MSH 2 TXT</a>
+        <a class="rectangle_button" href="#msh2txt">MSH 2 TXT</a>
     
-        <a class="rectangle_button" href="/animation_export.html">Animation Export</a>
+        <a class="rectangle_button" href="#animation-export">Animation Export</a>
     
 
     <div class="hr_dark"></div>
@@ -87,136 +87,174 @@
 		$("div .sidebar").css("height", height + 10);
 	</script>
 </div>
-		<div class="content">
+		
+
+<div class="content">
 	
-		<div>
+		<div class="section">
 			<a name="main_info"></a>
-			<h2>Main Info</h2>
-			<p class="section">XSIZETools is an addon for Softimage (tested with ModTool 7.5, 2012 SP1 and 2014).
-The main features are full export and import of 3D .msh files for ZeroEngine (Star Wars Battlefront I and II). That includes geometry, materials with all ZeroEngine-specific flags, animations and collisions.
-<br><br>
-This began as a small collection of scripts to help setup hierarchies and the like and turned into a full-fledged exporter/importer for the .msh format. As only a small amount of the .msh file format structure was known when I began writing the exporter I had to reverse-engineer (with contributions from a handful of other people) the rest (which was about 70% of the chunks).
-</p>
-			<div class="hr"></div><br>
+			
+		<a class="toggle_collapse" content-id="main_info_content" id="main_info_content_start" starts-collapsed="False">Collapse</a>
+	 <h2>Main Info</h2> 
+				<div id="main_info_content">
+				<p>XSIZETools is an addon for Softimage (tested with ModTool 7.5, 2012 SP1 and 2014).
+The main features are full export and import of 3D .msh files for ZeroEngine (Star Wars Battlefront I and II). That includes geometry, materials with all ZeroEngine-specific flags, animations and collisions.</p>
+<p>This began as a small collection of scripts to help setup hierarchies and the like and turned into a full-fledged exporter/importer for the .msh format. As only a small amount of the .msh file format structure was known when I began writing the exporter I had to reverse-engineer (with contributions from a handful of other people) the rest (which was about 70% of the chunks).</p>
+				
+		<div></div>
+	
+				</div>
+			<div class="hr"></div>
 		</div>
 	
-		<div>
+		<div class="section">
 			<a name="download_installation"></a>
-			<h2>Download & Installation</h2>
-			<p class="section">
-The main chunk of the project is hosted on GitHub.
+			
+		<a class="toggle_collapse" content-id="download_installation_content" id="download_installation_content_start" starts-collapsed="False">Collapse</a>
+	 <h2>Download &amp; Installation</h2> 
+				<div id="download_installation_content">
+				<p>The main chunk of the project is hosted on GitHub.
 The source for the CGeometryAccessorWrappers can be found on the sidebar (the source is outdated though as I lost the code used for the current DLLs.
-Check the sidebar for a link to the releases page on GitHub.
-<br><br>
-To install ZETools, unzip the downloaded archive into <br>
-<strong>C:/users/%user%/Autodesk/Softimage_%version%/Addons/</strong> <br>
-OR <br>
-<strong>C:/users/%user%/Softimage/Softimage_%version%/Addons/</strong>. <br><br>
-Make sure you use this path and not the factory addon path.
-
-If you have any Softimage version up to (and including) 2010 you need to install
-
-<a class="normal_link" href="http://www.python.org/ftp/python/2.6.6/python-2.6.6.msi">python</a>
+Check the sidebar for a link to the releases page on GitHub.</p>
+<p>To install ZETools, unzip the downloaded archive into<br />
+<strong>C:/users/%user%/Autodesk/Softimage_%version%/Addons/</strong><br />
+OR<br />
+<strong>C:/users/%user%/Softimage/Softimage_%version%/Addons/</strong>.<br />
+Make sure you use this path and not the factory addon path.  </p>
+<p>If you have any Softimage version up to (and including) 2010 you need to install
+<a href="http://www.python.org/ftp/python/2.6.6/python-2.6.6.msi">python</a>
 and
-<a class="normal_link" href="http://sourceforge.net/projects/pywin32/files/pywin32/Build%20217/pywin32-217.win32-py2.6.exe/download">pywin32</a>. <br>
+<a href="http://sourceforge.net/projects/pywin32/files/pywin32/Build%20217/pywin32-217.win32-py2.6.exe/download">pywin32</a>.
 If python and pywin32 was installed correctly it should look something like
-<a class="normal_link" href="installed_python.jpg">this</a>.<br>
-<br>
-The low-level geometry functions are written in C++, so the Visual C++ 2010 redist is required.
-<a class="normal_link" href="http://www.microsoft.com/download/en/details.aspx?id=5555" target="_blank">x86</a> 
+<a href="installed_python.jpg">this</a>.  </p>
+<p>The low-level geometry functions are written in C++, so the Visual C++ 2010 redist is required.
+<a href="http://www.microsoft.com/download/en/details.aspx?id=5555">x86</a>
 |
-<a class="normal_link" href="http://www.microsoft.com/downloads/de-de/details.aspx?FamilyID=bd512d9e-43c8-4655-81bf-9350143d5867" target="_blank">x64 </a>(only if x86 didn't work).
-</p>
-			<div class="hr"></div><br>
+<a href="http://www.microsoft.com/downloads/de-de/details.aspx?FamilyID=bd512d9e-43c8-4655-81bf-9350143d5867">x64</a> (only if x86 didn't work).</p>
+				
+		<div></div>
+	
+				</div>
+			<div class="hr"></div>
 		</div>
 	
-		<div>
+		<div class="section">
 			<a name="contributors"></a>
-			<h2>Contributors</h2>
-			<p class="section">
-<strong>ME (ANDEWEGET/Ande)</strong>
-All programming - Graphics/UI - Main .msh file research
-<br>
-<strong>AceMastermind (gametoast.com)</strong>
-    Created most  templates - Provided example .msh files - Additional .msh research
-<br>
-<strong>DarthD.U.C.K (gametoast.com)</strong>
-    Created some templates - Provided example .msh files - Additional .msh research
-<br>
-<strong>tirpider (gametoast.com, swbfgamers.com)</strong>
-    Additional .msh research - MSH Info Tool greatly helped with debugging - Interesting discussions
-<br>
-<strong>FragMe! (gametoast.com)</strong>
-    Provided a tool/material for some additional research
-
-</p>
-			<div class="hr"></div><br>
+			
+		<a class="toggle_collapse" content-id="contributors_content" id="contributors_content_start" starts-collapsed="True">Collapse</a>
+	 <h2>Contributors</h2> 
+				<div id="contributors_content">
+				<p><strong>ME (ANDEWEGET/Ande)</strong><br />
+All programming | Graphics/UI | Main .msh file research</p>
+<p><strong>AceMastermind (gametoast.com)</strong><br />
+Created most templates | Provided example .msh files | Additional .msh research</p>
+<p><strong>DarthD.U.C.K (gametoast.com)</strong><br />
+Created some templates | Provided example .msh files | Additional .msh research</p>
+<p><strong>tirpider (gametoast.com, swbfgamers.com)</strong><br />
+Additional .msh research | MSH Info Tool greatly helped with debugging | Interesting discussions</p>
+<p><strong>FragMe! (gametoast.com)</strong><br />
+Provided a tool/material for some additional research</p>
+				
+		<div></div>
+	
+				</div>
+			<div class="hr"></div>
 		</div>
 	
-		<div>
+		<div class="section">
 			<a name="export-guidelines"></a>
-			<h2>Export</h2>
-			<p class="section"><ul>
-<li>The CheckSel function in the export dialog can detect some problems.</li>
-<li>The currently selected object + all it's children will be exported.</li>
+			
+		<a class="toggle_collapse" content-id="export-guidelines_content" id="export-guidelines_content_start" starts-collapsed="False">Collapse</a>
+	 <h2>Export Guidelines</h2> 
+				<div id="export-guidelines_content">
+				<ul>
+<li><strong>Error Checking:</strong> The CheckSel function in the export dialog can detect some problems.</li>
+<li><strong>Exported Objects:</strong> The currently selected object + all it's children will be exported.</li>
 <li><strong>Overlapping clusters:</strong> Might break the .msh file. Might mess up the exported .msh's UVs/Weights/Vertex Colors.</li>
 <li><strong>5-Sided(or more) Polygons:</strong> Might break the .msh file. Will mess up export result(missing polies).</li>
 <li><strong>Supported Model Types:</strong> The supported model types are: poly mesh, null, bone.</li>
-<li>Only apply one 'master' UV projection to a object. All subsequent projections should be Sub-projections.</li>
-<li>Collision meshes can be created by naming the model <em>collision_*</em> or <em>*_collision</em>.</li>
-<li>For XSI ZETools to recognize collision primitives the name needs to contain the type of primitive (cube, cylinder, sphere).</li>
-<li>Do not freeze any primitives, freezing will remove essential information.</li>
-<li>It's not important how you animate bones (FK or IK etc), the exporter will go through all frames one-by-one and get the current local transforms of every bone.</li>
+<li><strong>UV:</strong> Only apply one 'master' UV projection to a object. All subsequent projections should be Sub-projections.</li>
+<li><strong>Collision:</strong> Collision meshes can be created by naming the model <em>collision_*</em> or <em>*_collision</em>.</li>
+<li><strong>Collision:</strong> For XSI ZETools to recognize collision primitives the name needs to contain the type of primitive (cube, cylinder, sphere).</li>
+<li><strong>Collision:</strong> Do not freeze any primitives, freezing will remove essential information.</li>
+<li><strong>Animation:</strong> It's not important how you animate bones (FK or IK etc), the exporter will go through all frames one-by-one and get the current local transforms of every bone.</li>
 <li><strong>Always apply the envelope to ALL bones.</strong> This might slow your workflow down but it ensures the points are weighted to the correct bone after export.</li>
-<li>Only weight to objects with bone in their name(NOT: root, eff).</li>
-<li>Try to apply the envelope only to models which won't be merged after weighting. This does not have to break the .msh, it could though.</li>
+<li><strong>Weighting:</strong> Only weight to objects with bone in their name(NOT: root, eff).</li>
+<li><strong>Weighting:</strong> Try to apply the envelope only to models which won't be merged after weighting. This does not have to break the .msh, it could though.</li>
 <li><strong>No Materials:</strong> You should have at least one material named Scene_Material when exporting. If you have at least one material you don't need Scene_Material.</li>
 <li><strong>Material/Render flags are applied per material.</strong> You can apply them by opening the ZETools Material Manager, selecting a material and then clicking "ZE-ify".
-			This will add all the ZeroEngine material flags to the material.
-			Afterwards inspect your material (click the "Edit" button) and change those settings in the appended options.</li>
-</ul></p>
-			<div class="hr"></div><br>
+            This will add all the ZeroEngine material flags to the material.
+            Afterwards inspect your material (click the "Edit" button) and change those settings in the appended options.</li>
+</ul>
+				
+		<div></div>
+	
+				</div>
+			<div class="hr"></div>
 		</div>
 	
-		<div>
+		<div class="section">
 			<a name="import-guidelines"></a>
-			<h2>Import</h2>
-			<p class="section"><ul>
-<li>Animations will be imported as linear animations on a per-frame basis.</li>
-<li>It should be possible to re-export animations directly after import. For SWBF1 you need to have at least one material though.</li>
-<li>There might be some misplaced edges.</li>
-</ul></p>
-			<div class="hr"></div><br>
+			
+		<a class="toggle_collapse" content-id="import-guidelines_content" id="import-guidelines_content_start" starts-collapsed="False">Collapse</a>
+	 <h2>Import Guidelines</h2> 
+				<div id="import-guidelines_content">
+				<ul>
+<li><strong>Animation:</strong> Animations will be imported as linear animations on a per-frame basis.</li>
+<li><strong>Animation:</strong> It should be possible to re-export animations directly after import. For SWBF1 you need to have at least one material though.</li>
+<li><strong>Geometry:</strong> There might be some misplaced edges.</li>
+</ul>
+				
+		<div></div>
+	
+				</div>
+			<div class="hr"></div>
 		</div>
 	
-		<div>
+		<div class="section">
 			<a name="cloth-guidelines"></a>
-			<h2>Cloth</h2>
-			<p class="section"><ul>
-<li>Try to avoid triangles in the cloth mesh. There's a high change triangles might produce artifacts in the cloth simulation.</li>
-<li>Cloth will be split along UV seams, so UV accordingly.</li>
-<li>If you have problems with cloth simulation artifacts, provide a screenshot from the debug SWBF.exe with "render_cloth_connections" enabled via the console.</li>
-</ul></p>
-			<div class="hr"></div><br>
+			
+		<a class="toggle_collapse" content-id="cloth-guidelines_content" id="cloth-guidelines_content_start" starts-collapsed="False">Collapse</a>
+	 <h2>Cloth Guidelines</h2> 
+				<div id="cloth-guidelines_content">
+				<ul>
+<li><strong>Geometry:</strong> Try to avoid triangles in the cloth mesh. There's a high change triangles might produce artifacts in the cloth simulation.</li>
+<li><strong>UV/Cloth Splits:</strong> Cloth will be split along UV seams, so UV accordingly.</li>
+<li><strong>Error Reporting:</strong> If you have problems with cloth simulation artifacts, provide a screenshot from the debug SWBF.exe with "render_cloth_connections" enabled via the console.</li>
+</ul>
+				
+		<div></div>
+	
+				</div>
+			<div class="hr"></div>
 		</div>
 	
-		<div>
+		<div class="section">
 			<a name="scripts"></a>
-			<h2>Scripts</h2>
-			<p class="section">
-<strong>Create Bone Group</strong> <br>
-Creates a group of all objects which have 'bone' in their name. If you have a SWBF2 skeleton in your scene this will group all bones you need to envelope to.
-<br><br>
-<strong>Addon Mesh Setup</strong> <br>
-Creates an addon mesh hierarchy, by creating a null (named like the *Addon Root* text box) and matching its position and rotation to the selected *Addon Bone*. You can then move the currently selected object(s) into the hierarchy by pressing *Set As Addon Mesh*.
-</p>
-			<div class="hr"></div><br>
+			
+		<a class="toggle_collapse" content-id="scripts_content" id="scripts_content_start" starts-collapsed="False">Collapse</a>
+	 <h2>Scripts</h2> 
+				<div id="scripts_content">
+				<ul>
+<li><strong>Create Bone Group</strong><br />
+Creates a group of all objects which have 'bone' in their name. If you have a SWBF2 skeleton in your scene this will group all bones you need to envelope to.  </li>
+<li><strong>Addon Mesh Setup</strong><br />
+Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Root</em> text box) and matching its position and rotation to the selected <em>Addon Bone</em>. You can then move the currently selected object(s) into the hierarchy by pressing <em>Set As Addon Mesh</em>.</li>
+</ul>
+				
+		<div></div>
+	
+				</div>
+			<div class="hr"></div>
 		</div>
 	
-		<div>
+		<div class="section">
 			<a name="export-docs"></a>
-			<h2>Export UI</h2>
-			<p class="section"><ul>
+			
+		<a class="toggle_collapse" content-id="export-docs_content" id="export-docs_content_start" starts-collapsed="True">Collapse</a>
+	 <h2>Export Documentation</h2> 
+				<div id="export-docs_content">
+				<ul>
 <li><strong>Auto-Overwrite.</strong> Overwrites any output files if they already exist.</li>
 <li><strong>Use root model name for .msh file name.</strong> Will use the name of the topmost object in the currently selected hierarchy as the .msh file name. Has to be enabled when Batch Exporting.</li>
 <li><strong>Batch Export.</strong> Exports all children of the currently selected object as a full hierarchy.</li>
@@ -224,18 +262,25 @@ Creates an addon mesh hierarchy, by creating a null (named like the *Addon Root*
 <li><strong>Current Frame as Basepose.</strong> Exports only the currently selected and following frame to minimize file size.</li>
 <li><strong>Check Sel.</strong> Loops through all objects in the currently selected hierarchy and analyzes it for problems which could cause a bad export.</li>
 <li><strong>Check Sel: Bad model type.</strong> Only nulls, bones and polygon meshes should be used.</li>
-<li><strong>Check Sel: Bad Faces.</strong> Faces should not have more than 4 sides. To fix use Modify>PolygonMesh>Triangulate or Select>Select n-sided polygons>Five sides or more.</li>
+<li><strong>Check Sel: Bad Faces.</strong> Faces should not have more than 4 sides. To fix use Modify&gt;PolygonMesh&gt;Triangulate or Select&gt;Select n-sided polygons&gt;Five sides or more.</li>
 <li><strong>Check Sel: Bad Clusters.</strong> Overlapping clusters, should be fixed.</li>
 <li><strong>Check Sel: Unnecessary clusters.</strong> Do not need to be fixed, just warnings.</li>
 <li><strong>Store Flags.</strong> Stores the current export configuration (path, check boxes etc).</li>
-</ul></p>
-			<div class="hr"></div><br>
+</ul>
+				
+		<div></div>
+	
+				</div>
+			<div class="hr"></div>
 		</div>
 	
-		<div>
+		<div class="section">
 			<a name="import-docs"></a>
-			<h2>Import UI</h2>
-			<p class="section"><ul>
+			
+		<a class="toggle_collapse" content-id="import-docs_content" id="import-docs_content_start" starts-collapsed="True">Collapse</a>
+	 <h2>Import Documentation</h2> 
+				<div id="import-docs_content">
+				<ul>
 <li><strong>Texture Folder.</strong> If the textures for the to-be-imported .msh file are not located in the same folder as the .msh file.</li>
 <li><strong>Set Frame Range.</strong> Will set the frame range to that stored in the .msh file.</li>
 <li><strong>Apply animation to selected hierarchy.</strong> If you have already imported a .msh file (like a unit) then you can apply an animation stored in another .msh file to the previously imported mesh (root of that hierarchy must be selected).</li>
@@ -248,25 +293,221 @@ Creates an addon mesh hierarchy, by creating a null (named like the *Addon Root*
 <li><strong>Store Flags.</strong> Stores the current import configuration (path, check boxes etc).</li>
 <li><strong>Triangulate.</strong> Triangulates any quads or more-sided polygons on import.</li>
 <li><strong>Log.</strong> Logs the MSH unpack (can be slow).</li>
-</ul></p>
-			<div class="hr"></div><br>
+</ul>
+				
+		<div></div>
+	
+				</div>
+			<div class="hr"></div>
 		</div>
 	
-		<div>
+		<div class="section">
 			<a name="material-docs"></a>
-			<h2>Material Manager</h2>
-			<p class="section"><ul>
+			
+		<a class="toggle_collapse" content-id="material-docs_content" id="material-docs_content_start" starts-collapsed="True">Collapse</a>
+	 <h2>Material Manager Documentation</h2> 
+				<div id="material-docs_content">
+				<ul>
 <li><strong>Create.</strong> Creates a new Phong material with the name in the box to the left of the button.</li>
 <li><strong>Edit.</strong> Will inspect the currently selected material for editing.</li>
 <li><strong>ZEify.</strong> Will add ZeroEngine specific material and shader settings to the selected material(s). This lets you add features like scrolling textures, glow, bump mapping and many more.<br>
-                For more information on render types <a class="normal_link" href="http://schlechtwetterfront.github.io/ze_filetypes/rendertypes.html">look here</a>. Textures listed under <strong>Additional</strong> on that page will need to be put into the <em>Texture 1-3</em> slots.</li>
+    For more information on render types <a href="http://schlechtwetterfront.github.io/ze_filetypes/rendertypes.html">look here</a>. Textures listed under <em>Additional</em> on that page will need to be put into the <em>Texture 1-3</em> slots.</li>
 <li><strong>De-ZEify.</strong> Removes ZeroEngine specific settings.</li>
 <li><strong>Remove.</strong> Deletes the currently selected material(s).</li>
 <li><strong>Assign Tex.</strong> Opens a dialog to assign a color/diffuse texture to the selected material.</li>
 <li><strong>Assign.</strong> Assigns the currently selected material to the currently selected component/object in the scene.</li>
 <li><strong>Unassign.</strong> Unassigns the material.</li>
-</ul></p>
-			<div class="hr"></div><br>
+</ul>
+				
+		<div></div>
+	
+				</div>
+			<div class="hr"></div>
+		</div>
+	
+		<div class="section">
+			<a name="msh2txt"></a>
+			
+		<a class="toggle_collapse" content-id="msh2txt_content" id="msh2txt_content_start" starts-collapsed="True">Collapse</a>
+	 <h2>MSH2TXT</h2> 
+				<div id="msh2txt_content">
+				<h3>Model Types</h3>
+<ol>
+<li><strong>null:</strong> Dummy object without segments.</li>
+<li><strong>geodynamic:</strong> Geometry with envelope and modifiers.</li>
+<li><strong>cloth:</strong> Cloth (ClothGeometry segments).</li>
+<li><strong>bone:</strong>  Animated null.</li>
+<li><strong>geobone:</strong> Animated geometry (only SegmentGeometry segments).</li>
+<li><strong>geostatic:</strong> Standard geometry, no envelope or deformers.</li>
+<li><strong>geoshadow:</strong> Shadow geometry (ShadowGeometry segments).</li>
+</ol>
+<h3>File Structure and Naming Conventions</h3>
+<p>MSH Name = <em>name</em>  </p>
+<p><em>name</em> .txt</p>
+<blockquote>
+<p><strong>bool has_shadowvolume:</strong> Does this .msh have a shadowvolume (SHDW)?</p>
+</blockquote>
+<p><em>name</em> nfo.txt</p>
+<blockquote>
+<p><strong>string name:</strong> Scene Name<br />
+<strong>float[2] frame_range:</strong> Start Frame, End Frame<br />
+<strong>float fps:</strong> Scene FPS<br />
+<strong>float[3] scale:</strong> Scene scale<br />
+<strong>BBox bbox:</strong> Scene BBox  </p>
+</blockquote>
+<p>For every Model:<br />
+<em>name</em> mdl <em>model_name</em> .txt</p>
+<blockquote>
+<p><strong>string name:</strong> Model Name<br />
+<strong>string parent:</strong> Parent Name<br />
+<strong>string model_type:</strong> One of the available Model Types<br />
+<strong>int visible:</strong> 1 == visible, 0 == hidden<br />
+<strong>bool collprim:</strong> Is this model a collision primitive?<br />
+<strong>[int, float, float, float] primitive:</strong> Primitive type, value 0, value 1, value 2<br />
+<strong>int num_deformers:</strong> Number of deformers on save, ignored when loading<br />
+<strong>string[] deformers:</strong> Deformer names<br />
+<strong>BBox bbox:</strong> Model BBox<br />
+<strong>Transform transform:</strong> Model Transform  </p>
+</blockquote>
+<p>For every segment (SEGM/CLTH/SHDW) in the models geometry:<br />
+<em>name</em> mdl <em>model_name</em> seg <em>#_of_segment</em> .txt</p>
+<blockquote>
+<p><strong>SegmentGeometry:</strong><br />
+<strong>string type:</strong> SegmentGeometry | ShadowGeometry | ClothGeometry<br />
+<strong>string material:</strong> Material name<br />
+<strong>int num_vertices:</strong> Number of vertices on save, ignored when loading<br />
+<strong>Vertex[] vertices:</strong> Segment vertices<br />
+<strong>int num_faces:</strong> Number of faces on save, ignored when loading<br />
+<strong>Face[] faces:</strong> Segment faces  </p>
+<p><strong>ShadowGeometry:</strong><br />
+<strong>string type:</strong> See above<br />
+<strong>int num_positions:</strong> Number of positions on save, ignored when loading<br />
+<strong>float[3][] positions:</strong> Positions, currently only used to store the information<br />
+<strong>int num_faces:</strong> Number of faces on save, ignored when loading<br />
+<strong>Face[] faces:</strong> Faces, currently only used to store the information  </p>
+<p><strong>ClothGeometry:</strong><br />
+<strong>string type:</strong> See above<br />
+<strong>string texture:</strong> Cloth texture<br />
+<strong>int num_vertices:</strong> Number of vertices on save, ignored when loading<br />
+<strong>ClothVertex[] vertices:</strong> Cloth vertices<br />
+<strong>int num_faces:</strong> Number of faces on save, ignored when loading<br />
+<strong>int[2][] stretch:</strong> Stretch constraint value pairs<br />
+<strong>int[2][] cross:</strong> Cross constraint value pairs<br />
+<strong>int[2][] bend:</strong> Bend constraint value pairs<br />
+<strong>ClothCollision[] collisions:</strong> Collisions  </p>
+</blockquote>
+<p>For every Material:<br />
+<em>name</em> mtl <em>material_name</em> .txt</p>
+<blockquote>
+<p><strong>string name:</strong> Material name<br />
+<strong>int index:</strong> Initial index on save, recalculated on load<br />
+<strong>string tex0:</strong> Diffuse texture<br />
+<strong>string tex1:</strong> Special texture 1<br />
+<strong>string tex2:</strong> Special texture 2<br />
+<strong>string tex3:</strong> Special texture 3<br />
+<strong>Flag[8] flags:</strong> [string name, bool active, int enum_value]<br />
+<strong>int render_type:</strong> Render type<br />
+<strong>int data0:</strong> Shader data 0<br />
+<strong>int data1:</strong> Shader data 1<br />
+<strong>Color diffuse:</strong> Diffuse color<br />
+<strong>Color specular:</strong> Specular color<br />
+<strong>Color ambient:</strong> Ambient color<br />
+<strong>float gloss:</strong> Gloss value  </p>
+</blockquote>
+<h3>Structs</h3>
+<p><strong>BBox</strong>  </p>
+<blockquote>
+<p><strong>float[3] rotation:</strong> Rotation in degrees<br />
+<strong>float[3] extents:</strong> BBox extents<br />
+<strong>float[3] center:</strong> BBox center<br />
+<strong>float radius:</strong> BBox radius  </p>
+</blockquote>
+<p><strong>Transform</strong>  </p>
+<blockquote>
+<p><strong>float[3] rotation:</strong> Rotation in degrees<br />
+<strong>float[3] position:</strong> Position<br />
+<strong>float[3] sacle:</strong> Scale  </p>
+</blockquote>
+<p><strong>Color</strong>  </p>
+<blockquote>
+<p><strong>float[4] rgba:</strong> Channel values (0.0 to 1.0)<br />
+OR<br />
+<strong>int[4] rgba:</strong> Channel values (0 to 255)  </p>
+</blockquote>
+<p><strong>Vertex</strong>  </p>
+<blockquote>
+<p><strong>float[3] position:</strong> Position in world space<br />
+<strong>float[2] uv:</strong> UV coordinate<br />
+<strong>float[3] normal:</strong> Vertex normal<br />
+<strong>string[4] deformers:</strong> Deformers for this vertex<br />
+<strong>float[4] weights:</strong> Weights for the corresponding deformer<br />
+<strong>Color color:</strong> Vertex color  </p>
+</blockquote>
+<p><strong>Face</strong>  </p>
+<blockquote>
+<p><strong>int[] vertices:</strong> Indices to the vertices forming this polygon  </p>
+</blockquote>
+<p><strong>ClothVertex</strong>  </p>
+<blockquote>
+<p><strong>float[3] position:</strong> Position in world space<br />
+<strong>float[2] uv:</strong> UV coordinate<br />
+<strong>string deformer:</strong> Joint this point moves with<br />
+<strong>bool is_fixed:</strong> If true, does not get simulated and moves with deformer (if it exists)  </p>
+</blockquote>
+<p><strong>ClothCollision</strong>  </p>
+<blockquote>
+<p><strong>string name:</strong> Collision name<br />
+<strong>string parent:</strong> Parent of the collision object<br />
+<strong>int unknown_long:</strong> Unknown purpose<br />
+<strong>float[3] collision_primitive:</strong> [value 0, value 1, value 2]  </p>
+</blockquote>
+				
+		<a class="toggle_collapse_end" content-id="msh2txt_content" id="msh2txt_content_end">Collapse</a>
+	
+				</div>
+			<div class="hr"></div>
+		</div>
+	
+		<div class="section">
+			<a name="animation-export"></a>
+			
+		<a class="toggle_collapse" content-id="animation-export_content" id="animation-export_content_start" starts-collapsed="True">Collapse</a>
+	 <h2>Animation Export</h2> 
+				<div id="animation-export_content">
+				<p>Every of the following steps will produce one .msh file.</p>
+<blockquote>
+<p><strong>SWBF 1 NOTE:</strong> The ZenAsset.exe which comes with the SWBF1 mod tools seems to need at least one material to work. Just add a small primitive(eg: cube, you can hide it, too)
+to the scene. It needs to be in the exported hierarchy for animations so don't move it out when you do the HALFSTEP. To minimize filesize you could replace one of the needed nulls
+with the primitive(maybe dummyroot). Sereja got his animation into SWBF1 by using a textured primitive as DummyRoot. It's not important what type of model the other models are.</p>
+</blockquote>
+<p>STEP 1. <strong>Placeable model for ZeroEditor.</strong> Export the model which will be called in the odf and placed in ZE. To do this move the frame cursor to the first frame of your
+animation(usually 1, it's not important what the frame range is[ie 0 to 100]).Then select your root, uncheck Export Animation and export. .MSH File: stuff_door.msh</p>
+<blockquote>
+<p><img alt="Image" src="/to_be_placed.jpg" />
+<strong>Animation preparation.</strong> To cut down on possible problems you can now drag'n'drop all object which are not a part of
+the skeleton(collisions, meshes, shadows) out of your current hierarchy.
+Best way to do this is select them all and drag'n'drop them onto Scene_Root. In my example I only move out thing_(that's the model with Stuff painted on it).
+You can move out hard points, too. Animations don't need this as basepose and open/whatever you called your animation will end up in .zafbin/.zaabin
+files which don't hold geometry etc. Note: I forgot to move out thing_ for the main animation in the screenshot at step 2. It should be not be a (direct or indirect) children of the root you're exporting though.</p>
+</blockquote>
+<p>STEP 2. <strong>Animation Export</strong> This will contain the actual animation. Here it's important to set the right frame range.
+It's not important where the frame cursor is, but the frame range must be correct. In my example it's 1 - 20. Check Export Animation and export button. .MSH File: ie open.msh</p>
+<blockquote>
+<p><img alt="Image2" src="/anim_open.jpg" /></p>
+</blockquote>
+<p>STEP 3. <strong>Basepose of the animation.</strong> This will be the pose the model is in when it's not animated.
+If your first frame is 1 move the frame cursor to frame 0. Check Export Animation and Current frame as Basepose.
+If you check Current frame as Basepose you can ignore the last frame. If you want to do it 'old-fashioned' set your frame range to 0 - 1 and uncheck Current frame as Basepose.
+I assume you use the Current frame as Basepose way. Now the preparation is finished. All boxes are checked and the hierarchy is set up. Do the deed and select your root and hit export.
+.MSH File: basepose.msh</p>
+<blockquote>
+<p><img alt="Image3" src="/anim_basepose.jpg" /></p>
+</blockquote>
+				
+		<a class="toggle_collapse_end" content-id="animation-export_content" id="animation-export_content_end">Collapse</a>
+	
+				</div>
+			<div class="hr"></div>
 		</div>
 	
 </div>
@@ -300,8 +541,8 @@ var box_brightened_color = shadeBlend(0.5, box_hover_color);
 
 var box_normal_color = "#252525";
 
-$("a.normal_link").css({"color": box_hover_color, "border-bottom": "1px dotted " + box_hover_color});
-$("a.normal_link").hover(
+$("div.content a").css({"color": box_hover_color, "border-bottom": "1px dotted " + box_hover_color});
+$("div.content a").hover(
 	function() {
 		$(this).css({"color": box_brightened_color,
 					"border-bottom": "1px solid " + box_brightened_color});
@@ -312,6 +553,47 @@ $("a.normal_link").hover(
 					"text-decoration": "none"});
 	});
 
+			$("a.toggle_collapse").click(function () {
+    var header = $(this);
+    var content = $("#" + $(this).attr("content-id"));
+
+    $(content).slideToggle(250, function () {
+
+        header.text(function () {
+
+            return $(content).is(":visible") ? "Collapse" : "Expand";
+        });
+    });
+
+});
+
+$("a.toggle_collapse_end").click(function () {
+    var header = $(this);
+    var content_text = "#" + $(this).attr("content-id");
+    var content = $("#" + $(this).attr("content-id"));
+
+    $(content).slideToggle(250, function () {
+        $(content_text + "_start").text(function () {
+            return $(content).is(":visible") ? "Collapse" : "Expand";
+        })
+    });
+
+});
+
+$("a.toggle_collapse").each(function () {
+    var header = $(this);
+    var content = $("#" + $(this).attr("content-id"));
+
+    if ($(this).attr("starts-collapsed") == "True") {
+        $(content).slideToggle(0, function () {
+
+            header.text(function () {
+
+                return $(content).is(":visible") ? "Collapse" : "Expand";
+            });
+        });
+    }
+});
 
 			$("div .sidebar").css("background-color", box_hover_color);
 		</script>
