@@ -1,351 +1,319 @@
 <!doctype html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="chrome=1">
-        <title>XSI ZE Tools by Ande</title>
-        <link rel="stylesheet" href="stylesheets/styles.css">
-        <link rel="stylesheet" href="stylesheets/ande.css">
-        <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-        <script src="javascripts/respond.js"></script>
-        <script src="javascripts/ande.js"></script>
-        <link rel="icon" type="image/png" href="favicon.png"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    </head>
-    <body>
-        <div id="header">
-            <nav>
-                <li class="fork"><a href="https://github.com/Schlechtwetterfront/xsizetools">View On GitHub</a></li>
-				<li class="fork"><a href="http://gametoast.com/forums/viewtopic.php?f=36&t=26664">View On GameToast</a></li>
-                <li class="downloads"><a href="https://github.com/Schlechtwetterfront/xsizetools/archive/master.zip">ZIP</a></li>
-                <li class="downloads"><a href="XSIZETools_src.7z">C++ Source</a></li>
-				<li class="title">DOWNLOADS</li>
-            </nav>
-        </div>
-        <!-- end header -->
-        <div class="wrapper">
-            <section>
-                <div id="title">
-                    <h1>XSIZETools</h1>
-                    <p></p>
-                    <hr>
-                    <span class="credits left">Project maintained by <a href="https://Schlechtwetterfront.github.com/">Schlechtwetterfront</a></span>
-                    <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
-                </div>
-                <strong>Note</strong> If you encounter any problems with this plugin, try an earlier version by choosing one from
-                <a href="https://github.com/Schlechtwetterfront/xsizetools/commits/master">this link</a> and clicking
-                "Browse Code" on the right, then using the "Download ZIP" button from the page you end up on.
-                <br><br>
-                <h2>Contents:</h2> <br>
-                <ol>
-                    <li><a href="#maininfo">Main Info</a></li>
-                    <li><a href="#download">Download & Installation</a></li>
-                    <li><a href="guidelines.html#guidelines">Guidelines</a>
-                        <ul>
-                            <li><a href="guidelines.html#gl-import">Import - Notes</a></li>
-                            <li><a href="guidelines.html#gl-export-avoid">Export - Avoid</a></li>
-                            <li><a href="guidelines.html#gl-export-coll">Export - Collisions</a></li>
-                            <li><a href="guidelines.html#gl-export-weight">Export - Weighting</a></li>
-                            <li><a href="guidelines.html#gl-export-mat">Export - Materials</a></li>
-                            <li><a href="guidelines.html#gl-export-general">Export - General</a></li>
-                            <li><a href="guidelines.html#gl-cloth">Cloth</a></li>
-                        </ul>
-                    </li>
-                    <li>Documentation
-                        <ul>
-                            <li><a href="scripts.html">Scripts</a></li>
-                            <li><a href="msh_export.html">.msh Export</a></li>
-                            <li><a href="msh_import.html">.msh Import</a></li>
-                            <li><a href="material_manager.html">Material Manager</a></li>
-                            <li><a href="msh2text.html">MSH to TXT</a></li>
-                        </ul>
-                    </li>
-                    <li>Tutorials
-                        <ul>
-                            <li><a href="animation_export.html">Animation Export</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="#contributors">Contributors</a></li>
-                    <li><a href="#changelog">Changelog</a></li>
-                </ol>
-				<br><br>
-                <h2><a name="maininfo"></a>Main Info</h2> <br>
-                XSIZETools is an addon for Softimage (tested with ModTool 7.5, 2012 SP1 and 2014).<br>
-                The main features are full export and import of 3D .msh files for ZeroEngine (Star Wars Battlefront I and II). That includes geometry, materials with all ZeroEngine-specific flags, animations and collisions.<br><br>
+	<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/pygment_trac.css">
+    <link rel="stylesheet" href="../css/andesimple.css">
+    <script src="../js/respond.js"></script>
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <link rel="icon" type="image/png" href="../favicon.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-                This began as a small collection of scripts to help setup hierarchies and the like and turned into a full-fledged exporter/importer for the .msh format. As only a small amount of the .msh file format structure was known when I began writing the exporter I had to reverse-engineer (with contributions from a handful of other people) the rest (which was about 70% of the chunks).<br>
-                <br>
-                Current Feature Status: <a style="color: #33FF00;">Static Meshes</a> | <a style="color: #33FF00;">Dynamic Meshes</a> | <a style="color: #33FF00;">Animations</a> | <a style="color: #33FF00;">ZE Materials</a> | <a style="color: #33FF00;">Cloth</a><br> 
-                <br><br>
-				<h2><a name="download"></a>Download & Installation</h2> <br>
-                The main chunk of the project is hosted on <a href="https://github.com/Schlechtwetterfront/xsizetools" target="_blank">Github</a>. The source for the CGeometryAccessorWrappers can be found <a href="XSIZETools_src.7z">here</a>.
-                Use the <strong>ZIP</strong> button at the top of this page to download the addon.<br>
-                <br>
-				To install ZETools, unzip the downloaded archive into<br>
-				<blockquote>
-                    C:/users/%user%/Autodesk/Softimage_%version%/Addons/<br>
-                    OR<br>
-                    C:/users/%user%/Softimage/Softimage_%version%/Addons/<br>
-                </blockquote>
-                Make sure you use this path and not the factory addon path.<br>
-                <br>
-                If you have any Softimage version up to (and including) 2010 you need to install <a href="http://www.python.org/ftp/python/2.6.6/python-2.6.6.msi">python</a> and <a href="http://sourceforge.net/projects/pywin32/files/pywin32/Build%20217/pywin32-217.win32-py2.6.exe/download">pywin32</a>.<br>
-                If python and pywin32 was installed correctly it should look something like <a href="installed_python.jpg">this</a>.<br>
-                <br>
-                The low-level geometry functions are written in C++, so the Visual C++ 2010 redist is required.  <a href="http://www.microsoft.com/download/en/details.aspx?id=5555" target="_blank">x86</a>  |  <a href="http://www.microsoft.com/downloads/de-de/details.aspx?FamilyID=bd512d9e-43c8-4655-81bf-9350143d5867" target="_blank">x64 </a>(only if x86 didn't work).
-                <br><br><br>
-                <h2><a name="contributors"></a>Contributors</h2> &nbsp;&nbsp;&nbsp; <green_button><a href="javascript:toggleHide('contributors_list');">Show/Hide</a></green_button> <br>
-                <div id="contributors_list" class="hidden">
-                    <p style="text-align: center;"><strong>ME (ANDEWEGET/Ande)</strong><br>
-    				All programming - Graphics/UI - Main .msh file research
-                    </p>
-                    <p style="text-align: center;"><strong>AceMastermind (gametoast.com)</strong><br>
-                        Created most  templates - Provided example .msh files - Additional .msh research
-                    </p>
-                    <p style="text-align: center;"><strong>DarthD.U.C.K (gametoast.com)</strong><br>
-                        Created some templates - Provided example .msh files - Additional .msh research
-                    </p>
-                    <p style="text-align: center;"><strong>tirpider (gametoast.com, swbfgamers.com)</strong><br>
-                        Additional .msh research - MSH Info Tool greatly helped with debugging - Interesting discussions
-                    </p>
-                    <p style="text-align: center;"><strong>FragMe! (gametoast.com)</strong><br>
-                        Provided a tool/material for some additional research
-                    </p>
-                </div>
-                <h2 style="text-align: left;"><a name="changelog"></a>Changelog</h2> &nbsp;&nbsp;&nbsp; <green_button><a href="javascript:toggleHide('changelog_list');">Show/Hide</a></green_button> <br>
-                <div id="changelog_list" class="hidden">
-                    <ul>
-                        <li>
-                            1.1.11.10 r1:
-                            <ul>
-                                <li>Import: Fixed import error.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.1.11.10:
-                            <ul>
-                                <li>Export: File size of exported .msh files should be a lot smaller.</li>
-                                <li>Removed Expansion Manager and templates.</li>
-                                <li>ZE Tools scripts currently don't work.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.1.11.09:
-                            <ul>
-                                <li>Export: Fixed too small cube collision primitives.</li>
-                                <li>msh2_crc: Implemented standalone CRC algorithm, no more drcrc.exe needed (most likely faster, too).</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.1.11.08 r2:
-                            <ul>
-                                <li>Import: Fixed weight import error caused by the Weld op.</li>
-                                <li>Export: Fixed props exported from ModTool being invisible inside ZE.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.1.11.08:
-                            <ul>
-                                <li>Import: Added Weld Boundary Edges option to settings. Welds edges after import.</li>
-                                <li>Import: Collision primitive type 3 imports as null. 3 is not a functional prim.</li>
-                                <li>Import: Material Flags.</li>
-                                <li>Import: Added another path control to define the folder where the textures are. If the box is not checked the importer will search for the textures in the folder of the .msh file.</li>
-                                <li>General: Added item to the General Tools submenu which opens the import log.</li>
-                                <li>Export: Fixed collision primitive export.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.1.11.07 r4:
-                            <ul>
-                                <li>Export: Fixed animation export.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.1.11.07 r3:
-                            <ul>
-                                <li>Export: Fixed UI parameter bug.</li>
-                                <li>Import: Fixed cloth breaking the Enveloper again.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.1.11.07 r2:
-                            <ul>
-                                <li>Export: Fixed scale.</li>
-                                <li>Export: Fixed per-model BBox.</li>
-                                <li>Export: Now automatically calculating global BBox.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.1.11.07 r1:
-                            <ul>
-                                <li>Import: Fixed weights with deformer index 0 overwriting each other.</li>
-                                <li>Import: Added import logging to a text file(XSIZETools\\import_log.log).</li>
-                                <li>Import: Cloth doesn't break enveloping and export anymore.</li>
-                                <li>Import: Added 'MYTP' as chunk. .msh files exported with MshEx could work now.</li>
-                                <li>msh2_crc: Now using the _subprocess module for STARTF_USESHOWWINDOW and SW_HIDE constants. Should fix error on some python distributions where those constants don't exist in subprocess.</li>
-                                <li>Import: Added MshImportError exception.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.1.11.07:
-                            <ul>
-                                <li>Import: Fixed cube primitive import.</li>
-                                <li>Import: Fixed primitive type 1 import.</li>
-                                <li>Import: Fixed UV and vertex color algorithm.</li>
-                                <li>Import: Added support for Vertex Colors.</li>
-                                <li>Export: Fixed vertex color export.</li>
-                                <li>Export: Exporter now exports local vertex coordinates, not world coordinates. World coordinates would break scale because I didn't set the scale to 1 afterwards. It seemingly still worked ingame...</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.1.11.06:
-                            <ul>
-                                <li>Import: Enabled Apply Animation option. Tries to apply animation to selected hierarchy.</li>
-                                <li>Import: Added Ignore Animation if you only want to import geometry.</li>
-                                <li>Import: Added weights/envelope support.</li>
-                                <li>Import: Added support for multiple segments.</li>
-                                <li>msh2_crc: Added code to prevent file not found errors on subprocess.call.</li>
-                                <li>Import: Fixed poly meshes not being parented correctly.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.1.11.05:
-                            <ul>
-                                <li>Updated: sicore, zetcore.</li>
-                                <li>Import: Geometry with UVs.</li>
-                                <li>Import: Materials.</li>
-                                <li>Import  Collision primitives.</li>
-                                <li>Import: Added Debug(run that mode if you experience problems).</li>
-                                <li>Import: Added 'Safe' import(slower but more likely to work).</li>
-                                <li>Import: Triangulate n-gons. Triangulates n-gons on import(otherwise will try to get some quads in, too).</li>
-                                <li>msh2_crc: Added crc_debug and crc_safe.</li>
-                                <li>msh2_crc: Added CRCError.</li>
-                                <li>msh2_unpack: Fixed STRP unpack, fixed texture unpack. Added code to prevent errors on bad STRP chunks. Added code to cut 5+ sided polygons into tris(and quads).</li>
-                                <li>msh2: Added functions to Face and FaceCollection to get XSI import right.</li>
-                                <li>msh2: Fixed properties and decorators not working properly(all root objects now inherit from object).</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.1.11.04:
-                            <ul>
-                                <li>Updated: zetcore, sicore.</li>
-                                <li>Import: Null Chains(ChainBuilder), Animations(AnimationImport) and Materials(MaterialBuilder, disabled).</li>
-                                <li>Import: Nulls can be colored according to type(bone, root, eff).</li>
-                                <li>msh2_crc: Replaced method of validating CRCs(wdrcrc.exe) with my own.</li>
-                                <li>msh2_crc: Optimized CRC/name validation function.</li>
-                                <li>msh2_crc: Suppressed drcrc.exe popping up every time it's called.</li>
-                                <li>msh2_unpack: Most likely fixed STRP polygon unpacking algorithm.</li>
-                                <li>msh2_unpack: Added animation unpack.</li>
-                                <li>msh2_unpack: MSHUnpack now uses a config dict.</li>
-                                <li>msh2_unpack: Wrote msh2_unpack.</li>
-                                <li>msh2: Added various smaller methods to Animation, Cycle, BoneCollection and Bone.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.1.11.02 r4:
-                            <ul>
-                                <li>Added drcrc.exe and wdrcrc.exe to the archive again.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.1.11.02 r3
-                            <ul>
-                                <li>Export: Fixed a problem where some faces were assigned the wrong material.</li>
-                                <li>Export: Tweaked notifications.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.1.11.02 r2
-                            <ul>
-                                <li>Animation: Naming isn't important for bones anymore. As long as something is enveloped to the model it's declared as a bone.</li>
-                                <li>Animation: Tweaked export and Progress bar animation export display.</li>
-                                <li>Tweaked Installation dir 'checker'. Now should compare paths right.</li>
-                                <li>Animation: Fixed a function argument error for python 2.7 which killed the export.</li>
-                                <li>Export: Export now ignores Texture Support objects.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.1.11.02:
-                            <ul>
-                                <li>If ZETools is installed in the wrong dir(ie XSI factory addon dir)it will notice it. It can automatically copy the needed files to the right directory.</li>
-                                <li>Exporter: Animations done(until I find the next bug).</li>
-                                <li>Exporter: Option to only export current frame and next one as basepose for animations.</li>
-                                <li>Various smaller bug fixes(especially for the Mod Tool).</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.1.10.02:
-                            <ul>
-                                <li>Restructured folders and class-system.</li>
-                                <li>Higher level approach to storing data enabling easy manipulation of components.</li>
-                                <li>Minimized folder structure complexity.</li>
-                                <li>Added XSIZETUtils.</li>
-                                <li>Rewrote most of the export code. Now a lot cleaner and straight forward.</li>
-                                <li>Removed some things like the detailed export report, it was useful for me for profiling but now it just clutters the export up.</li>
-                                <li>Material Manager: Refined code, dialog now doesn't relaunch when a material gets deleted/created.</li>
-                                <li>Material Manager: Multi selection is now enabled.</li>
-                                <li>Material Manager: Every material has an indicator telling if it has ZE flags or not.</li>
-                                <li>Exporter: Batch Export</li>
-                                <li>Exporter: Automatic naming and finding of BBoxes.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1.0.09.02:
-                            <ul>
-                                <li>Polished reports.</li>
-                                <li>Polished appeareance.</li>
-                                <li>Added update checker.</li>
-                                <li>Changed the folder structure.</li>
-                                <li>Cleaned up code.</li>
-                                <li>Rewrote Export and Material Code.</li>
-                                <li>Wrote a additional 1k lines of code.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            0.9.08.02:
-                            <ul>
-                                <li>Added in weight support.</li>
-                                <li>Added multiple reports.</li>
-                                <li>Cleaned up code.</li>
-                                <li>Changed the folder structure a bit.</li>
-                                <li>Added in more and better comments in the code.</li>
-                                <li>Added multiple smaller functions.</li>
-                                <li>Improved performance.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            0.9.07.02:
-                            <ul>
-                                <li>Unfixed weight exporting(will come back soon).</li>
-                                <li>Improved performance.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            0.9.06.02:
-                            <ul>
-                                <li>Fixed weight exporting(unit-exporting works now).</li>
-                                <li>Added structure and beginnings of cloth support.</li>
-                                <li>Stuff.</li>
-                            </ul>
-                        </li>
-                        <li>0.9.05.02 r1:</li>
-                        <li>
-                            <ul style="display: inline !important;">
-                                <li style="display: inline !important;">Progress bar now displays more steps(per model/material).</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <ul>
-                                <li>Improved general packer structure.</li>
-                                <li>Fixed(?) bone and envelope exporting.</li>
-                                <li>Generally improved code(exporter automagically adds .msh, dictionaries for certain things etc...)</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </section>
-        </div>
-        <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-    </body>
+    <title>XSI ZETools</title>
+</head>
+	<body>
+		<div class="container">
+		
+
+<div class="sidebar">
+	<sidebar_title>XSI ZETools</sidebar_title>
+
+    <div class="hr_dark"></div>
+    <category_label>Downloads</category_label><br>
+    
+        <a class="rectangle_button" href="https://github.com/Schlechtwetterfront/xsizetools/releases">Releases</a>
+    
+        <a class="rectangle_button" href="http://schlechtwetterfront.github.io/xsizetools/XSIZETools_src.7z">C++ Source (deprecated)</a>
+    
+
+    <div class="hr_dark"></div>
+    <category_label>General Info</category_label><br>
+    
+        <a class="rectangle_button" href="#main_info">Main Info</a>
+    
+        <a class="rectangle_button" href="#download_installation">Download & Installation</a>
+    
+        <a class="rectangle_button" href="#contributors">Contributors</a>
+    
+
+    <div class="hr_dark"></div>
+    <category_label>Guidelines</category_label><br>
+    
+        <a class="rectangle_button" href="#export-guidelines">Export</a>
+    
+        <a class="rectangle_button" href="#import-guidelines">Import</a>
+    
+        <a class="rectangle_button" href="#cloth-guidelines">Cloth</a>
+    
+
+    <div class="hr_dark"></div>
+    <category_label>Documentation</category_label><br>
+    
+        <a class="rectangle_button" href="#scripts">Scripts</a>
+    
+        <a class="rectangle_button" href="#export-docs">.msh Export</a>
+    
+        <a class="rectangle_button" href="#import-docs">.msh Import</a>
+    
+        <a class="rectangle_button" href="#material-docs">Material Manager</a>
+    
+        <a class="rectangle_button" href="/msh2text.html">MSH 2 TXT</a>
+    
+        <a class="rectangle_button" href="/animation_export.html">Animation Export</a>
+    
+
+    <div class="hr_dark"></div>
+    <category_label>Other Resources</category_label><br>
+    
+        <a class="rectangle_button" href="https://github.com/Schlechtwetterfront/xsizetools">View on GitHub</a>
+    
+        <a class="rectangle_button" href="http://gametoast.com/viewtopic.php?f=36&t=26664">View Thread on GameToast</a>
+    
+
+    <div class="hr_dark"></div>
+    <category_label>Personal</category_label><br>
+    
+        <a class="rectangle_button" href="http://schlechtwetterfront.github.io/">Schlechtwetterfront</a>
+    
+
+	<script type="text/javascript">
+		var count = 0;
+
+		count =  $("a.rectangle_button").length;
+
+		var height = parseInt($("a.rectangle_button").css("height")) * count + $("category_label").length * parseInt($("category_label").css("height")) + parseInt($("sidebar_title").css("height"));
+		$("div .sidebar").css("height", height + 10);
+	</script>
+</div>
+		<div class="content">
+	
+		<div>
+			<a name="main_info"></a>
+			<h2>Main Info</h2>
+			<p class="section">XSIZETools is an addon for Softimage (tested with ModTool 7.5, 2012 SP1 and 2014).
+The main features are full export and import of 3D .msh files for ZeroEngine (Star Wars Battlefront I and II). That includes geometry, materials with all ZeroEngine-specific flags, animations and collisions.
+<br><br>
+This began as a small collection of scripts to help setup hierarchies and the like and turned into a full-fledged exporter/importer for the .msh format. As only a small amount of the .msh file format structure was known when I began writing the exporter I had to reverse-engineer (with contributions from a handful of other people) the rest (which was about 70% of the chunks).
+</p>
+			<div class="hr"></div><br>
+		</div>
+	
+		<div>
+			<a name="download_installation"></a>
+			<h2>Download & Installation</h2>
+			<p class="section">
+The main chunk of the project is hosted on GitHub.
+The source for the CGeometryAccessorWrappers can be found on the sidebar (the source is outdated though as I lost the code used for the current DLLs.
+Check the sidebar for a link to the releases page on GitHub.
+<br><br>
+To install ZETools, unzip the downloaded archive into <br>
+<strong>C:/users/%user%/Autodesk/Softimage_%version%/Addons/</strong> <br>
+OR <br>
+<strong>C:/users/%user%/Softimage/Softimage_%version%/Addons/</strong>. <br><br>
+Make sure you use this path and not the factory addon path.
+
+If you have any Softimage version up to (and including) 2010 you need to install
+
+<a class="normal_link" href="http://www.python.org/ftp/python/2.6.6/python-2.6.6.msi">python</a>
+and
+<a class="normal_link" href="http://sourceforge.net/projects/pywin32/files/pywin32/Build%20217/pywin32-217.win32-py2.6.exe/download">pywin32</a>. <br>
+If python and pywin32 was installed correctly it should look something like
+<a class="normal_link" href="installed_python.jpg">this</a>.<br>
+<br>
+The low-level geometry functions are written in C++, so the Visual C++ 2010 redist is required.
+<a class="normal_link" href="http://www.microsoft.com/download/en/details.aspx?id=5555" target="_blank">x86</a> 
+|
+<a class="normal_link" href="http://www.microsoft.com/downloads/de-de/details.aspx?FamilyID=bd512d9e-43c8-4655-81bf-9350143d5867" target="_blank">x64 </a>(only if x86 didn't work).
+</p>
+			<div class="hr"></div><br>
+		</div>
+	
+		<div>
+			<a name="contributors"></a>
+			<h2>Contributors</h2>
+			<p class="section">
+<strong>ME (ANDEWEGET/Ande)</strong>
+All programming - Graphics/UI - Main .msh file research
+<br>
+<strong>AceMastermind (gametoast.com)</strong>
+    Created most  templates - Provided example .msh files - Additional .msh research
+<br>
+<strong>DarthD.U.C.K (gametoast.com)</strong>
+    Created some templates - Provided example .msh files - Additional .msh research
+<br>
+<strong>tirpider (gametoast.com, swbfgamers.com)</strong>
+    Additional .msh research - MSH Info Tool greatly helped with debugging - Interesting discussions
+<br>
+<strong>FragMe! (gametoast.com)</strong>
+    Provided a tool/material for some additional research
+
+</p>
+			<div class="hr"></div><br>
+		</div>
+	
+		<div>
+			<a name="export-guidelines"></a>
+			<h2>Export</h2>
+			<p class="section"><ul>
+<li>The CheckSel function in the export dialog can detect some problems.</li>
+<li>The currently selected object + all it's children will be exported.</li>
+<li><strong>Overlapping clusters:</strong> Might break the .msh file. Might mess up the exported .msh's UVs/Weights/Vertex Colors.</li>
+<li><strong>5-Sided(or more) Polygons:</strong> Might break the .msh file. Will mess up export result(missing polies).</li>
+<li><strong>Supported Model Types:</strong> The supported model types are: poly mesh, null, bone.</li>
+<li>Only apply one 'master' UV projection to a object. All subsequent projections should be Sub-projections.</li>
+<li>Collision meshes can be created by naming the model <em>collision_*</em> or <em>*_collision</em>.</li>
+<li>For XSI ZETools to recognize collision primitives the name needs to contain the type of primitive (cube, cylinder, sphere).</li>
+<li>Do not freeze any primitives, freezing will remove essential information.</li>
+<li>It's not important how you animate bones (FK or IK etc), the exporter will go through all frames one-by-one and get the current local transforms of every bone.</li>
+<li><strong>Always apply the envelope to ALL bones.</strong> This might slow your workflow down but it ensures the points are weighted to the correct bone after export.</li>
+<li>Only weight to objects with bone in their name(NOT: root, eff).</li>
+<li>Try to apply the envelope only to models which won't be merged after weighting. This does not have to break the .msh, it could though.</li>
+<li><strong>No Materials:</strong> You should have at least one material named Scene_Material when exporting. If you have at least one material you don't need Scene_Material.</li>
+<li><strong>Material/Render flags are applied per material.</strong> You can apply them by opening the ZETools Material Manager, selecting a material and then clicking "ZE-ify".
+			This will add all the ZeroEngine material flags to the material.
+			Afterwards inspect your material (click the "Edit" button) and change those settings in the appended options.</li>
+</ul></p>
+			<div class="hr"></div><br>
+		</div>
+	
+		<div>
+			<a name="import-guidelines"></a>
+			<h2>Import</h2>
+			<p class="section"><ul>
+<li>Animations will be imported as linear animations on a per-frame basis.</li>
+<li>It should be possible to re-export animations directly after import. For SWBF1 you need to have at least one material though.</li>
+<li>There might be some misplaced edges.</li>
+</ul></p>
+			<div class="hr"></div><br>
+		</div>
+	
+		<div>
+			<a name="cloth-guidelines"></a>
+			<h2>Cloth</h2>
+			<p class="section"><ul>
+<li>Try to avoid triangles in the cloth mesh. There's a high change triangles might produce artifacts in the cloth simulation.</li>
+<li>Cloth will be split along UV seams, so UV accordingly.</li>
+<li>If you have problems with cloth simulation artifacts, provide a screenshot from the debug SWBF.exe with "render_cloth_connections" enabled via the console.</li>
+</ul></p>
+			<div class="hr"></div><br>
+		</div>
+	
+		<div>
+			<a name="scripts"></a>
+			<h2>Scripts</h2>
+			<p class="section">
+<strong>Create Bone Group</strong> <br>
+Creates a group of all objects which have 'bone' in their name. If you have a SWBF2 skeleton in your scene this will group all bones you need to envelope to.
+<br><br>
+<strong>Addon Mesh Setup</strong> <br>
+Creates an addon mesh hierarchy, by creating a null (named like the *Addon Root* text box) and matching its position and rotation to the selected *Addon Bone*. You can then move the currently selected object(s) into the hierarchy by pressing *Set As Addon Mesh*.
+</p>
+			<div class="hr"></div><br>
+		</div>
+	
+		<div>
+			<a name="export-docs"></a>
+			<h2>Export UI</h2>
+			<p class="section"><ul>
+<li><strong>Auto-Overwrite.</strong> Overwrites any output files if they already exist.</li>
+<li><strong>Use root model name for .msh file name.</strong> Will use the name of the topmost object in the currently selected hierarchy as the .msh file name. Has to be enabled when Batch Exporting.</li>
+<li><strong>Batch Export.</strong> Exports all children of the currently selected object as a full hierarchy.</li>
+<li><strong>Export Animation.</strong> Exports animation for the current frame range.</li>
+<li><strong>Current Frame as Basepose.</strong> Exports only the currently selected and following frame to minimize file size.</li>
+<li><strong>Check Sel.</strong> Loops through all objects in the currently selected hierarchy and analyzes it for problems which could cause a bad export.</li>
+<li><strong>Check Sel: Bad model type.</strong> Only nulls, bones and polygon meshes should be used.</li>
+<li><strong>Check Sel: Bad Faces.</strong> Faces should not have more than 4 sides. To fix use Modify>PolygonMesh>Triangulate or Select>Select n-sided polygons>Five sides or more.</li>
+<li><strong>Check Sel: Bad Clusters.</strong> Overlapping clusters, should be fixed.</li>
+<li><strong>Check Sel: Unnecessary clusters.</strong> Do not need to be fixed, just warnings.</li>
+<li><strong>Store Flags.</strong> Stores the current export configuration (path, check boxes etc).</li>
+</ul></p>
+			<div class="hr"></div><br>
+		</div>
+	
+		<div>
+			<a name="import-docs"></a>
+			<h2>Import UI</h2>
+			<p class="section"><ul>
+<li><strong>Texture Folder.</strong> If the textures for the to-be-imported .msh file are not located in the same folder as the .msh file.</li>
+<li><strong>Set Frame Range.</strong> Will set the frame range to that stored in the .msh file.</li>
+<li><strong>Apply animation to selected hierarchy.</strong> If you have already imported a .msh file (like a unit) then you can apply an animation stored in another .msh file to the previously imported mesh (root of that hierarchy must be selected).</li>
+<li><strong>Null Display Size.</strong> Set the display size of nulls.</li>
+<li><strong>Ignore Geometry.</strong> Will replace any meshes with nulls, use this if you are applying an animation to a hierarchy.</li>
+<li><strong>Ignore Animation.</strong> Ignores any animation. Use this if you are importing baseposes to later apply animations (and just generally if you do not need the animation).</li>
+<li><strong>Color Nulls.</strong> Will color nulls if the importer can find out which type they are (bones, effs and roots).</li>
+<li><strong>Hide Roots/Effectors.</strong> Will hide roots and effectors in the hierarchy so they are not accidentally animated.</li>
+<li><strong>Wield Boundary Edges.</strong> Imported meshes usually have splits along the UV seams. This option will wield any of these edges after geometry import.</li>
+<li><strong>Store Flags.</strong> Stores the current import configuration (path, check boxes etc).</li>
+<li><strong>Triangulate.</strong> Triangulates any quads or more-sided polygons on import.</li>
+<li><strong>Log.</strong> Logs the MSH unpack (can be slow).</li>
+</ul></p>
+			<div class="hr"></div><br>
+		</div>
+	
+		<div>
+			<a name="material-docs"></a>
+			<h2>Material Manager</h2>
+			<p class="section"><ul>
+<li><strong>Create.</strong> Creates a new Phong material with the name in the box to the left of the button.</li>
+<li><strong>Edit.</strong> Will inspect the currently selected material for editing.</li>
+<li><strong>ZEify.</strong> Will add ZeroEngine specific material and shader settings to the selected material(s). This lets you add features like scrolling textures, glow, bump mapping and many more.<br>
+                For more information on render types <a class="normal_link" href="http://schlechtwetterfront.github.io/ze_filetypes/rendertypes.html">look here</a>. Textures listed under <strong>Additional</strong> on that page will need to be put into the <em>Texture 1-3</em> slots.</li>
+<li><strong>De-ZEify.</strong> Removes ZeroEngine specific settings.</li>
+<li><strong>Remove.</strong> Deletes the currently selected material(s).</li>
+<li><strong>Assign Tex.</strong> Opens a dialog to assign a color/diffuse texture to the selected material.</li>
+<li><strong>Assign.</strong> Assigns the currently selected material to the currently selected component/object in the scene.</li>
+<li><strong>Unassign.</strong> Unassigns the material.</li>
+</ul></p>
+			<div class="hr"></div><br>
+		</div>
+	
+</div>
+		</div>
+		<script type="text/javascript">
+			function shadeBlend(p,c0,c1) {
+    var n=p<0?p*-1:p,u=Math.round,w=parseInt;
+    if(c0.length>7){
+        var f=c0.split(","),t=(c1?c1:p<0?"rgb(0,0,0)":"rgb(255,255,255)").split(","),R=w(f[0].slice(4)),G=w(f[1]),B=w(f[2]);
+        return "rgb("+(u((w(t[0].slice(4))-R)*n)+R)+","+(u((w(t[1])-G)*n)+G)+","+(u((w(t[2])-B)*n)+B)+")"
+    }else{
+        var f=w(c0.slice(1),16),t=w((c1?c1:p<0?"#000000":"#FFFFFF").slice(1),16),R1=f>>16,G1=f>>8&0x00FF,B1=f&0x0000FF;
+        return "#"+(0x1000000+(u(((t>>16)-R1)*n)+R1)*0x10000+(u(((t>>8&0x00FF)-G1)*n)+G1)*0x100+(u(((t&0x0000FF)-B1)*n)+B1)).toString(16).slice(1)
+    }
+}
+
+var colors = [
+    "#ff7676", // reddish
+    "#8d76ff", // darker violet
+    "#d77f64", // brighter red
+    "#919ddb", // brighter blue
+    "#7cc67c", // green
+];
+
+// Choose random hover color for all elments.
+var box_hover_color = colors[Math.floor(Math.random() * colors.length)];
+
+var box_darkened_color = shadeBlend(-0.5, box_hover_color);
+
+var box_brightened_color = shadeBlend(0.5, box_hover_color);
+
+var box_normal_color = "#252525";
+
+$("a.normal_link").css({"color": box_hover_color, "border-bottom": "1px dotted " + box_hover_color});
+$("a.normal_link").hover(
+	function() {
+		$(this).css({"color": box_brightened_color,
+					"border-bottom": "1px solid " + box_brightened_color});
+	},
+	function() {
+		$(this).css({"color": box_hover_color,
+					"border-bottom": "1px dotted " + box_hover_color,
+					"text-decoration": "none"});
+	});
+
+
+			$("div .sidebar").css("background-color", box_hover_color);
+		</script>
+	</body>
 </html>
