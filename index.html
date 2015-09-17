@@ -97,10 +97,13 @@
 	
 		<div class="section">
 			<a name="main_info"></a>
-			
+				<div>
+					<div class="section-header">Main Info</div>
+					
 		<a class="toggle_collapse" content-id="main_info_content" id="main_info_content_start" starts-collapsed="False">Collapse</a>
-	 <h2>Main Info</h2> 
-				<div id="main_info_content">
+	
+				</div>
+				<div id="main_info_content" class="section-content">
 				<p>XSIZETools is an addon for Softimage (tested with ModTool 7.5, 2012 SP1 and 2014).
 The main features are full export and import of 3D .msh files for ZeroEngine (Star Wars Battlefront I and II). That includes geometry, materials with all ZeroEngine-specific flags, animations and collisions.</p>
 <p>This began as a small collection of scripts to help setup hierarchies and the like and turned into a full-fledged exporter/importer for the .msh format. As only a small amount of the .msh file format structure was known when I began writing the exporter I had to reverse-engineer (with contributions from a handful of other people) the rest (which was about 70% of the chunks).</p>
@@ -113,10 +116,13 @@ The main features are full export and import of 3D .msh files for ZeroEngine (St
 	
 		<div class="section">
 			<a name="download_installation"></a>
-			
+				<div>
+					<div class="section-header">Download & Installation</div>
+					
 		<a class="toggle_collapse" content-id="download_installation_content" id="download_installation_content_start" starts-collapsed="False">Collapse</a>
-	 <h2>Download &amp; Installation</h2> 
-				<div id="download_installation_content">
+	
+				</div>
+				<div id="download_installation_content" class="section-content">
 				<p>The main chunk of the project is hosted on GitHub.
 The source for the Geometry Accessor Wrappers can be found on the sidebar (the source is outdated though as I lost the code used for the current DLLs.
 Check the sidebar for a link to the releases page on GitHub.</p>
@@ -144,10 +150,13 @@ If python and pywin32 was installed correctly it should look something like
 	
 		<div class="section">
 			<a name="contributors"></a>
-			
+				<div>
+					<div class="section-header">Contributors</div>
+					
 		<a class="toggle_collapse" content-id="contributors_content" id="contributors_content_start" starts-collapsed="True">Collapse</a>
-	 <h2>Contributors</h2> 
-				<div id="contributors_content">
+	
+				</div>
+				<div id="contributors_content" class="section-content">
 				<p><strong>ME (ANDEWEGET/Ande)</strong><br />
 All programming | Graphics/UI | Main .msh file research</p>
 <p><strong>AceMastermind (gametoast.com)</strong><br />
@@ -167,10 +176,13 @@ Provided a tool/material for some additional research</p>
 	
 		<div class="section">
 			<a name="export-guidelines"></a>
-			
+				<div>
+					<div class="section-header">Export Guidelines</div>
+					
 		<a class="toggle_collapse" content-id="export-guidelines_content" id="export-guidelines_content_start" starts-collapsed="False">Collapse</a>
-	 <h2>Export Guidelines</h2> 
-				<div id="export-guidelines_content">
+	
+				</div>
+				<div id="export-guidelines_content" class="section-content">
 				<ul>
 <li><strong>Error Checking:</strong> The CheckSel function in the export dialog can detect some problems.</li>
 <li><strong>Exported Objects:</strong> The currently selected object + all it's children will be exported.</li>
@@ -199,10 +211,13 @@ Provided a tool/material for some additional research</p>
 	
 		<div class="section">
 			<a name="import-guidelines"></a>
-			
+				<div>
+					<div class="section-header">Import Guidelines</div>
+					
 		<a class="toggle_collapse" content-id="import-guidelines_content" id="import-guidelines_content_start" starts-collapsed="False">Collapse</a>
-	 <h2>Import Guidelines</h2> 
-				<div id="import-guidelines_content">
+	
+				</div>
+				<div id="import-guidelines_content" class="section-content">
 				<ul>
 <li><strong>Animation:</strong> Animations will be imported as linear animations on a per-frame basis.</li>
 <li><strong>Animation:</strong> It should be possible to re-export animations directly after import. For SWBF1 you need to have at least one material though.</li>
@@ -217,10 +232,13 @@ Provided a tool/material for some additional research</p>
 	
 		<div class="section">
 			<a name="cloth-guidelines"></a>
-			
+				<div>
+					<div class="section-header">Cloth Guidelines</div>
+					
 		<a class="toggle_collapse" content-id="cloth-guidelines_content" id="cloth-guidelines_content_start" starts-collapsed="False">Collapse</a>
-	 <h2>Cloth Guidelines</h2> 
-				<div id="cloth-guidelines_content">
+	
+				</div>
+				<div id="cloth-guidelines_content" class="section-content">
 				<ul>
 <li><strong>Geometry:</strong> Try to avoid triangles in the cloth mesh. There's a high change triangles might produce artifacts in the cloth simulation.</li>
 <li><strong>UV/Cloth Splits:</strong> Cloth will be split along UV seams, so UV accordingly.</li>
@@ -235,10 +253,13 @@ Provided a tool/material for some additional research</p>
 	
 		<div class="section">
 			<a name="scripts"></a>
-			
+				<div>
+					<div class="section-header">Scripts</div>
+					
 		<a class="toggle_collapse" content-id="scripts_content" id="scripts_content_start" starts-collapsed="False">Collapse</a>
-	 <h2>Scripts</h2> 
-				<div id="scripts_content">
+	
+				</div>
+				<div id="scripts_content" class="section-content">
 				<ul>
 <li><strong>Create Bone Group</strong><br />
 Creates a group of all objects which have 'bone' in their name. If you have a SWBF2 skeleton in your scene this will group all bones you need to envelope to.  </li>
@@ -254,10 +275,13 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 	
 		<div class="section">
 			<a name="export-docs"></a>
-			
+				<div>
+					<div class="section-header">Export Documentation</div>
+					
 		<a class="toggle_collapse" content-id="export-docs_content" id="export-docs_content_start" starts-collapsed="True">Collapse</a>
-	 <h2>Export Documentation</h2> 
-				<div id="export-docs_content">
+	
+				</div>
+				<div id="export-docs_content" class="section-content">
 				<ul>
 <li><strong>Auto-Overwrite.</strong> Overwrites any output files if they already exist.</li>
 <li><strong>Use root model name for .msh file name.</strong> Will use the name of the topmost object in the currently selected hierarchy as the .msh file name. Has to be enabled when Batch Exporting.</li>
@@ -280,10 +304,13 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 	
 		<div class="section">
 			<a name="import-docs"></a>
-			
+				<div>
+					<div class="section-header">Import Documentation</div>
+					
 		<a class="toggle_collapse" content-id="import-docs_content" id="import-docs_content_start" starts-collapsed="True">Collapse</a>
-	 <h2>Import Documentation</h2> 
-				<div id="import-docs_content">
+	
+				</div>
+				<div id="import-docs_content" class="section-content">
 				<ul>
 <li><strong>Texture Folder.</strong> If the textures for the to-be-imported .msh file are not located in the same folder as the .msh file.</li>
 <li><strong>Set Frame Range.</strong> Will set the frame range to that stored in the .msh file.</li>
@@ -307,10 +334,13 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 	
 		<div class="section">
 			<a name="material-docs"></a>
-			
+				<div>
+					<div class="section-header">Material Manager Documentation</div>
+					
 		<a class="toggle_collapse" content-id="material-docs_content" id="material-docs_content_start" starts-collapsed="True">Collapse</a>
-	 <h2>Material Manager Documentation</h2> 
-				<div id="material-docs_content">
+	
+				</div>
+				<div id="material-docs_content" class="section-content">
 				<ul>
 <li><strong>Create.</strong> Creates a new Phong material with the name in the box to the left of the button.</li>
 <li><strong>Edit.</strong> Will inspect the currently selected material for editing.</li>
@@ -331,10 +361,13 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 	
 		<div class="section">
 			<a name="msh2txt"></a>
-			
+				<div>
+					<div class="section-header">MSH2TXT</div>
+					
 		<a class="toggle_collapse" content-id="msh2txt_content" id="msh2txt_content_start" starts-collapsed="True">Collapse</a>
-	 <h2>MSH2TXT</h2> 
-				<div id="msh2txt_content">
+	
+				</div>
+				<div id="msh2txt_content" class="section-content">
 				<h3>Model Types</h3>
 <ol>
 <li><strong>null:</strong> Dummy object without segments.</li>
@@ -474,10 +507,13 @@ OR<br />
 	
 		<div class="section">
 			<a name="animation-export"></a>
-			
+				<div>
+					<div class="section-header">Animation Export</div>
+					
 		<a class="toggle_collapse" content-id="animation-export_content" id="animation-export_content_start" starts-collapsed="True">Collapse</a>
-	 <h2>Animation Export</h2> 
-				<div id="animation-export_content">
+	
+				</div>
+				<div id="animation-export_content" class="section-content">
 				<p>Every of the following steps will produce one .msh file.</p>
 <blockquote>
 <p><strong>SWBF 1 NOTE:</strong> The ZenAsset.exe which comes with the SWBF1 mod tools seems to need at least one material to work. Just add a small primitive(eg: cube, you can hide it, too)
@@ -558,7 +594,35 @@ $("div.content a").hover(
 					"text-decoration": "none"});
 	});
 
-			$("a.toggle_collapse").click(function () {
+			function slideToggleContent(id) {
+    if (id.substr(0, 1) != "#") {
+        id = "#" + id;
+    }
+    var content = id + "_content";
+
+    $(content).slideToggle(250, function () {
+        $(content + "_start").text(function () {
+            return $(content).is(":visible") ? "Collapse" : "Expand";
+        })
+    });
+}
+
+function showContent(id) {
+    if (id.substr(0, 1) != "#") {
+        id = "#" + id;
+    }
+    var content = id + "_content";
+    if ($(content).is(":visible")) {
+        return;
+    }
+    $(content).slideToggle(250, function () {
+        $(content + "_start").text(function () {
+            return $(content).is(":visible") ? "Collapse" : "Expand";
+        })
+    });
+}
+
+$("a.toggle_collapse").click(function () {
     var header = $(this);
     var content = $("#" + $(this).attr("content-id"));
 
@@ -597,6 +661,21 @@ $("a.toggle_collapse").each(function () {
                 return $(content).is(":visible") ? "Collapse" : "Expand";
             });
         });
+    }
+});
+
+
+$("a.rectangle_button").click(function() {
+    var id = $(this).attr("href");
+    showContent(id);
+});
+
+
+$(document).ready(function () {
+    var parts = window.location.href.split("#");
+    if(parts.length > 1) {
+       var id = parts[ parts.length-1 ];
+       showContent(id);
     }
 });
 
