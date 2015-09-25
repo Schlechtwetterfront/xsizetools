@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/schlechtwetterfront_dark.css">
+    <link rel="stylesheet" href="../css/schlechtwetterfront_light.css">
     <script src="../js/respond.js"></script>
     <script src="../js/jquery-1.11.0.min.js"></script>
     <link rel="icon" type="image/png" href="../favicon.png"/>
@@ -554,7 +555,8 @@ I assume you use the Current frame as Basepose way. Now the preparation is finis
 		
 		</div>
 		<script type="text/javascript">
-			function shadeBlend(p,c0,c1) {
+			window.onload = function() {
+				function shadeBlend(p,c0,c1) {
     var n=p<0?p*-1:p,u=Math.round,w=parseInt;
     if(c0.length>7){
         var f=c0.split(","),t=(c1?c1:p<0?"rgb(0,0,0)":"rgb(255,255,255)").split(","),R=w(f[0].slice(4)),G=w(f[1]),B=w(f[2]);
@@ -567,26 +569,40 @@ I assume you use the Current frame as Basepose way. Now the preparation is finis
 
 var colors = [
     "#ff7676", // reddish
-    "#8d76ff", // darker violet
-    "#d77f64", // brighter red
+    // "#8d76ff", // darker violet
+    // "#d77f64", // orange
     "#919ddb", // brighter blue
-    "#7cc67c", // green
+    "#6AAF6A", // green
 ];
 
 // Choose random hover color for all elments.
 var box_hover_color = colors[Math.floor(Math.random() * colors.length)];
 
-var box_darkened_color = shadeBlend(-0.5, box_hover_color);
+var box_darkened_color = shadeBlend(-0.3, box_hover_color);
 
 var box_brightened_color = shadeBlend(0.5, box_hover_color);
 
 var box_normal_color = "#252525";
 
+// I LOVE HACKS FeelsGoodMan
+var theme_map = {
+    "rgb(255, 255, 255)": "bright",
+    "rgb(0, 0, 0)": "dark",
+};
+
+var bg_color = $("head").css("background-color");
+var theme = theme_map[bg_color];
+
+var link_color_map_hover = {
+    "bright": box_darkened_color,
+    "dark": box_brightened_color,
+};
+
 $("div.content a").css({"color": box_hover_color, "border-bottom": "1px dotted " + box_hover_color});
 $("div.content a").hover(
 	function() {
-		$(this).css({"color": box_brightened_color,
-					"border-bottom": "1px solid " + box_brightened_color});
+		$(this).css({"color": link_color_map_hover[theme],
+					"border-bottom": "1px solid " + link_color_map_hover[theme]});
 	},
 	function() {
 		$(this).css({"color": box_hover_color,
@@ -594,7 +610,7 @@ $("div.content a").hover(
 					"text-decoration": "none"});
 	});
 
-			function slideToggleContent(id) {
+				function slideToggleContent(id) {
     if (id.substr(0, 1) != "#") {
         id = "#" + id;
     }
@@ -671,6 +687,16 @@ $("a.rectangle_button").click(function() {
 });
 
 
+$("a.rectangle_button").hover(
+    function() {
+        $(this).children("indent-child").css("visibility", "hidden");
+    },
+    function() {
+        $(this).children("indent-child").css("visibility", "visible");
+    }
+);
+
+
 $(document).ready(function () {
     var parts = window.location.href.split("#");
     if(parts.length > 1) {
@@ -679,7 +705,8 @@ $(document).ready(function () {
     }
 });
 
-			$("div .sidebar").css("background-color", box_hover_color);
+				$("div .sidebar").css("background-color", box_hover_color);
+			};
 		</script>
 	</body>
 </html>
