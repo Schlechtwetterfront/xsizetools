@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="../css/schlechtwetterfront_light.css">
     <script src="../js/respond.js"></script>
     <script src="../js/jquery-1.11.0.min.js"></script>
+    <script src="../js/schlechtwetterfront_visual.js"></script>
+    <script src="../js/schlechtwetterfront_functional.js"></script>
     <link rel="icon" type="image/png" href="../favicon.png"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -33,7 +35,7 @@
 	
 	    <category_label>General Info</category_label><br>
 	    
-	        <a class="rectangle_button" href="#main_info">Main Info</a>
+	        <a class="rectangle_button" href="#overview">Overview</a>
 	    
 	        <a class="rectangle_button" href="#download_installation">Download & Installation</a>
 	    
@@ -370,135 +372,606 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 				</div>
 				<div id="msh2txt_content" class="section-content">
 				<h3>Model Types</h3>
-<ol>
-<li><strong>null:</strong> Dummy object without segments.</li>
-<li><strong>geodynamic:</strong> Geometry with envelope and modifiers.</li>
-<li><strong>cloth:</strong> Cloth (ClothGeometry segments).</li>
-<li><strong>bone:</strong>  Animated null.</li>
-<li><strong>geobone:</strong> Animated geometry (only SegmentGeometry segments).</li>
-<li><strong>geostatic:</strong> Standard geometry, no envelope or deformers.</li>
-<li><strong>geoshadow:</strong> Shadow geometry (ShadowGeometry segments).</li>
-</ol>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>null</strong></td>
+<td>Dummy object without segments.</td>
+</tr>
+<tr>
+<td><strong>geodynamic</strong></td>
+<td>Geometry with envelope and modifiers.</td>
+</tr>
+<tr>
+<td><strong>cloth</strong></td>
+<td>Simulated cloth (ClothGeometry segments).</td>
+</tr>
+<tr>
+<td><strong>bone</strong></td>
+<td>Animated null.</td>
+</tr>
+<tr>
+<td><strong>geobone</strong></td>
+<td>Animated geometry (only SegmentGeometry segments).</td>
+</tr>
+<tr>
+<td><strong>geostatic</strong></td>
+<td>Standard geometry, no envelope or deformers.</td>
+</tr>
+<tr>
+<td><strong>geoshadow</strong></td>
+<td>Shadow geometry (ShadowGeometry segments).</td>
+</tr>
+</tbody>
+</table>
 <h3>File Structure and Naming Conventions</h3>
 <p>MSH Name = <em>name</em>  </p>
-<p><em>name</em> .txt</p>
-<blockquote>
-<p><strong>bool has_shadowvolume:</strong> Does this .msh have a shadowvolume (SHDW)?</p>
-</blockquote>
-<p><em>name</em> nfo.txt</p>
-<blockquote>
-<p><strong>string name:</strong> Scene Name<br />
-<strong>float[2] frame_range:</strong> Start Frame, End Frame<br />
-<strong>float fps:</strong> Scene FPS<br />
-<strong>float[3] scale:</strong> Scene scale<br />
-<strong>BBox bbox:</strong> Scene BBox  </p>
-</blockquote>
+<p><strong><em>name</em> .txt</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bool</td>
+<td>has_shadowvolume</td>
+<td>Does this .msh have a shadowvolume (SHDW)?</td>
+</tr>
+</tbody>
+</table>
+<p><strong><em>name</em> nfo.txt</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>string</td>
+<td>name</td>
+<td>Scene Name.</td>
+</tr>
+<tr>
+<td>float[2]</td>
+<td>frame_range</td>
+<td>Start Frame, End Frame.</td>
+</tr>
+<tr>
+<td>float</td>
+<td>fps</td>
+<td>Scene FPS.</td>
+</tr>
+<tr>
+<td>float[3]</td>
+<td>scale</td>
+<td>Scene scale.</td>
+</tr>
+<tr>
+<td>BBox</td>
+<td>bbox</td>
+<td>Scene BBox.</td>
+</tr>
+</tbody>
+</table>
 <p>For every Model:<br />
-<em>name</em> mdl <em>model_name</em> .txt</p>
-<blockquote>
-<p><strong>string name:</strong> Model Name<br />
-<strong>string parent:</strong> Parent Name<br />
-<strong>string model_type:</strong> One of the available Model Types<br />
-<strong>int visible:</strong> 1 == visible, 0 == hidden<br />
-<strong>bool collprim:</strong> Is this model a collision primitive?<br />
-<strong>[int, float, float, float] primitive:</strong> Primitive type, value 0, value 1, value 2<br />
-<strong>int num_deformers:</strong> Number of deformers on save, ignored when loading<br />
-<strong>string[] deformers:</strong> Deformer names<br />
-<strong>BBox bbox:</strong> Model BBox<br />
-<strong>Transform transform:</strong> Model Transform  </p>
-</blockquote>
+<strong><em>name</em> mdl <em>model_name</em> .txt</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>string</td>
+<td>name</td>
+<td>Model name.</td>
+</tr>
+<tr>
+<td>string</td>
+<td>parent</td>
+<td>Parent name.</td>
+</tr>
+<tr>
+<td>string</td>
+<td>model_type</td>
+<td>One of the Model Types above.</td>
+</tr>
+<tr>
+<td>int</td>
+<td>visible</td>
+<td>1: visible, 0: hidden.</td>
+</tr>
+<tr>
+<td>bool</td>
+<td>collprim</td>
+<td>Is this model a collision primitive?</td>
+</tr>
+<tr>
+<td>[int, float, float, float]</td>
+<td>primitive</td>
+<td>Primitive type, value 0, value 1, value 2.</td>
+</tr>
+<tr>
+<td>int</td>
+<td>num_deformers</td>
+<td>Number of deformers on save, ignored when loading.</td>
+</tr>
+<tr>
+<td>string[]</td>
+<td>deformers</td>
+<td>Deformer names.</td>
+</tr>
+<tr>
+<td>BBox</td>
+<td>bbox</td>
+<td>Model BBox.</td>
+</tr>
+<tr>
+<td>Transform</td>
+<td>transform</td>
+<td>Model Transform.</td>
+</tr>
+</tbody>
+</table>
 <p>For every segment (SEGM/CLTH/SHDW) in the models geometry:<br />
-<em>name</em> mdl <em>model_name</em> seg <em>#_of_segment</em> .txt</p>
-<blockquote>
-<p><strong>SegmentGeometry:</strong><br />
-<strong>string type:</strong> SegmentGeometry | ShadowGeometry | ClothGeometry<br />
-<strong>string material:</strong> Material name<br />
-<strong>int num_vertices:</strong> Number of vertices on save, ignored when loading<br />
-<strong>Vertex[] vertices:</strong> Segment vertices<br />
-<strong>int num_faces:</strong> Number of faces on save, ignored when loading<br />
-<strong>Face[] faces:</strong> Segment faces  </p>
-<p><strong>ShadowGeometry:</strong><br />
-<strong>string type:</strong> See above<br />
-<strong>int num_positions:</strong> Number of positions on save, ignored when loading<br />
-<strong>float[3][] positions:</strong> Positions, currently only used to store the information<br />
-<strong>int num_faces:</strong> Number of faces on save, ignored when loading<br />
-<strong>Face[] faces:</strong> Faces, currently only used to store the information  </p>
-<p><strong>ClothGeometry:</strong><br />
-<strong>string type:</strong> See above<br />
-<strong>string texture:</strong> Cloth texture<br />
-<strong>int num_vertices:</strong> Number of vertices on save, ignored when loading<br />
-<strong>ClothVertex[] vertices:</strong> Cloth vertices<br />
-<strong>int num_faces:</strong> Number of faces on save, ignored when loading<br />
-<strong>int[2][] stretch:</strong> Stretch constraint value pairs<br />
-<strong>int[2][] cross:</strong> Cross constraint value pairs<br />
-<strong>int[2][] bend:</strong> Bend constraint value pairs<br />
-<strong>ClothCollision[] collisions:</strong> Collisions  </p>
-</blockquote>
+<strong><em>name</em> mdl <em>model_name</em> seg <em>#_of_segment</em> .txt</strong>
+<strong>SegmentGeometry</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>string</td>
+<td>type</td>
+<td>SegmentGeometry / ShadowGeometry / ClothGeometry.</td>
+</tr>
+<tr>
+<td>string</td>
+<td>material</td>
+<td>Material name.</td>
+</tr>
+<tr>
+<td>int</td>
+<td>num_vertices</td>
+<td>Number of vertices on save, ignored when loading.</td>
+</tr>
+<tr>
+<td>Vertex[]</td>
+<td>vertices</td>
+<td>Segment vertices.</td>
+</tr>
+<tr>
+<td>int</td>
+<td>num_faces</td>
+<td>Number of faces on save, ignored when loading.</td>
+</tr>
+<tr>
+<td>Face[]</td>
+<td>faces</td>
+<td>Segment faces.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ShadowGeometry</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>string</td>
+<td>type</td>
+<td>SegmentGeometry / ShadowGeometry / ClothGeometry.</td>
+</tr>
+<tr>
+<td>int</td>
+<td>num_vertices</td>
+<td>Number of vertices on save, ignored when loading.</td>
+</tr>
+<tr>
+<td>float[3][]</td>
+<td>vertices</td>
+<td>Positions, currently only used to store the information.</td>
+</tr>
+<tr>
+<td>int</td>
+<td>num_faces</td>
+<td>Number of faces on save, ignored when loading.</td>
+</tr>
+<tr>
+<td>Face[]</td>
+<td>faces</td>
+<td>Segment faces.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ClothGeometry</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>string</td>
+<td>type</td>
+<td>SegmentGeometry / ShadowGeometry / ClothGeometry.</td>
+</tr>
+<tr>
+<td>string</td>
+<td>texture</td>
+<td>Cloth texture.</td>
+</tr>
+<tr>
+<td>int</td>
+<td>num_vertices</td>
+<td>Number of vertices on save, ignored when loading.</td>
+</tr>
+<tr>
+<td>ClothVertex[]</td>
+<td>vertices</td>
+<td>Segment vertices.</td>
+</tr>
+<tr>
+<td>int</td>
+<td>num_faces</td>
+<td>Number of faces on save, ignored when loading.</td>
+</tr>
+<tr>
+<td>Face[]</td>
+<td>faces</td>
+<td>Segment faces.</td>
+</tr>
+<tr>
+<td>int[2][]</td>
+<td>stretch</td>
+<td>Stretch constraint value pairs.</td>
+</tr>
+<tr>
+<td>int[2][]</td>
+<td>cross</td>
+<td>Cross constraint value pairs.</td>
+</tr>
+<tr>
+<td>int[2][]</td>
+<td>bend</td>
+<td>Bend constraint value pairs.</td>
+</tr>
+<tr>
+<td>ClothCollision[]</td>
+<td>collisions</td>
+<td>Collisions.</td>
+</tr>
+</tbody>
+</table>
 <p>For every Material:<br />
-<em>name</em> mtl <em>material_name</em> .txt</p>
-<blockquote>
-<p><strong>string name:</strong> Material name<br />
-<strong>int index:</strong> Initial index on save, recalculated on load<br />
-<strong>string tex0:</strong> Diffuse texture<br />
-<strong>string tex1:</strong> Special texture 1<br />
-<strong>string tex2:</strong> Special texture 2<br />
-<strong>string tex3:</strong> Special texture 3<br />
-<strong>Flag[8] flags:</strong> [string name, bool active, int enum_value]<br />
-<strong>int render_type:</strong> Render type<br />
-<strong>int data0:</strong> Shader data 0<br />
-<strong>int data1:</strong> Shader data 1<br />
-<strong>Color diffuse:</strong> Diffuse color<br />
-<strong>Color specular:</strong> Specular color<br />
-<strong>Color ambient:</strong> Ambient color<br />
-<strong>float gloss:</strong> Gloss value  </p>
-</blockquote>
+<strong><em>name</em> mtl <em>material_name</em> .txt</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>string</td>
+<td>name</td>
+<td>Material name.</td>
+</tr>
+<tr>
+<td>int</td>
+<td>index</td>
+<td>Initial index on save, recalculated on load.</td>
+</tr>
+<tr>
+<td>string</td>
+<td>tex0</td>
+<td>Diffuse texture.</td>
+</tr>
+<tr>
+<td>string</td>
+<td>tex1</td>
+<td>Special texture 1.</td>
+</tr>
+<tr>
+<td>string</td>
+<td>tex2</td>
+<td>Special texture 2.</td>
+</tr>
+<tr>
+<td>string</td>
+<td>tex3</td>
+<td>Special texture 3.</td>
+</tr>
+<tr>
+<td>Flag[8]</td>
+<td>flags</td>
+<td>[string name, bool active, int enum_value].</td>
+</tr>
+<tr>
+<td>int</td>
+<td>render_type</td>
+<td>Render type.</td>
+</tr>
+<tr>
+<td>int</td>
+<td>data0</td>
+<td>Shader data 0.</td>
+</tr>
+<tr>
+<td>int</td>
+<td>data1</td>
+<td>Shader data 1.</td>
+</tr>
+<tr>
+<td>Color</td>
+<td>diffuse</td>
+<td>Diffuse color.</td>
+</tr>
+<tr>
+<td>Color</td>
+<td>specular</td>
+<td>Specular color.</td>
+</tr>
+<tr>
+<td>Color</td>
+<td>ambient</td>
+<td>Ambient color.</td>
+</tr>
+<tr>
+<td>float</td>
+<td>gloss</td>
+<td>Gloss value.</td>
+</tr>
+</tbody>
+</table>
 <h3>Structs</h3>
-<p><strong>BBox</strong>  </p>
-<blockquote>
-<p><strong>float[3] rotation:</strong> Rotation in degrees<br />
-<strong>float[3] extents:</strong> BBox extents<br />
-<strong>float[3] center:</strong> BBox center<br />
-<strong>float radius:</strong> BBox radius  </p>
-</blockquote>
-<p><strong>Transform</strong>  </p>
-<blockquote>
-<p><strong>float[3] rotation:</strong> Rotation in degrees<br />
-<strong>float[3] position:</strong> Position<br />
-<strong>float[3] sacle:</strong> Scale  </p>
-</blockquote>
-<p><strong>Color</strong>  </p>
-<blockquote>
-<p><strong>float[4] rgba:</strong> Channel values (0.0 to 1.0)<br />
-OR<br />
-<strong>int[4] rgba:</strong> Channel values (0 to 255)  </p>
-</blockquote>
-<p><strong>Vertex</strong>  </p>
-<blockquote>
-<p><strong>float[3] position:</strong> Position in world space<br />
-<strong>float[2] uv:</strong> UV coordinate<br />
-<strong>float[3] normal:</strong> Vertex normal<br />
-<strong>string[4] deformers:</strong> Deformers for this vertex<br />
-<strong>float[4] weights:</strong> Weights for the corresponding deformer<br />
-<strong>Color color:</strong> Vertex color  </p>
-</blockquote>
-<p><strong>Face</strong>  </p>
-<blockquote>
-<p><strong>int[] vertices:</strong> Indices to the vertices forming this polygon  </p>
-</blockquote>
-<p><strong>ClothVertex</strong>  </p>
-<blockquote>
-<p><strong>float[3] position:</strong> Position in world space<br />
-<strong>float[2] uv:</strong> UV coordinate<br />
-<strong>string deformer:</strong> Joint this point moves with<br />
-<strong>bool is_fixed:</strong> If true, does not get simulated and moves with deformer (if it exists)  </p>
-</blockquote>
-<p><strong>ClothCollision</strong>  </p>
-<blockquote>
-<p><strong>string name:</strong> Collision name<br />
-<strong>string parent:</strong> Parent of the collision object<br />
-<strong>int unknown_long:</strong> Unknown purpose<br />
-<strong>float[3] collision_primitive:</strong> [value 0, value 1, value 2]  </p>
-</blockquote>
+<p><strong>BBox</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>float[3]</td>
+<td>rotation</td>
+<td>Rotation in degrees.</td>
+</tr>
+<tr>
+<td>float[3]</td>
+<td>extents</td>
+<td>BBox extents.</td>
+</tr>
+<tr>
+<td>float[3]</td>
+<td>center</td>
+<td>BBox center.</td>
+</tr>
+<tr>
+<td>float</td>
+<td>radius</td>
+<td>BBox radius.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Transform</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>float[3]</td>
+<td>rotation</td>
+<td>Rotation in degrees.</td>
+</tr>
+<tr>
+<td>float[3]</td>
+<td>extents</td>
+<td>Position.</td>
+</tr>
+<tr>
+<td>float[3]</td>
+<td>center</td>
+<td>Scale.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Color</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>float[4]</td>
+<td>rgba</td>
+<td>Channel values (0.0 to 1.0).</td>
+</tr>
+</tbody>
+</table>
+<p>OR</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>int[4]</td>
+<td>rgba</td>
+<td>Channel values (0 to 255).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Vertex</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>float[3]</td>
+<td>position</td>
+<td>Position in world space.</td>
+</tr>
+<tr>
+<td>float[2]</td>
+<td>uv</td>
+<td>UV coordinate.</td>
+</tr>
+<tr>
+<td>float[3]</td>
+<td>normal</td>
+<td>Vertex normal.</td>
+</tr>
+<tr>
+<td>string[4]</td>
+<td>deformers</td>
+<td>Deformers for this vertex.</td>
+</tr>
+<tr>
+<td>float[4]</td>
+<td>weights</td>
+<td>Weights for the corresponding deformer.</td>
+</tr>
+<tr>
+<td>Color</td>
+<td>color</td>
+<td>Vertex color.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Face</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>float[]</td>
+<td>vertices</td>
+<td>Indices to the vertices forming this polygon.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ClothVertex</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>float[3]</td>
+<td>position</td>
+<td>Position in world space.</td>
+</tr>
+<tr>
+<td>float[3]</td>
+<td>uv</td>
+<td>UV coordinate.</td>
+</tr>
+<tr>
+<td>string</td>
+<td>deformer</td>
+<td>Joint this point moves with.</td>
+</tr>
+<tr>
+<td>bool</td>
+<td>is_fixed</td>
+<td>If true, does not get simulated and moves with deformer (if it exists).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ClothCollision</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>string</td>
+<td>name</td>
+<td>Collision name.</td>
+</tr>
+<tr>
+<td>string</td>
+<td>parent</td>
+<td>Parent of the collision object.</td>
+</tr>
+<tr>
+<td>int</td>
+<td>unknown_long</td>
+<td>Unknown purpose.</td>
+</tr>
+<tr>
+<td>float[3]</td>
+<td>collision_primitive</td>
+<td>[value 0, value 1, value 2].</td>
+</tr>
+</tbody>
+</table>
 				
 		<a class="toggle_collapse_end" content-id="msh2txt_content" id="msh2txt_content_end">Collapse</a>
 	
@@ -554,159 +1027,5 @@ I assume you use the Current frame as Basepose way. Now the preparation is finis
 </div>
 		
 		</div>
-		<script type="text/javascript">
-			window.onload = function() {
-				function shadeBlend(p,c0,c1) {
-    var n=p<0?p*-1:p,u=Math.round,w=parseInt;
-    if(c0.length>7){
-        var f=c0.split(","),t=(c1?c1:p<0?"rgb(0,0,0)":"rgb(255,255,255)").split(","),R=w(f[0].slice(4)),G=w(f[1]),B=w(f[2]);
-        return "rgb("+(u((w(t[0].slice(4))-R)*n)+R)+","+(u((w(t[1])-G)*n)+G)+","+(u((w(t[2])-B)*n)+B)+")"
-    }else{
-        var f=w(c0.slice(1),16),t=w((c1?c1:p<0?"#000000":"#FFFFFF").slice(1),16),R1=f>>16,G1=f>>8&0x00FF,B1=f&0x0000FF;
-        return "#"+(0x1000000+(u(((t>>16)-R1)*n)+R1)*0x10000+(u(((t>>8&0x00FF)-G1)*n)+G1)*0x100+(u(((t&0x0000FF)-B1)*n)+B1)).toString(16).slice(1)
-    }
-}
-
-var colors = [
-    "#ff7676", // reddish
-    // "#8d76ff", // darker violet
-    // "#d77f64", // orange
-    "#919ddb", // brighter blue
-    "#6AAF6A", // green
-];
-
-// Choose random hover color for all elments.
-var box_hover_color = colors[Math.floor(Math.random() * colors.length)];
-
-var box_darkened_color = shadeBlend(-0.3, box_hover_color);
-
-var box_brightened_color = shadeBlend(0.5, box_hover_color);
-
-var box_normal_color = "#252525";
-
-// I LOVE HACKS FeelsGoodMan
-var theme_map = {
-    "rgb(255, 255, 255)": "bright",
-    "rgb(0, 0, 0)": "dark",
-};
-
-var bg_color = $("head").css("background-color");
-var theme = theme_map[bg_color];
-
-var link_color_map_hover = {
-    "bright": box_darkened_color,
-    "dark": box_brightened_color,
-};
-
-$("div.content a").css({"color": box_hover_color, "border-bottom": "1px dotted " + box_hover_color});
-$("div.content a").hover(
-	function() {
-		$(this).css({"color": link_color_map_hover[theme],
-					"border-bottom": "1px solid " + link_color_map_hover[theme]});
-	},
-	function() {
-		$(this).css({"color": box_hover_color,
-					"border-bottom": "1px dotted " + box_hover_color,
-					"text-decoration": "none"});
-	});
-
-				function slideToggleContent(id) {
-    if (id.substr(0, 1) != "#") {
-        id = "#" + id;
-    }
-    var content = id + "_content";
-
-    $(content).slideToggle(250, function () {
-        $(content + "_start").text(function () {
-            return $(content).is(":visible") ? "Collapse" : "Expand";
-        })
-    });
-}
-
-function showContent(id) {
-    if (id.substr(0, 1) != "#") {
-        id = "#" + id;
-    }
-    var content = id + "_content";
-    if ($(content).is(":visible")) {
-        return;
-    }
-    $(content).slideToggle(250, function () {
-        $(content + "_start").text(function () {
-            return $(content).is(":visible") ? "Collapse" : "Expand";
-        })
-    });
-}
-
-$("a.toggle_collapse").click(function () {
-    var header = $(this);
-    var content = $("#" + $(this).attr("content-id"));
-
-    $(content).slideToggle(250, function () {
-
-        header.text(function () {
-
-            return $(content).is(":visible") ? "Collapse" : "Expand";
-        });
-    });
-
-});
-
-$("a.toggle_collapse_end").click(function () {
-    var header = $(this);
-    var content_text = "#" + $(this).attr("content-id");
-    var content = $("#" + $(this).attr("content-id"));
-
-    $(content).slideToggle(250, function () {
-        $(content_text + "_start").text(function () {
-            return $(content).is(":visible") ? "Collapse" : "Expand";
-        })
-    });
-
-});
-
-$("a.toggle_collapse").each(function () {
-    var header = $(this);
-    var content = $("#" + $(this).attr("content-id"));
-
-    if ($(this).attr("starts-collapsed") == "True") {
-        $(content).slideToggle(0, function () {
-
-            header.text(function () {
-
-                return $(content).is(":visible") ? "Collapse" : "Expand";
-            });
-        });
-    }
-});
-
-
-$("a.rectangle_button").click(function() {
-    var id = $(this).attr("href");
-    showContent(id);
-});
-
-
-$("a.rectangle_button").hover(
-    function() {
-        $(this).children("indent-child").css("visibility", "hidden");
-    },
-    function() {
-        $(this).children("indent-child").css("visibility", "visible");
-    }
-);
-
-
-$(document).ready(function () {
-    var parts = window.location.href.split("#");
-    if(parts.length > 1) {
-       var id = parts[ parts.length-1 ];
-       showContent(id);
-    }
-});
-
-				$("div .sidebar").css("background-color", box_hover_color);
-			};
-		</script>
 	</body>
 </html>
