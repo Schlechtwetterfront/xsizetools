@@ -28,9 +28,13 @@
 		<category_label>Downloads</category_label><br>
 		
 		
-	        <a class="rectangle-button rectangle-button-semi" href="https://github.com/Schlechtwetterfront/xsizetools/releases">Releases</a>
+	        
+		<a class="rectangle-button rectangle-button-semi" href="https://github.com/Schlechtwetterfront/xsizetools/releases">Releases</a>
+	
 	    
-	        <a class="rectangle-button rectangle-button-semi" href="http://schlechtwetterfront.github.io/xsizetools/XSIZETools_src.7z">C++ Source (deprecated)</a>
+	        
+		<a class="rectangle-button rectangle-button-semi" href="http://schlechtwetterfront.github.io/xsizetools/XSIZETools_src.7z">C++ Source (deprecated)</a>
+	
 	    
 	    
 	    <!-- <div class="hr-sidebar-dark"></div> -->
@@ -38,13 +42,21 @@
 		<category_label>Navigation</category_label><br>
 		
 		
-	        <a class="rectangle-button rectangle-button-semi" href="#overview">Overview</a>
+	        
+		<a class="rectangle-button rectangle-button-semi" href="#overview">Overview</a>
+	
 	    
-	        <a class="rectangle-button rectangle-button-semi" href="#download_installation">Download & Installation</a>
+	        
+		<a class="rectangle-button rectangle-button-semi" href="#download_installation">Download & Installation</a>
+	
 	    
-	        <a class="rectangle-button rectangle-button-semi" href="#contributors">Contributors</a>
+	        
+		<a class="rectangle-button rectangle-button-semi" href="#contributors">Contributors</a>
+	
 	    
-	        <a class="rectangle-button rectangle-button-semi" href="http://schlechtwetterfront.github.io/">Personal Homepage</a>
+	        
+		<a class="rectangle-button rectangle-button-semi" href="http://schlechtwetterfront.github.io/">Homepage</a>
+	
 	    
 	    
 	    <!-- <div class="hr-sidebar-dark"></div> -->
@@ -52,11 +64,17 @@
 		<category_label>Guidelines</category_label><br>
 		
 		
-	        <a class="rectangle-button rectangle-button-semi" href="#export-guidelines">Export</a>
+	        
+		<a class="rectangle-button rectangle-button-semi" href="#export-guidelines">Export</a>
+	
 	    
-	        <a class="rectangle-button rectangle-button-semi" href="#import-guidelines">Import</a>
+	        
+		<a class="rectangle-button rectangle-button-semi" href="#import-guidelines">Import</a>
+	
 	    
-	        <a class="rectangle-button rectangle-button-semi" href="#cloth-guidelines">Cloth</a>
+	        
+		<a class="rectangle-button rectangle-button-semi" href="#cloth-guidelines">Cloth</a>
+	
 	    
 	    
 	    <!-- <div class="hr-sidebar-dark"></div> -->
@@ -64,17 +82,29 @@
 		<category_label>Documentation</category_label><br>
 		
 		
-	        <a class="rectangle-button rectangle-button-semi" href="#scripts">Scripts</a>
+	        
+		<a class="rectangle-button rectangle-button-semi" href="#scripts">Scripts</a>
+	
 	    
-	        <a class="rectangle-button rectangle-button-semi" href="#export-docs">.msh Export</a>
+	        
+		<a class="rectangle-button rectangle-button-semi" href="#export-docs">.msh Export</a>
+	
 	    
-	        <a class="rectangle-button rectangle-button-semi" href="#import-docs">.msh Import</a>
+	        
+		<a class="rectangle-button rectangle-button-semi" href="#import-docs">.msh Import</a>
+	
 	    
-	        <a class="rectangle-button rectangle-button-semi" href="#material-docs">Material Manager</a>
+	        
+		<a class="rectangle-button rectangle-button-semi" href="#material-docs">Material Manager</a>
+	
 	    
-	        <a class="rectangle-button rectangle-button-semi" href="#msh2txt">MSH 2 TXT</a>
+	        
+		<a class="rectangle-button rectangle-button-semi" href="#msh2txt">MSH 2 TXT</a>
+	
 	    
-	        <a class="rectangle-button rectangle-button-semi" href="#animation-export">Animation Export</a>
+	        
+		<a class="rectangle-button rectangle-button-semi" href="#animation-export">Animation Export</a>
+	
 	    
 	    
 	    <!-- <div class="hr-sidebar-dark"></div> -->
@@ -82,9 +112,13 @@
 		<category_label>Other Resources</category_label><br>
 		
 		
-	        <a class="rectangle-button rectangle-button-semi" href="https://github.com/Schlechtwetterfront/xsizetools">View on GitHub</a>
+	        
+		<a class="rectangle-button rectangle-button-semi" href="https://github.com/Schlechtwetterfront/xsizetools">View on GitHub</a>
+	
 	    
-	        <a class="rectangle-button rectangle-button-semi" href="http://gametoast.com/viewtopic.php?f=36&t=26664">View Thread on GameToast</a>
+	        
+		<a class="rectangle-button rectangle-button-semi" href="http://gametoast.com/viewtopic.php?f=36&t=26664">View Thread on GameToast</a>
+	
 	    
 	    
 	    <!-- <div class="hr-sidebar-dark"></div> -->
@@ -191,7 +225,6 @@ Provided a tool/material for some additional research</p>
 <li><strong>Supported Model Types:</strong> The supported model types are: poly mesh, null, bone.</li>
 <li><strong>UV:</strong> Only apply one 'master' UV projection to a object. All subsequent projections should be Sub-projections.</li>
 <li><strong>Collision:</strong> Collision meshes can be created by naming the model <em>collision_*</em> or <em>*_collision</em>.</li>
-<li><strong>Collision:</strong> For XSI ZETools to recognize collision primitives the name needs to contain the type of primitive (cube, cylinder, sphere).</li>
 <li><strong>Collision:</strong> Do not freeze any primitives, freezing will remove essential information.</li>
 <li><strong>Animation:</strong> It's not important how you animate bones (FK or IK etc), the exporter will go through all frames one-by-one and get the current local transforms of every bone.</li>
 <li><strong>Always apply the envelope to ALL bones.</strong> This might slow your workflow down but it ensures the points are weighted to the correct bone after export.</li>
@@ -242,6 +275,7 @@ Provided a tool/material for some additional research</p>
 				<ul>
 <li><strong>Geometry:</strong> Try to avoid triangles in the cloth mesh. There's a high change triangles might produce artifacts in the cloth simulation.</li>
 <li><strong>UV/Cloth Splits:</strong> Cloth will be split along UV seams, so UV accordingly.</li>
+<li><strong>Collision:</strong> For ZETools to recognize cloth collision primitives the name needs to start with "c_".</li>
 <li><strong>Error Reporting:</strong> If you have problems with cloth simulation artifacts, provide a screenshot from the debug SWBF.exe with "render_cloth_connections" enabled via the console.</li>
 </ul>
 				
@@ -994,8 +1028,8 @@ with the primitive(maybe dummyroot). Sereja got his animation into SWBF1 by usin
 <p>STEP 1. <strong>Placeable model for ZeroEditor.</strong> Export the model which will be called in the odf and placed in ZE. To do this move the frame cursor to the first frame of your
 animation(usually 1, it's not important what the frame range is[ie 0 to 100]).Then select your root, uncheck Export Animation and export. .MSH File: stuff_door.msh</p>
 <blockquote>
-<p><img alt="Image" src="to_be_placed.jpg" />
-<strong>Animation preparation.</strong> To cut down on possible problems you can now drag'n'drop all object which are not a part of
+<p><img alt="Image" src="to_be_placed.jpg" /></p>
+<p><strong>Animation preparation.</strong> To cut down on possible problems you can now drag'n'drop all object which are not a part of
 the skeleton(collisions, meshes, shadows) out of your current hierarchy.
 Best way to do this is select them all and drag'n'drop them onto Scene_Root. In my example I only move out thing_(that's the model with Stuff painted on it).
 You can move out hard points, too. Animations don't need this as basepose and open/whatever you called your animation will end up in .zafbin/.zaabin
