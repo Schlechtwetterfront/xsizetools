@@ -28,7 +28,7 @@ def add_cloth_property(model):
     arow()
     # button('pick_coll', 'Pick Collisions')
     button('add_coll', 'Add from Selection')
-    button('select_coll', 'Select')
+    button('select_coll', 'Add to Selection')
     button('remove_coll', 'Clear')
     erow()
     egr()

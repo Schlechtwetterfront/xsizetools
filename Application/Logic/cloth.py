@@ -75,6 +75,9 @@ def select_coll_OnClicked():
 
 
 def remove_fixed(ppg):
+    if not ppg.Parent.ActivePrimitive.GetGeometry2(0):
+        return
+
     fixed = get_fixed_cluster(ppg.Parent)
     if fixed:
         xsi.DeleteObj(fixed)

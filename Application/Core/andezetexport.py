@@ -174,12 +174,12 @@ class ModelConverter(softimage.SIModel):
         return False
 
     def is_collprim(self):
-        if self.si_model.Name.startswith('p_'):
+        if self.si_model.Name.lower().startswith('p_'):
             return True
         return False
 
     def is_cloth_collprim(self):
-        if self.si_model.Name.startswith('c_'):
+        if self.si_model.Name.lower().startswith('c_'):
             return True
         return False
 
@@ -437,30 +437,25 @@ class ModelConverter(softimage.SIModel):
             parent_transform = sm.Parent.Kinematics.Local.Transform
         else:
             parent_transform = self.export.xsi.ActiveSceneRoot.Kinematics.Local.Transform
-        prim_type = None
-        for prop in self.si_model.Properties:
-                if 'collprim' in prop.FullName:
-                    prim_type = prop.Parameters('type').Value
-        if 'cube' in sm.Name or prim_type == 4:
-            # Half the values (only the 'extents' are stored, not the exact length).
-            mm.primitive = (4,
-                            sm.length.Value * mm.transform.scale[0] * 0.5 * parent_transform.SclX,
-                            sm.length.Value * mm.transform.scale[1] * 0.5 * parent_transform.SclY,
-                            sm.length.Value * mm.transform.scale[2] * 0.5 * parent_transform.SclZ)
-        elif 'cyl' in sm.Name or prim_type == 2:
-            mm.primitive = (2,
-                            sm.radius.Value,
-                            sm.height.Value,
-                            0)
-        elif 'sphere' in sm.Name or prim_type == 0:
-            mm.primitive = (0,
-                            sm.radius.Value,
-                            0,
-                            0)
-        else:
-            self.msh2_model.collprim = False
-            self.export.notify('{0} missing primitive type name(cube, cyl, sphere) and no Collision Primitive property exists.'.format(sm.Name))
-            return
+
+        try:
+            radius = self.export.xsi.GetValue('{0}.polymsh.geom.sphere.radius'.format(sm.Name))
+            mm.primitive = (0, radius, radius, radius)
+        except com_error as e1:
+            try:
+                radius = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.radius'.format(sm.Name))
+                height = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.height'.format(sm.Name))
+                mm.primitive = (2, radius, height, 0)
+            except com_error as e2:
+                try:
+                    length = self.export.xsi.GetValue('{0}.polymsh.geom.cube.length'.format(sm.Name))
+                    mm.primitive = (4, length * mm.transform.scale[0] * .5 * parent_transform.SclX,
+                                       length * mm.transform.scale[1] * .5 * parent_transform.SclY,
+                                       length * mm.transform.scale[2] * .5 * parent_transform.SclZ)
+                except com_error as e3:
+                    self.msh2_model.cloth_collprim = False
+                    self.export.notify('Could not find valid Primitive (sphere/cube/cylinder) for Collision Primitive "{0}".'.format(sm.Name))
+                    return
         mm.transform.scale = 1.0, 1.0, 1.0
 
     def get_fixed(self):
@@ -539,6 +534,8 @@ class ModelConverter(softimage.SIModel):
                 collision_names = ps.Parameters('collisions').Value.encode(STR_CODEC).split(',')
                 break
         for collision_name in collision_names:
+            if not collision_name.lower().startswith('c_'):
+                self.export.abort('Cloth collision names should start with "c_" ({0}).'.format(collision_name))
             collision = msh2.ClothCollision(geo)
             collision.name = collision_name.encode(STR_CODEC)
             collision.parent = self.export.xsi.Dictionary.GetObject(collision_name, False).Parent.Name.encode(STR_CODEC)
@@ -580,8 +577,9 @@ class ModelConverter(softimage.SIModel):
             logging.info('Is cloth.')
             self.msh2_model.segments = None
             self.msh2_model.segments = self.get_cloth()
-            self.msh2_model.deformers = self.get_deformers()
-            self.export.add_deformers(self.msh2_model.deformers)
+            if self.is_weighted():
+                self.msh2_model.deformers = self.get_deformers()
+                self.export.add_deformers(self.msh2_model.deformers)
         if self.msh2_model.model_type == 'geodynamic':
             logging.info('Is geodynamic.')
             self.msh2_model.deformers = self.get_deformers()
