@@ -89,7 +89,7 @@ class AnimationConverter(softimage.SIScene):
            bone.sclx.IsAnimated() or \
            bone.scly.IsAnimated() or \
            bone.sclz.IsAnimated():
-           return True
+            return True
         return False
 
     def convert(self):
@@ -220,7 +220,8 @@ class ModelConverter(softimage.SIModel):
         elif model.Type == 'Texture Support':
             self.export.dontexport.append(model.Name)
             return 'null'
-            self.export.abort('{0}, type: {1}'.format(model.Name, model.Type))
+        else:
+            self.export.abort('Object "{0}" has unsupported model type "{1}".'.format(model.Name, model.Type))
 
     def get_vertices(self):
         '''Creates a Vertex Collection and fills it with normals and positions,
@@ -271,7 +272,7 @@ class ModelConverter(softimage.SIModel):
     def get_weights(self):
         '''Gets weights and deformers, returns a list of four weight value
         tuples and four deformer names tuples.'''
-        nothing, weight_list, def_list = self.export.xsi.CGA_GetWeightsZE(self.geo)
+        _, weight_list, def_list = self.export.xsi.CGA_GetWeightsZE(self.geo)
         # Nodes per point: point 0: node_index, point 1: node_index etc...
         nodes_per_point = self.export.xsi.CGA_GetNodesPerPoint(self.geo)
         # Temporary lists.
@@ -439,8 +440,8 @@ class ModelConverter(softimage.SIModel):
             parent_transform = self.export.xsi.ActiveSceneRoot.Kinematics.Local.Transform
         prim_type = None
         for prop in self.si_model.Properties:
-                if 'collprim' in prop.FullName:
-                    prim_type = prop.Parameters('type').Value
+            if 'collprim' in prop.FullName:
+                prim_type = prop.Parameters('type').Value
         if 'cube' in sm.Name or prim_type == 4:
             # Half the values (only the 'extents' are stored, not the exact length).
             mm.primitive = (4,
@@ -769,7 +770,7 @@ class Export(softimage.SIGeneral):
         if text:
             self.msg('Export aborted:\n{0}.'.format(text))
             sys.exit()
-        self.msg('Export aborted')
+        self.msg('Export aborted.')
         sys.exit()
 
     def check_filepath(self):

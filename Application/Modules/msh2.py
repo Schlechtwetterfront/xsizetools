@@ -1739,8 +1739,8 @@ class FaceCollection(object):
             num += len(facetris)
             data.extend(facetris)
         # Number of tris * number of points * size of float + size indicator size.
-        data[1] = struct.pack('<L', len(self.faces) * 3 * 4 + 4)
-        data[2] = struct.pack('<L', len(self.faces))
+        data[1] = struct.pack('<L', num * 3 * 4 + 4)
+        data[2] = struct.pack('<L', num)
         return ''.join(data)
 
     def stretch_edges(self):
