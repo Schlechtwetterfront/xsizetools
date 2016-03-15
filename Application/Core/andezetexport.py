@@ -37,6 +37,7 @@ STR_CODEC = 'utf-8'
 
 
 class BoneConverter(object):
+    '''Converts an animated object to a msh2 bone.'''
     def __init__(self, si_mdl, anim, is_basepose):
         self.anim = anim
         self.mdl = si_mdl
@@ -44,6 +45,7 @@ class BoneConverter(object):
         self.is_basepose = is_basepose
 
     def convert(self):
+        '''Gathers animation data for a bone.'''
         self.bone.name = self.mdl.Name.encode(STR_CODEC)
         self.bone.recrc()
         pos = []
@@ -74,6 +76,7 @@ class BoneConverter(object):
 
 
 class AnimationConverter(softimage.SIScene):
+    '''Gathers animation for all objects and converts it into msh2 animation.'''
     def __init__(self, export):
         self.export = export
         self.anim = msh2.Animation(self.export.msh)
@@ -93,6 +96,7 @@ class AnimationConverter(softimage.SIScene):
         return False
 
     def convert(self):
+        '''Gathers animation data for all animated objects.'''
         self.export.pb.set(1, 'Preparing Animation...')
         cycle = msh2.Cycle(self.anim)
         pc = self.get_playcontrol()
@@ -109,7 +113,7 @@ class AnimationConverter(softimage.SIScene):
                                                                 nummodels))
             # Originally this was used but it also reported constrained objects as animated: model.IsNodeAnimated()
             if self.is_animated(model):
-                logging.info('Processing bone "{0}".'.format(model.Name))
+                logging.info('Processing bone "%s".', model.Name)
                 boneconv = BoneConverter(model, self, basepose)
                 bonecoll.add(boneconv.convert())
                 logging.info('Finished processing bone.')
@@ -122,11 +126,14 @@ class AnimationConverter(softimage.SIScene):
 
 
 class SceneInfoConverter(softimage.SIScene):
+    '''Converts general scene information into msh2 scene information.'''
     def __init__(self, export):
         self.export = export
+        self.parent = None
         self.sinfo = msh2.SceneInfo(self.export.msh)
 
     def calculate_global_bbox(self):
+        '''Calculates a global bounding box for all objects.'''
         from math import sqrt
         # GetBBox returns XYZ coordinates for the lower and upper bounds of
         # the bounding box.
@@ -147,6 +154,7 @@ class SceneInfoConverter(softimage.SIScene):
         self.sinfo.bbox.center = cx, cy, cz
 
     def convert(self):
+        '''Gathers the scene information.'''
         self.sinfo.name = self.get_name().encode(STR_CODEC) + '_ZETExported'
         # get the playcontrol object which contains frame range and fps.
         playcontrol = self.get_playcontrol()
@@ -171,24 +179,29 @@ class ModelConverter(softimage.SIModel):
             self.convert()
 
     def is_shadow(self):
+        '''Checks if this model is a shadow mesh.'''
         return False
 
     def is_collprim(self):
+        '''Checks if this model is a collision primitive.'''
         if self.si_model.Name.lower().startswith('p_'):
             return True
         return False
 
     def is_cloth_collprim(self):
+        '''Checks if this model is a cloth collision primitive.'''
         if self.si_model.Name.lower().startswith('c_'):
             return True
         return False
 
     def is_cloth(self):
+        '''Checks if this model is a simulated cloth.'''
         if self.get_cloth_prop():
             return True
         return False
 
     def get_cloth_prop(self):
+        '''Gets the cloth property of this model.'''
         for prop in self.si_model.Properties:
             if 'zecloth' in prop.Name.lower():
                 return prop
@@ -237,7 +250,7 @@ class ModelConverter(softimage.SIModel):
             normal = normals_list[n], normals_list[n + 1], normals_list[n + 2]
             n += 3
             coll.add(msh2.Vertex(coord, normal))
-        logging.info('Processed {0} vertices.'.format(len(coll)))
+        logging.info('Processed %s vertices.', len(coll))
         self.export.stats.verts += len(coll)
         return coll
 
@@ -312,7 +325,8 @@ class ModelConverter(softimage.SIModel):
         return weights_list, deformer_list, index_list
 
     def get_deformers(self):
-        n1, n2, deformers = self.export.xsi.CGA_GetWeightsZE(self.geo)
+        '''Gets a lost fof all deformers for this model.'''
+        _, _, deformers = self.export.xsi.CGA_GetWeightsZE(self.geo)
         return [deformer.encode(STR_CODEC) for deformer in deformers]
 
     def get_faces(self):
@@ -337,7 +351,7 @@ class ModelConverter(softimage.SIModel):
                 face.vertices[3] = p2
             fc += el
             coll.add(face)
-        logging.info('Processed {0} faces.'.format(len(coll)))
+        logging.info('Processed %s faces.', len(coll))
         self.export.stats.faces += len(coll)
         return coll
 
@@ -362,6 +376,7 @@ class ModelConverter(softimage.SIModel):
         return seg
 
     def clear_multiverts(self, collection):
+        '''Removes vertices that have the same position, normals and UVs.'''
         for segment in collection:
             self.export.xsi.LogMessage('One Segment.')
             if isinstance(segment, msh2.SegmentGeometry):
@@ -394,6 +409,7 @@ class ModelConverter(softimage.SIModel):
         return coll
 
     def process_bbox(self):
+        '''Calculates a bounding box for this model.'''
         bbox = self.geo.GetBoundingBox(self.si_model.Kinematics.Local.Transform)
         bsphere = self.geo.GetBoundingSphere(const.siVolumeCenterMethodBBoxCenter,
                                              self.si_model.Kinematics.Local.Transform)
@@ -404,33 +420,31 @@ class ModelConverter(softimage.SIModel):
         self.msh2_model.bbox.radius = bsphere[3]
 
     def process_c_collision_primitive(self):
+        '''Processes cloth collision primitive data for this model.'''
         self.msh2_model.cloth_collprim = True
 
         sm = self.si_model
         mm = self.msh2_model
-        if sm.Parent:
-            parent_transform = sm.Parent.Kinematics.Local.Transform
-        else:
-            parent_transform = self.export.xsi.ActiveSceneRoot.Kinematics.Local.Transform
         try:
             radius = self.export.xsi.GetValue('{0}.polymsh.geom.sphere.radius'.format(sm.Name)) * mm.transform.scale[0]
             mm.primitive = (0, radius, radius, radius)
-        except com_error as e1:
+        except com_error:
             try:
                 radius = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.radius'.format(sm.Name)) * mm.transform.scale[0]
                 height = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.height'.format(sm.Name)) * mm.transform.scale[0]
                 mm.primitive = (1, radius, height, 0)
-            except com_error as e2:
+            except com_error:
                 try:
                     length = self.export.xsi.GetValue('{0}.polymsh.geom.cube.length'.format(sm.Name))
                     mm.primitive = (2, length * mm.transform.scale[0] * .5, length * mm.transform.scale[1] * .5, length * mm.transform.scale[2] * .5)
-                except com_error as e3:
+                except com_error:
                     self.msh2_model.cloth_collprim = False
                     self.export.notify('Could not find valid Primitive (sphere/cube/cylinder) for Cloth Collision Primitive "{0}".'.format(sm.Name))
                     return
         mm.transform.scale = 1.0, 1.0, 1.0
 
     def process_collision_prim(self):
+        '''Processes collision primitive data for this model.'''
         self.msh2_model.collprim = True
         sm = self.si_model
         mm = self.msh2_model
@@ -441,30 +455,32 @@ class ModelConverter(softimage.SIModel):
         try:
             radius = self.export.xsi.GetValue('{0}.polymsh.geom.sphere.radius'.format(sm.Name))
             mm.primitive = (0, radius, radius, radius)
-        except com_error as e1:
+        except com_error:
             try:
                 radius = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.radius'.format(sm.Name))
                 height = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.height'.format(sm.Name))
                 mm.primitive = (2, radius, height, 0)
-            except com_error as e2:
+            except com_error:
                 try:
                     length = self.export.xsi.GetValue('{0}.polymsh.geom.cube.length'.format(sm.Name))
                     mm.primitive = (4, length * mm.transform.scale[0] * .5 * parent_transform.SclX,
                                        length * mm.transform.scale[1] * .5 * parent_transform.SclY,
                                        length * mm.transform.scale[2] * .5 * parent_transform.SclZ)
-                except com_error as e3:
+                except com_error:
                     self.msh2_model.cloth_collprim = False
                     self.export.notify('Could not find valid Primitive (sphere/cube/cylinder) for Collision Primitive "{0}".'.format(sm.Name))
                     return
         mm.transform.scale = 1.0, 1.0, 1.0
 
     def get_fixed(self):
+        '''Get the elements of the fixed points cluster.'''
         for cls in self.geo.Clusters:
             if 'ZEFixed' in cls.Name:
                 return cls.Elements.Array
         return []
 
     def get_cloth_weights(self):
+        '''Get weights for all fixed points.'''
         for cls in self.geo.Clusters.Filter('pnt'):
             for prop in cls.Properties:
                 if prop.Type == 'envweights':
@@ -478,6 +494,7 @@ class ModelConverter(softimage.SIModel):
         return ret_weights
 
     def get_cloth_deformers(self):
+        '''Get all deformers for cloth.'''
         env = self.si_model.Envelopes(0)
         defs = []
         for deformer in env.Deformers:
@@ -485,6 +502,7 @@ class ModelConverter(softimage.SIModel):
         return defs
 
     def get_cloth_geo(self):
+        '''Gather the geometry for cloth.'''
         facecoll = msh2.FaceCollection()
         vertcoll = msh2.ClothVertexCollection()
         uvs = self.get_uvs()
@@ -500,7 +518,7 @@ class ModelConverter(softimage.SIModel):
         if self.is_weighted():
             weights = self.get_cloth_weights()
             deformers = self.get_cloth_deformers()
-            logging.info('Retrieved cloth deformers: {0}'.format(deformers))
+            logging.info('Retrieved cloth deformers: %s (%s)', deformers, len(deformers))
         facets = self.geo.Facets
         for facet in facets:
             pnts = facet.Points
@@ -508,25 +526,27 @@ class ModelConverter(softimage.SIModel):
             for pnt in pnts:
                 face.add(pnt.Index)
             facecoll.add(face)
-        logging.info('Processed {0} faces.'.format(len(facecoll)))
+        logging.info('Processed %s faces.', len(facecoll))
         for pnt in self.geo.Points:
             vert = msh2.ClothVertex((pnt.Position.X,
-                                    pnt.Position.Y,
-                                    pnt.Position.Z))
+                                     pnt.Position.Y,
+                                     pnt.Position.Z))
             vert.uv = uvs[pnt.Samples[0].Index]
             if pnt.Index in fixed:
                 vert.is_fixed = True
             vert.deformer = deformers[weights[pnt.Index]].encode(STR_CODEC)
             vertcoll.add(vert)
-        logging.info('Processed {0} vertices.'.format(len(vertcoll)))
+        logging.info('Processed %s vertices.', len(vertcoll))
         return facecoll, vertcoll
 
     def get_cloth_tex(self):
+        '''Get texture name for cloth.'''
         for ps in self.si_model.Properties:
             if 'ZEC' in ps.Name:
                 return ps.Parameters('texture').Value.encode(STR_CODEC)
 
     def get_cloth_collisions(self, geo):
+        '''Gather all cloth collisions for this model.'''
         collision_names = []
         collisions = []
         for ps in self.si_model.Properties:
@@ -543,6 +563,7 @@ class ModelConverter(softimage.SIModel):
         return collisions
 
     def get_cloth(self):
+        '''Get the cloth data for this model.'''
         coll = msh2.SegmentCollection(self.msh2_model)
         clothgeo = msh2.ClothGeometry(coll)
         clothgeo.faces, clothgeo.vertices = self.get_cloth_geo()
@@ -726,6 +747,7 @@ class Export(softimage.SIGeneral):
                             level=logging.DEBUG)
 
     def export_msg(self):
+        '''Displays a message after export.'''
         notifs = ['\n\n']
         if self.notifications:
             for notif in self.notifications:
@@ -749,6 +771,7 @@ class Export(softimage.SIGeneral):
         self.msg(''.join(text))
 
     def notify(self, text):
+        '''Adds a notification to the after-export message.'''
         if self.notifications:
             self.notifications.append(text)
         else:
