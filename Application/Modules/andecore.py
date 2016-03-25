@@ -1,13 +1,6 @@
-#########################################################
-#####                  andecore                     #####
-#####                                               #####
-#####            Misc python utilities              #####
-#####                                               #####
-#####             code copyright (C)                #####
-#####         Benedikt Schatz 2012-2013             #####
-#####                                               #####
-#####    https://sites.google.com/site/andescp/     #####
-#########################################################
+'''
+    Misc utilities.
+'''
 
 
 def chunks(list_, n):

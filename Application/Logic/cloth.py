@@ -1,13 +1,6 @@
-#########################################################
-#####                   cloth                       #####
-#####                                               #####
-#####              Cloth Editor logic               #####
-#####                                               #####
-#####             code copyright (C)                #####
-#####         Benedikt Schatz 2012-2013             #####
-#####                                               #####
-#####    https://sites.google.com/site/andescp/     #####
-#########################################################
+'''
+    UI functionality for the cloth dialog.
+'''
 xsi = Application
 from win32com.client import constants as const
 import win32com.client

@@ -1,13 +1,6 @@
-#########################################################
-#####                   softpy                      #####
-#####                                               #####
-#####             XSI utility classes               #####
-#####                                               #####
-#####             code copyright (C)                #####
-#####              Benedikt Schatz                  #####
-#####                                               #####
-#####    http://schlechtwetterfront.github.io/      #####
-#########################################################
+'''
+    Wrappers and helper classes to work with Softimage.
+'''
 from win32com.client import constants as const
 import win32com
 STR_CODEC = 'utf-8'

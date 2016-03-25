@@ -1,13 +1,6 @@
-#########################################################
-#####               andezetimport                   #####
-#####                                               #####
-#####            Main Import classes                #####
-#####                                               #####
-#####             code copyright (C)                #####
-#####         Benedikt Schatz 2012-2013             #####
-#####                                               #####
-#####    https://sites.google.com/site/andescp/     #####
-#########################################################
+'''
+    Import.
+'''
 import os
 import sys
 import logging
@@ -530,29 +523,27 @@ class ChainItemBuilder(softimage.SIModel):
         self.si_model.Parameters('Size').Value = float(self.imp.config.get('nullsize'))
         if self.imp.config.get('wirecol'):
             if 'eff' in self.model.name:
-                col = self.imp.config.get('effcol')
-                r, g, b = [float(item) for item in col.split(' ')]
+                r, g, b = self.imp.config.get('Reff'), self.imp.config.get('Geff'), self.imp.config.get('Beff')
                 wirecol = self.chainbuilder.scn.wirecol(r, g, b)
                 display = self.si_model.Properties('Display')
                 if display.IsA(const.siSharedPSet):
                     display = self.xsi.MakeLocal(display, const.siNodePropagation)[0]
                 display.wirecol.Value = wirecol
             elif 'root' in self.model.name:
-                col = self.imp.config.get('rootcol')
-                r, g, b = [float(item) for item in col.split(' ')]
+                r, g, b = self.imp.config.get('Rroot'), self.imp.config.get('Groot'), self.imp.config.get('Broot')
                 wirecol = self.chainbuilder.scn.wirecol(r, g, b)
                 display = self.si_model.Properties('Display')
                 if display.IsA(const.siSharedPSet):
                     display = self.xsi.MakeLocal(display, const.siNodePropagation)[0]
                 display.wirecol.Value = wirecol
             elif 'bone' in self.model.name:
-                col = self.imp.config.get('bonecol')
-                r, g, b = [float(item) for item in col.split(' ')]
+                r, g, b = self.imp.config.get('Rbone'), self.imp.config.get('Gbone'), self.imp.config.get('Bbone')
                 wirecol = self.chainbuilder.scn.wirecol(r, g, b)
                 display = self.si_model.Properties('Display')
                 if display.IsA(const.siSharedPSet):
                     display = self.xsi.MakeLocal(display, const.siNodePropagation)[0]
                 display.wirecol.Value = wirecol
+        print self.model.name, self.model.vis
         if self.imp.config.get('hideeffs'):
             if 'eff' in self.model.name:
                 if self.model.vis != 1:
@@ -561,8 +552,7 @@ class ChainItemBuilder(softimage.SIModel):
             if 'root' in self.model.name:
                 if self.model.vis != 1:
                     self.xsi.ToggleVisibility(self.si_model, None, None)
-        else:
-            self.set_vis()
+        self.set_vis()
         self.set_transform()
 
     def set_vis(self):

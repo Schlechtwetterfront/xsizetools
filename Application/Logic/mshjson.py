@@ -1,13 +1,6 @@
-#########################################################
-#####                  mshjson                      #####
-#####                                               #####
-#####            Logic for msh to txt               #####
-#####                                               #####
-#####             code copyright (C)                #####
-#####         Benedikt Schatz 2012-2013             #####
-#####                                               #####
-#####    https://sites.google.com/site/andescp/     #####
-#########################################################
+'''
+    UI functionality for the msh2text dialog.
+'''
 xsi = Application
 import msh2
 reload(msh2)

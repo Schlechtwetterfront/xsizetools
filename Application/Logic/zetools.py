@@ -1,13 +1,6 @@
-#########################################################
-#####                  zetools                      #####
-#####                                               #####
-#####            ZETools scripts logic              #####
-#####                                               #####
-#####             code copyright (C)                #####
-#####         Benedikt Schatz 2012-2013             #####
-#####                                               #####
-#####    https://sites.google.com/site/andescp/     #####
-#########################################################
+'''
+    Scripts UI functionality.
+'''
 from win32com.client import constants as const
 import softimage
 reload(softimage)

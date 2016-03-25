@@ -1,13 +1,6 @@
-#########################################################
-#####                  XSIZETools                   #####
-#####                                               #####
-#####       XSI Plugin defining commands and UI     #####
-#####                                               #####
-#####             code copyright (C)                #####
-#####              Benedikt Schatz                  #####
-#####                                               #####
-#####    https://sites.google.com/site/andescp/     #####
-#########################################################
+'''
+    Definition of commands, menus and UI.
+'''
 import win32com.client
 from win32com.client import constants as const
 import sys

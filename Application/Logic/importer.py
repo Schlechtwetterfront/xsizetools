@@ -1,13 +1,6 @@
-#########################################################
-#####                  importer                     #####
-#####                                               #####
-#####              MSH Importer logic               #####
-#####                                               #####
-#####             code copyright (C)                #####
-#####         Benedikt Schatz 2012-2013             #####
-#####                                               #####
-#####    https://sites.google.com/site/andescp/     #####
-#########################################################
+'''
+    UI functionality for the import dialog.
+'''
 import softimage
 import andezetcore
 import andezetimport
@@ -107,7 +100,10 @@ def importbutton_OnClicked():
 
             win32clipboard.OpenClipboard()
             win32clipboard.EmptyClipboard()
-            win32clipboard.SetClipboardText(message, win32clipboard.CF_TEXT)
+            try:
+                win32clipboard.SetClipboardText(message, win32clipboard.CF_TEXT)
+            except TypeError:
+                win32clipboard.SetClipboardText(message)
             win32clipboard.CloseClipboard()
         else:
             raise

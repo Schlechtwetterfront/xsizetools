@@ -1,13 +1,10 @@
-#########################################################
-#####                  msh2_unpack                  #####
-#####                                               #####
-#####          MSH2 Framework .msh unpack           #####
-#####                                               #####
-#####             code copyright (C)                #####
-#####         Benedikt Schatz 2012-2013             #####
-#####                                               #####
-#####    https://sites.google.com/site/andescp/     #####
-#########################################################
+'''
+    ZeroEngine .msh model format parser.
+
+    Refer to
+       schlechtwetterfront.github.io/ze_filetypes/msh.html
+   for more information regarding the file format.
+'''
 import msh2
 reload(msh2)
 from struct import unpack as unpack

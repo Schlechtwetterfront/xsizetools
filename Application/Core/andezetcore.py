@@ -1,11 +1,6 @@
-#########################################################
-#####                 andezetcore                   #####
-#####                                               #####
-#####             code copyright (C)                #####
-#####            Benedikt Schatz 2014               #####
-#####                                               #####
-#####    https://schlechtwetterfront.github.com     #####
-#########################################################
+'''
+    Some misc functionality.
+'''
 import json
 import softimage
 import os

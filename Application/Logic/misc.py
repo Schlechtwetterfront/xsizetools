@@ -1,13 +1,6 @@
-#########################################################
-#####                    misc                       #####
-#####                                               #####
-#####        Misc logic for various dialogs         #####
-#####                                               #####
-#####             code copyright (C)                #####
-#####         Benedikt Schatz 2012-2013             #####
-#####                                               #####
-#####    http://schlechtwetterfront.github.io/      #####
-#########################################################
+'''
+    UI functionality for several misc dialogs.
+'''
 from win32com.client import constants as const
 import webbrowser
 xsi = Application

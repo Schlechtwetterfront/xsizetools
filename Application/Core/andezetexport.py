@@ -1,13 +1,6 @@
-#########################################################
-#####               andezetexport                   #####
-#####                                               #####
-#####            Main Export classes                #####
-#####                                               #####
-#####             code copyright (C)                #####
-#####            Benedikt Schatz 2014               #####
-#####                                               #####
-#####    https://schlechtwetterfront.github.com     #####
-#########################################################
+'''
+    Export.
+'''
 
 # TODO: FLGS:
 #   - Hidden: |= 1

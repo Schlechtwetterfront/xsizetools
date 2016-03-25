@@ -1,14 +1,11 @@
 # -*- encoding: ascii -*-
-#########################################################
-#####                    msh2                       #####
-#####                                               #####
-#####             MSH2 Framework main               #####
-#####                                               #####
-#####             code copyright (C)                #####
-#####         Benedikt Schatz 2012-2013             #####
-#####                                               #####
-#####       http://byentech.wordpress.com           #####
-#########################################################
+'''
+    ZeroEngine .msh model format.
+
+    Refer to
+       schlechtwetterfront.github.io/ze_filetypes/msh.html
+   for more information regarding the file format.
+'''
 import msh2_crc
 reload(msh2_crc)
 import itertools
@@ -55,7 +52,7 @@ class Packer(object):
         return string.ljust(i, '\x00')
 
     def null_terminate(self, string):
-        '''Null-terminates the given string string.'''
+        '''Null-terminates the given string.'''
         return string + '\x00'
 
     def pack_long_chunk(self, header, number):

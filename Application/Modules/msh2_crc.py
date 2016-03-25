@@ -1,13 +1,10 @@
-#########################################################
-#####                  msh2_crc                     #####
-#####                                               #####
-#####              MSH2 Framework CRC               #####
-#####                                               #####
-#####             code copyright (C)                #####
-#####         Benedikt Schatz 2012-2013             #####
-#####                                               #####
-#####    https://sites.google.com/site/andescp/     #####
-#########################################################
+'''
+    ZeroEngine .msh model format CRC algorithm.
+
+    Refer to
+       schlechtwetterfront.github.io/ze_filetypes/msh.html
+   for more information regarding the file format.
+'''
 from struct import pack
 
 

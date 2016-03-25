@@ -1,4 +1,6 @@
-
+'''
+    Misc utilities.
+'''
 
 def add_cloth_property(model):
     import softimage
