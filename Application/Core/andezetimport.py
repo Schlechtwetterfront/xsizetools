@@ -543,7 +543,7 @@ class ChainItemBuilder(softimage.SIModel):
             if 'eff' in self.model.name.lower():
                 if self.model.vis != 1:
                     self.xsi.ToggleVisibility(self.si_model, None, None)
-        elif self.imp.config.get('hideroots'):
+        if self.imp.config.get('hideroots'):
             if 'root' in self.model.name.lower():
                 if self.model.vis != 1:
                     self.xsi.ToggleVisibility(self.si_model, None, None)
