@@ -659,7 +659,7 @@ class Model(Packer):
 
     @classmethod
     def load_segmented_json(cls, folder, name):
-        print 'LOADING SEGMENTED MODEL {0} {1}'.format(folder, name)
+        logging.info('LOADING SEGMENTED MODEL %s %s', folder, name)
         with open(os.path.join(folder, '{0}.txt'.format(name)), 'r') as fh:
             model = Model.from_json(json.loads(fh.read()))
         seg_start = '{0} seg '.format(name)
@@ -727,7 +727,6 @@ class Model(Packer):
             for ind in self.deformer_indices:
                 self.deformers.append(self.collection[ind - 1].name)
         except IndexError:
-            print 'Index({0})'.format(ind)
             raise MSH2Error('Check C:\dump.dump!')
 
     def pack(self):
@@ -1132,11 +1131,8 @@ class SegmentGeometry(Packer):
             index_original = None
             try:
                 index_original = new_vertices.index(vert)
-                # print 'Original: {0}; Double: {1}'.format(new_vertices[index_original].normal, vert.normal)
             except ValueError:
-                #print 'ValueError', vert
                 pass
-            #print index
             if index_original:
                 # Insert into indices map.
                 self.index_map[index] = index_original
@@ -1576,6 +1572,8 @@ class Face(object):
         #                         self.vertices[2]),)
         # else:
         #     return ()
+
+        # Make sure everything returned has a length for correct size calculation.
         if self.sides == 4:
             return (struct.pack('<LLL', self.vertices[0],
                                         self.vertices[1],
@@ -1586,7 +1584,7 @@ class Face(object):
         elif self.sides == 3:
             return (struct.pack('<LLL', self.vertices[0],
                                         self.vertices[1],
-                                        self.vertices[2]))
+                                        self.vertices[2]), )
         else:
             return ()
 
@@ -1733,6 +1731,8 @@ class FaceCollection(object):
         num = 0
         for face in self.faces:
             facetris = face.pack_tris()
+            logging.debug(facetris)
+            logging.debug(len(facetris))
             num += len(facetris)
             data.extend(facetris)
         # Number of tris * number of points * size of float + size indicator size.

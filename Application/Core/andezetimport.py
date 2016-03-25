@@ -246,11 +246,8 @@ class ChainItemBuilder(softimage.SIModel):
             if model.model_type == 'cloth':
                 cloth_geo = model.segments[0]
                 for collision in cloth_geo.collisions:
-                    print self.model.name, len(self.model.name)
-                    print collision.name, len(collision.name)
                     if collision.name == self.model.name:
                         my_collision = collision
-                        print 'Found it'
                         break
 
         self.si_model = self.xsi.CreatePrim(self.cloth_prim_types[my_collision.primitive_type],
@@ -332,7 +329,6 @@ class ChainItemBuilder(softimage.SIModel):
         parent_transform = parent.Kinematics.Local.Transform
         transform = self.si_model.Kinematics.Local.Transform
         if collision.primitive_type == 2:
-            print collision.primitive_data[0], parent_transform.SclX
             transform.SetScalingFromValues(collision.primitive_data[0] * 2 / parent_transform.SclX,
                                            collision.primitive_data[1] * 2 / parent_transform.SclY,
                                            collision.primitive_data[2] * 2 / parent_transform.SclZ)
@@ -543,13 +539,12 @@ class ChainItemBuilder(softimage.SIModel):
                 if display.IsA(const.siSharedPSet):
                     display = self.xsi.MakeLocal(display, const.siNodePropagation)[0]
                 display.wirecol.Value = wirecol
-        print self.model.name, self.model.vis
         if self.imp.config.get('hideeffs'):
-            if 'eff' in self.model.name:
+            if 'eff' in self.model.name.lower():
                 if self.model.vis != 1:
                     self.xsi.ToggleVisibility(self.si_model, None, None)
         elif self.imp.config.get('hideroots'):
-            if 'root' in self.model.name:
+            if 'root' in self.model.name.lower():
                 if self.model.vis != 1:
                     self.xsi.ToggleVisibility(self.si_model, None, None)
         self.set_vis()
@@ -809,7 +804,8 @@ class Import(softimage.SIGeneral):
             return True
 
     def import_msg(self):
-        self.msg('Imported {0} models in {1}s, {2}ms.\n\n{3}'.format(len(self.chain), self.stats[0], self.stats[1], self.join_notifs()))
+        if self.config.get('show_finished_dialog'):
+            self.msg('Imported {0} models in {1}s, {2}ms.\n\n{3}'.format(len(self.chain), self.stats[0], self.stats[1], self.join_notifs()))
 
     def abort(self, text=None):
         if text:
@@ -847,7 +843,6 @@ class Import(softimage.SIGeneral):
     def do_import(self):
         '''Actual import function.'''
         # Disable logging temporarily.
-        print self.config.get('path')
         logging.info('==========================================')
         logging.info('Starting import at {0}.'.format(dt.now()))
         logging.info('.msh file path: {0}'.format(self.config.get('path')))
@@ -866,7 +861,6 @@ class Import(softimage.SIGeneral):
                            'ignore_geo': self.config.get('ignoregeo'),
                            'triangulate': self.config.get('triangulate'),
                            'modulepath': os.path.join(self.xsi.InstallationPath(const.siUserAddonPath), 'XSIZETools\\Application\\Modules')}
-        print self.config.get('path')
         unpacker = msh2_unpack.MSHUnpack(self.config.get('path'), unpacker_config)
         try:
             logging.info('Starting unpack.')

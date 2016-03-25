@@ -370,6 +370,8 @@ def MSHExport_Execute():
     pS.AddParameter3('rootname', const.siBool, settings.get('rootname'), '', 0, 0)
     pS.AddParameter3('batch', const.siBool, settings.get('batch'), '', 0, 0)
 
+    pS.AddParameter3('show_finished_dialog', const.siBool, settings.get('show_finished_dialog'), '', '', 0, 0)
+
     mLay = pS.PPGLayout
     mLay.SetAttribute(const.siUILogicFile, softimage.Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\exporter.py')
     mLay.Language = 'pythonscript'
@@ -393,6 +395,7 @@ def MSHExport_Execute():
     mLay.AddItem('overwrite', 'Auto-Overwrite')
     mLay.AddItem('rootname', 'Use root model name for .msh filename')
     mLay.AddItem('batch', 'Batch Export')
+    mLay.AddItem('show_finished_dialog', 'Show dialog on completion')
     mLay.EndGroup()  # G2E
 
     mLay.AddGroup('', 0)  # bbox and btns
@@ -444,7 +447,7 @@ def MSHExport_Execute():
     desk = xsi.Desktop.ActiveLayout
     view = desk.CreateView('Property Panel', 'MSH Export')
     view.BeginEdit()
-    view.Resize(600, 190)
+    view.Resize(600, 200)
     view.SetAttributeValue('targetcontent', pS.FullName)
     view.EndEdit()
     return True
@@ -497,6 +500,8 @@ def MSHImport_Execute():
     pS.AddParameter3('Reff', const.siDouble, settings.get('Reff'), 0.0, 1.0, 0, 0)
     pS.AddParameter3('Geff', const.siDouble, settings.get('Geff'), 0.0, 1.0, 0, 0)
     pS.AddParameter3('Beff', const.siDouble, settings.get('Beff'), 0.0, 1.0, 0, 0)
+
+    pS.AddParameter3('show_finished_dialog', const.siBool, settings.get('show_finished_dialog'), '', '', 0, 0)
 
     mLay = pS.PPGLayout
     mLay.SetAttribute(const.siUILogicFile, softimage.Softimage.get_plugin_origin('XSIZETools') + '\\Application\\Logic\\importer.py')
@@ -581,6 +586,16 @@ def MSHImport_Execute():
     mLay.AddTab('Settings')
     mLay.AddGroup('Settings')
     mLay.AddRow()
+    mLay.AddGroup('Misc')
+    mLay.AddItem('hideroots', 'Hide Roots')
+    mLay.AddItem('hideeffs', 'Hide Effectors')
+    mLay.AddItem('weld', 'Weld Boundary Edges')
+    mLay.AddItem('log', 'Log MSH Unpack')
+    mLay.AddItem('triangulate', 'Triangulate')
+    mLay.AddItem('show_finished_dialog', 'Show dialog on completion')
+    mLay.EndGroup()
+
+    mLay.AddGroup('', 0)
     mLay.AddGroup('Colors')
     mLay.AddItem('wirecol', 'Color Nulls')
     mLay.AddRow()
@@ -590,15 +605,6 @@ def MSHImport_Execute():
     mLay.AddSpacer(1, 0)
     mLay.AddColor('Reff', 'Effs', False)
     mLay.EndRow()
-    mLay.EndGroup()
-
-    mLay.AddGroup('', 0)
-    mLay.AddGroup('Misc')
-    mLay.AddItem('hideroots', 'Hide Roots')
-    mLay.AddItem('hideeffs', 'Hide Effectors')
-    mLay.AddItem('weld', 'Weld Boundary Edges')
-    mLay.AddItem('log', 'Log MSH Unpack')
-    mLay.AddItem('triangulate', 'Triangulate')
     mLay.EndGroup()
     mLay.AddRow()
     mLay.AddStaticText('')

@@ -226,6 +226,7 @@ def get_default_settings(settings_name):
             'basepose': False,
             'rootname': False,
             'batch': False,
+            'show_finished_dialog': True,
         }
         return sett
     elif settings_name == 'import':
@@ -252,6 +253,7 @@ def get_default_settings(settings_name):
             'Beff': 0.1,
             'hideeffs': False,
             'hideroots': False,
-            'weld': True
+            'weld': True,
+            'show_finished_dialog': True,
         }
         return sett

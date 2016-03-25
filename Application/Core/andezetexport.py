@@ -171,6 +171,9 @@ class ModelConverter(softimage.SIModel):
         if immediate_conversion:
             self.convert()
 
+    def get_short_name(self):
+        return self.si_model.Name.split('.')[-1].encode(STR_CODEC)
+
     def is_shadow(self):
         '''Checks if this model is a shadow mesh.'''
         return False
@@ -371,16 +374,13 @@ class ModelConverter(softimage.SIModel):
     def clear_multiverts(self, collection):
         '''Removes vertices that have the same position, normals and UVs.'''
         for segment in collection:
-            self.export.xsi.LogMessage('One Segment.')
             if isinstance(segment, msh2.SegmentGeometry):
-                self.export.xsi.LogMessage('Clearing Doubles.')
                 segment.clear_doubles()
 
     def get_segments(self):
         '''Creates segments from the main geometry and returns them in
         a SegmentCollection.'''
         # First get the geometry for the complete mesh.
-        self.export.xsi.LogMessage('Get Segments.')
         geometry = self.process_geometry()
         coll = msh2.SegmentCollection(self.msh2_model)
         coll.model = self.msh2_model
@@ -397,7 +397,6 @@ class ModelConverter(softimage.SIModel):
         # Otherwise split the geometry.
         coll.split(0, poly_mat_indices, mat_names)
         coll.assign_materials(self.export.msh.materials)
-        self.export.xsi.LogMessage(str(len(coll)))
         self.clear_multiverts(coll)
         return coll
 
@@ -414,25 +413,26 @@ class ModelConverter(softimage.SIModel):
 
     def process_c_collision_primitive(self):
         '''Processes cloth collision primitive data for this model.'''
+        logging.info('Processing cloth collision primitive.')
         self.msh2_model.cloth_collprim = True
 
         sm = self.si_model
         mm = self.msh2_model
         try:
-            radius = self.export.xsi.GetValue('{0}.polymsh.geom.sphere.radius'.format(sm.Name)) * mm.transform.scale[0]
+            radius = self.export.xsi.GetValue('{0}.polymsh.geom.sphere.radius'.format(sm.FullName)) * mm.transform.scale[0]
             mm.primitive = (0, radius, radius, radius)
         except com_error:
             try:
-                radius = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.radius'.format(sm.Name)) * mm.transform.scale[0]
-                height = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.height'.format(sm.Name)) * mm.transform.scale[0]
+                radius = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.radius'.format(sm.FullName)) * mm.transform.scale[0]
+                height = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.height'.format(sm.FullName)) * mm.transform.scale[0]
                 mm.primitive = (1, radius, height, 0)
             except com_error:
                 try:
-                    length = self.export.xsi.GetValue('{0}.polymsh.geom.cube.length'.format(sm.Name))
+                    length = self.export.xsi.GetValue('{0}.polymsh.geom.cube.length'.format(sm.FullName))
                     mm.primitive = (2, length * mm.transform.scale[0] * .5, length * mm.transform.scale[1] * .5, length * mm.transform.scale[2] * .5)
                 except com_error:
                     self.msh2_model.cloth_collprim = False
-                    self.export.notify('Could not find valid Primitive (sphere/cube/cylinder) for Cloth Collision Primitive "{0}".'.format(sm.Name))
+                    self.export.abort('Could not find valid Primitive (sphere/cube/cylinder) for Cloth Collision Primitive "{0}".'.format(sm.Name))
                     return
         mm.transform.scale = 1.0, 1.0, 1.0
 
@@ -446,22 +446,22 @@ class ModelConverter(softimage.SIModel):
         else:
             parent_transform = self.export.xsi.ActiveSceneRoot.Kinematics.Local.Transform
         try:
-            radius = self.export.xsi.GetValue('{0}.polymsh.geom.sphere.radius'.format(sm.Name))
+            radius = self.export.xsi.GetValue('{0}.polymsh.geom.sphere.radius'.format(sm.FullName))
             mm.primitive = (0, radius, radius, radius)
         except com_error:
             try:
-                radius = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.radius'.format(sm.Name))
-                height = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.height'.format(sm.Name))
+                radius = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.radius'.format(sm.FullName))
+                height = self.export.xsi.GetValue('{0}.polymsh.geom.cylinder.height'.format(sm.FullName))
                 mm.primitive = (2, radius, height, 0)
             except com_error:
                 try:
-                    length = self.export.xsi.GetValue('{0}.polymsh.geom.cube.length'.format(sm.Name))
+                    length = self.export.xsi.GetValue('{0}.polymsh.geom.cube.length'.format(sm.FullName))
                     mm.primitive = (4, length * mm.transform.scale[0] * .5 * parent_transform.SclX,
                                        length * mm.transform.scale[1] * .5 * parent_transform.SclY,
                                        length * mm.transform.scale[2] * .5 * parent_transform.SclZ)
                 except com_error:
                     self.msh2_model.cloth_collprim = False
-                    self.export.notify('Could not find valid Primitive (sphere/cube/cylinder) for Collision Primitive "{0}".'.format(sm.Name))
+                    self.export.abort('Could not find valid Primitive (sphere/cube/cylinder) for Collision Primitive "{0}".'.format(sm.Name))
                     return
         mm.transform.scale = 1.0, 1.0, 1.0
 
@@ -547,10 +547,12 @@ class ModelConverter(softimage.SIModel):
                 collision_names = ps.Parameters('collisions').Value.encode(STR_CODEC).split(',')
                 break
         for collision_name in collision_names:
-            if not collision_name.lower().startswith('c_'):
-                self.export.abort('Cloth collision names should start with "c_" ({0}).'.format(collision_name))
+            # Split name by periods to remove possible Softimage Model names (ie MyModel.MyObject).
+            short_collision_name = collision_name.encode(STR_CODEC).split('.')[-1]
+            if not short_collision_name.lower().startswith('c_'):
+                self.export.abort('Cloth collision names should start with "c_" ({0}).'.format(short_collision_name))
             collision = msh2.ClothCollision(geo)
-            collision.name = collision_name.encode(STR_CODEC)
+            collision.name = short_collision_name
             collision.parent = self.export.xsi.Dictionary.GetObject(collision_name, False).Parent.Name.encode(STR_CODEC)
             collisions.append(collision)
         return collisions
@@ -574,7 +576,7 @@ class ModelConverter(softimage.SIModel):
         ModelConverter.msh2_model.'''
         # I'm using strings to store relationships and deformers because I might not
         # know every model yet and so I cant reference it.
-        self.msh2_model.name = self.si_model.Name.encode(STR_CODEC)
+        self.msh2_model.name = self.get_short_name()
         # Check if the model is the root(selected) model. If it is, ignore it's parent.
         if self.si_model != self.export.si_root:
             self.msh2_model.parent_name = self.si_model.Parent.Name.encode(STR_CODEC)
@@ -741,6 +743,8 @@ class Export(softimage.SIGeneral):
 
     def export_msg(self):
         '''Displays a message after export.'''
+        if not self.ppg_params.get('show_finished_dialog'):
+            return
         notifs = ['\n\n']
         if self.notifications:
             for notif in self.notifications:
