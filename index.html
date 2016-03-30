@@ -3,133 +3,209 @@
 	<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <link rel="stylesheet" href="../css/styles.css">
-    <link rel="stylesheet" href="../css/schlechtwetterfront_dark.css">
-    <link rel="stylesheet" href="../css/schlechtwetterfront_light.css">
-    <!-- <link rel="stylesheet" href="../css/bootstrap.min.css"> -->
+    <!-- <link rel="stylesheet" href="../css/styles.css"> -->
+    <!-- <link rel="stylesheet" href="../css/schlechtwetterfront_dark.css"> -->
+    <!-- <link rel="stylesheet" href="../css/schlechtwetterfront_light.css"> -->
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/shared.css">
+    <link rel="stylesheet" href="../css/site.css">
+    <link rel="stylesheet" href="../css/site-mainpage.css">
     <script src="../js/respond.js"></script>
     <script src="../js/jquery-1.11.0.min.js"></script>
-    <script src="../js/schlechtwetterfront_visual.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
     <script src="../js/schlechtwetterfront_functional.js"></script>
-    <!-- <script src="../js/bootstrap.min.js"></script> -->
+    <script src="../js/schlechtwetterfront_visual.js"></script>
     <link rel="icon" type="image/png" href="../favicon.png"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>XSI ZETools</title>
 </head>
 	<body>
-		<div class="container">
-		
-			
+        <div class="container-fluid hidden-lg hidden-md">
+    <nav class="navbar" id="s-navbar">
+        <ul class="nav navbar-nav">
+            
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Navigation</a>
+                <ul class="dropdown-menu">
+                
+                    <li><a href="#overview" class="rectangle-button rectangle-button-semi">Overview</a></li>
+                
+                    <li><a href="#download_installation" class="rectangle-button rectangle-button-semi">Download & Installation</a></li>
+                
+                    <li><a href="#contributors" class="rectangle-button rectangle-button-semi">Contributors</a></li>
+                
+                    <li><a href="http://schlechtwetterfront.github.io/" class="rectangle-button rectangle-button-semi">Homepage</a></li>
+                
+                </ul>
+            
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Downloads</a>
+                <ul class="dropdown-menu">
+                
+                    <li><a href="https://github.com/Schlechtwetterfront/xsizetools/releases" class="rectangle-button rectangle-button-semi">Releases</a></li>
+                
+                    <li><a href="http://schlechtwetterfront.github.io/xsizetools/XSIZETools_src.7z" class="rectangle-button rectangle-button-semi">C++ Source (deprecated)</a></li>
+                
+                </ul>
+            
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Guidelines</a>
+                <ul class="dropdown-menu">
+                
+                    <li><a href="#export-guidelines" class="rectangle-button rectangle-button-semi">Export</a></li>
+                
+                    <li><a href="#import-guidelines" class="rectangle-button rectangle-button-semi">Import</a></li>
+                
+                    <li><a href="#cloth-guidelines" class="rectangle-button rectangle-button-semi">Cloth</a></li>
+                
+                </ul>
+            
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Documentation</a>
+                <ul class="dropdown-menu">
+                
+                    <li><a href="#scripts" class="rectangle-button rectangle-button-semi">Scripts</a></li>
+                
+                    <li><a href="#export-docs" class="rectangle-button rectangle-button-semi">.msh Export</a></li>
+                
+                    <li><a href="#import-docs" class="rectangle-button rectangle-button-semi">.msh Import</a></li>
+                
+                    <li><a href="#material-docs" class="rectangle-button rectangle-button-semi">Material Manager</a></li>
+                
+                    <li><a href="#msh2txt" class="rectangle-button rectangle-button-semi">MSH 2 TXT</a></li>
+                
+                    <li><a href="#animation-export" class="rectangle-button rectangle-button-semi">Animation Export</a></li>
+                
+                </ul>
+            
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Other Resources</a>
+                <ul class="dropdown-menu">
+                
+                    <li><a href="https://github.com/Schlechtwetterfront/xsizetools" class="rectangle-button rectangle-button-semi">View on GitHub</a></li>
+                
+                    <li><a href="http://gametoast.com/viewtopic.php?f=36&t=26664" class="rectangle-button rectangle-button-semi">View Thread on GameToast</a></li>
+                
+                </ul>
+            
+            </li>
+        </ul>
+    </nav>
+</div>
+		<div class="container-fluid container-main">
+            <div class="row">
+    		
+    			
 
-<div class="sidebar">
-	<sidebar_title>XSI ZETools</sidebar_title>
-	<div class="hr_dark"></div>
-	<div id="sidebar-content">
-	
-		<category_label>Downloads</category_label><br>
-		
-		
-	        
-		<a class="rectangle-button rectangle-button-semi" href="https://github.com/Schlechtwetterfront/xsizetools/releases">Releases</a>
-	
-	    
-	        
-		<a class="rectangle-button rectangle-button-semi" href="http://schlechtwetterfront.github.io/xsizetools/XSIZETools_src.7z">C++ Source (deprecated)</a>
-	
-	    
-	    
-	    <!-- <div class="hr-sidebar-dark"></div> -->
-	
-		<category_label>Navigation</category_label><br>
-		
-		
-	        
+<div class="col-md-2" role="complementary">
+	<nav class="affix hidden-xs hidden-sm">
+		<div class="sidebar">
+			<div class="sidebar-title">XSI ZETools</div>
+			<div class="hr"></div>
+			<div id="sidebar-content">
+			
+				<div class="category_label">Navigation</div>
+				
+				
+			        
 		<a class="rectangle-button rectangle-button-semi" href="#overview">Overview</a>
 	
-	    
-	        
+			    
+			        
 		<a class="rectangle-button rectangle-button-semi" href="#download_installation">Download & Installation</a>
 	
-	    
-	        
+			    
+			        
 		<a class="rectangle-button rectangle-button-semi" href="#contributors">Contributors</a>
 	
-	    
-	        
+			    
+			        
 		<a class="rectangle-button rectangle-button-semi" href="http://schlechtwetterfront.github.io/">Homepage</a>
 	
-	    
-	    
-	    <!-- <div class="hr-sidebar-dark"></div> -->
+			    
+			    
+			
+				<div class="category_label">Downloads</div>
+				
+				
+			        
+		<a class="rectangle-button rectangle-button-semi" href="https://github.com/Schlechtwetterfront/xsizetools/releases">Releases</a>
 	
-		<category_label>Guidelines</category_label><br>
-		
-		
-	        
+			    
+			        
+		<a class="rectangle-button rectangle-button-semi" href="http://schlechtwetterfront.github.io/xsizetools/XSIZETools_src.7z">C++ Source (deprecated)</a>
+	
+			    
+			    
+			
+				<div class="category_label">Guidelines</div>
+				
+				
+			        
 		<a class="rectangle-button rectangle-button-semi" href="#export-guidelines">Export</a>
 	
-	    
-	        
+			    
+			        
 		<a class="rectangle-button rectangle-button-semi" href="#import-guidelines">Import</a>
 	
-	    
-	        
+			    
+			        
 		<a class="rectangle-button rectangle-button-semi" href="#cloth-guidelines">Cloth</a>
 	
-	    
-	    
-	    <!-- <div class="hr-sidebar-dark"></div> -->
-	
-		<category_label>Documentation</category_label><br>
-		
-		
-	        
+			    
+			    
+			
+				<div class="category_label">Documentation</div>
+				
+				
+			        
 		<a class="rectangle-button rectangle-button-semi" href="#scripts">Scripts</a>
 	
-	    
-	        
+			    
+			        
 		<a class="rectangle-button rectangle-button-semi" href="#export-docs">.msh Export</a>
 	
-	    
-	        
+			    
+			        
 		<a class="rectangle-button rectangle-button-semi" href="#import-docs">.msh Import</a>
 	
-	    
-	        
+			    
+			        
 		<a class="rectangle-button rectangle-button-semi" href="#material-docs">Material Manager</a>
 	
-	    
-	        
+			    
+			        
 		<a class="rectangle-button rectangle-button-semi" href="#msh2txt">MSH 2 TXT</a>
 	
-	    
-	        
+			    
+			        
 		<a class="rectangle-button rectangle-button-semi" href="#animation-export">Animation Export</a>
 	
-	    
-	    
-	    <!-- <div class="hr-sidebar-dark"></div> -->
-	
-		<category_label>Other Resources</category_label><br>
-		
-		
-	        
+			    
+			    
+			
+				<div class="category_label">Other Resources</div>
+				
+				
+			        
 		<a class="rectangle-button rectangle-button-semi" href="https://github.com/Schlechtwetterfront/xsizetools">View on GitHub</a>
 	
-	    
-	        
+			    
+			        
 		<a class="rectangle-button rectangle-button-semi" href="http://gametoast.com/viewtopic.php?f=36&t=26664">View Thread on GameToast</a>
 	
-	    
-	    
-	    <!-- <div class="hr-sidebar-dark"></div> -->
-	
-	</div>
-</div>
+			    
+			    
 			
+			</div>
+		</div>
+	</nav>
+</div>
+    			
 
-<div class="content">
+<!-- <div class="content"> -->
+<div class="col-md-10 section-container" role="main">
 	
 		<div class="section">
 			<a name="main_info"></a>
@@ -140,9 +216,10 @@
 	 -->
 				<!-- </div> -->
 				<div id="main_info_content" class="section-content">
-				<p>XSIZETools is an addon for Softimage (tested with ModTool 7.5, 2012 SP1 and 2014).
-The main features are full export and import of 3D .msh files for ZeroEngine (Star Wars Battlefront I and II). That includes geometry, materials with all ZeroEngine-specific flags, animations and collisions.</p>
-<p>This began as a small collection of scripts to help setup hierarchies and the like and turned into a full-fledged exporter/importer for the .msh format. As only a small amount of the .msh file format structure was known when I began writing the exporter I had to reverse-engineer (with contributions from a handful of other people) the rest (which was about 70% of the chunks).</p>
+				<p>XSIZETools is an addon for Softimage with full export and import of 3D .msh files for ZeroEngine (Star Wars Battlefront I and II). That includes geometry, materials with all ZeroEngine-specific flags, animations, collisions and simulated cloth.</p>
+<p>In general, important updates will be gathered into a <a href="https://github.com/Schlechtwetterfront/xsizetools/releases" title="Releases">release</a>, so choosing the latest release should give you the latest working features. Alternatively you can download the most recent commit directly with the "Download ZIP" button.</p>
+<p>For more information on usage go to the <a href="http://schlechtwetterfront.github.io/xsizetools/" title="XSIZETools Homepage">XSIZETools homepage</a>.</p>
+<p>If you encounter bugs or have problems, feel free to post on the <a href="http://gametoast.com/viewtopic.php?f=36&amp;t=26664" title="Gametoast Thread">Gametoast forums</a> (you might need to use a proxy) or send me a mail via Github.</p>
 				<!-- 
 		<div></div>
 	 -->
@@ -162,10 +239,10 @@ The main features are full export and import of 3D .msh files for ZeroEngine (St
 				<p>The main chunk of the project is hosted on GitHub.
 The source for the Geometry Accessor Wrappers can be found on the sidebar (the source is outdated though as I lost the code used for the current DLLs.
 Check the sidebar for a link to the releases page on GitHub.</p>
-<p>To install ZETools, unzip the downloaded archive into<br />
-<strong>C:/users/%user%/Autodesk/Softimage_%version%/Addons/</strong><br />
-OR<br />
-<strong>C:/users/%user%/Softimage/Softimage_%version%/Addons/</strong>.<br />
+<p>To install ZETools, unzip the downloaded archive into
+<code>C:/users/%user%/Autodesk/Softimage_%version%/Addons/</code>
+OR
+<code>C:/users/%user%/Softimage/Softimage_%version%/Addons/</code>.
 Make sure you use this path and not the factory addon path.  </p>
 <p>If you have any Softimage version up to (and including) 2010 you need to install
 <a href="http://www.python.org/ftp/python/2.6.6/python-2.6.6.msi">python</a>
@@ -563,7 +640,7 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 </tbody>
 </table>
 <p>For every segment (SEGM/CLTH/SHDW) in the models geometry:<br />
-<strong><em>name</em> mdl <em>model_name</em> seg <em>#_of_segment</em> .txt</strong>
+<strong><em>name</em> mdl <em>model_name</em> seg <em>#_of_segment</em> .txt</strong><br />
 <strong>SegmentGeometry</strong></p>
 <table>
 <thead>
@@ -1022,34 +1099,29 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 				<!-- </div> -->
 				<div id="animation-export_content" class="section-content">
 				<p>Every of the following steps will produce one .msh file.</p>
-<blockquote>
 <p><strong>SWBF 1 NOTE:</strong> The ZenAsset.exe which comes with the SWBF1 mod tools seems to need at least one material to work. Just add a small primitive(eg: cube, you can hide it, too)
 to the scene. It needs to be in the exported hierarchy for animations so don't move it out when you do the HALFSTEP. To minimize filesize you could replace one of the needed nulls
 with the primitive(maybe dummyroot). Sereja got his animation into SWBF1 by using a textured primitive as DummyRoot. It's not important what type of model the other models are.</p>
-</blockquote>
-<p>STEP 1. <strong>Placeable model for ZeroEditor.</strong> Export the model which will be called in the odf and placed in ZE. To do this move the frame cursor to the first frame of your
+<h3>Step 1</h3>
+<p><strong>Placeable model for ZeroEditor.</strong> Export the model which will be called in the odf and placed in ZE. To do this move the frame cursor to the first frame of your
 animation(usually 1, it's not important what the frame range is[ie 0 to 100]).Then select your root, uncheck Export Animation and export. .MSH File: stuff_door.msh</p>
-<blockquote>
 <p><img alt="Image" src="to_be_placed.jpg" /></p>
 <p><strong>Animation preparation.</strong> To cut down on possible problems you can now drag'n'drop all object which are not a part of
 the skeleton(collisions, meshes, shadows) out of your current hierarchy.
 Best way to do this is select them all and drag'n'drop them onto Scene_Root. In my example I only move out thing_(that's the model with Stuff painted on it).
 You can move out hard points, too. Animations don't need this as basepose and open/whatever you called your animation will end up in .zafbin/.zaabin
 files which don't hold geometry etc. Note: I forgot to move out thing_ for the main animation in the screenshot at step 2. It should be not be a (direct or indirect) children of the root you're exporting though.</p>
-</blockquote>
-<p>STEP 2. <strong>Animation Export</strong> This will contain the actual animation. Here it's important to set the right frame range.
+<h3>Step 2</h3>
+<p><strong>Animation Export</strong> This will contain the actual animation. Here it's important to set the right frame range.
 It's not important where the frame cursor is, but the frame range must be correct. In my example it's 1 - 20. Check Export Animation and export button. .MSH File: ie open.msh</p>
-<blockquote>
 <p><img alt="Image2" src="anim_open.jpg" /></p>
-</blockquote>
-<p>STEP 3. <strong>Basepose of the animation.</strong> This will be the pose the model is in when it's not animated.
+<h3>Step 3</h3>
+<p><strong>Basepose of the animation.</strong> This will be the pose the model is in when it's not animated.
 If your first frame is 1 move the frame cursor to frame 0. Check Export Animation and Current frame as Basepose.
 If you check Current frame as Basepose you can ignore the last frame. If you want to do it 'old-fashioned' set your frame range to 0 - 1 and uncheck Current frame as Basepose.
 I assume you use the Current frame as Basepose way. Now the preparation is finished. All boxes are checked and the hierarchy is set up. Do the deed and select your root and hit export.
 .MSH File: basepose.msh</p>
-<blockquote>
 <p><img alt="Image3" src="anim_basepose.jpg" /></p>
-</blockquote>
 				<!-- 
 		<a class="toggle_collapse_end" content-id="animation-export_content" id="animation-export_content_end">Collapse</a>
 	 -->
@@ -1058,7 +1130,8 @@ I assume you use the Current frame as Basepose way. Now the preparation is finis
 		</div>
 	
 </div>
-		
+    		
+            </div>
 		</div>
 	</body>
 </html>
