@@ -237,28 +237,27 @@ class ModelConverter(softimage.SIModel):
         returns the collection.'''
         coll = msh2.VertexCollection()
         # Vertex positions in a one-dimensional array.
-        vert_pos_list = self.export.xsi.CGA_GetNodeVertexPositions(self.geo, True)
-        # Normal vectors in a one-dimensional array.
-        normals_list = self.export.xsi.CGA_GetNodeNormals(self.geo)
+        positions_and_normals = self.export.xsi.ZET_GetVertexPositionsWithNormals(self.geo, True)
         n = 0
-        while n < len(vert_pos_list):
-            coord = vert_pos_list[n], vert_pos_list[n + 1], vert_pos_list[n + 2]
-            normal = normals_list[n], normals_list[n + 1], normals_list[n + 2]
-            n += 3
-            coll.add(msh2.Vertex(coord, normal))
+        while n < len(positions_and_normals):
+            position = positions_and_normals[n], positions_and_normals[n + 1], positions_and_normals[n + 2]
+            normal = positions_and_normals[n + 3], positions_and_normals[n + 4], positions_and_normals[n + 5]
+            n += 6
+            coll.add(msh2.Vertex(position, normal))
         logging.info('Processed %s vertices.', len(coll))
         self.export.stats.verts += len(coll)
         return coll
 
     def get_uvs(self):
         '''Gets UV coordinates, returns a list of UV coordinate tuples.'''
-        uv_list = self.export.xsi.CGA_GetUV0(self.geo)
+        uv_list = self.export.xsi.ZET_GetUVs(self.geo, 0)
         uvs = []
         n = 0
         try:
             while n < len(uv_list):
                 coord = uv_list[n], uv_list[n + 1]
                 uvs.append(coord)
+                # UVs are stored as UVWs in Softimage so ignore the W value.
                 n += 3
         except IndexError:
             return False
@@ -281,13 +280,13 @@ class ModelConverter(softimage.SIModel):
     def get_weights(self):
         '''Gets weights and deformers, returns a list of four weight value
         tuples and four deformer names tuples.'''
-        _, weight_list, def_list = self.export.xsi.CGA_GetWeightsZE(self.geo)
+        weight_list, def_list = self.export.xsi.ZET_GetWeights(self.geo)
         # Nodes per point: point 0: node_index, point 1: node_index etc...
-        nodes_per_point = self.export.xsi.CGA_GetNodesPerPoint(self.geo)
+        # nodes_per_point = self.export.xsi.CGA_GetNodesPerPoint(self.geo)
         # Temporary lists.
-        wght_lst_temp = []
-        def_lst_tmp = []
-        ndx_lst_tmp = []
+        weights_list = []
+        deformer_list = []
+        index_list = []
         count = 0
         for chunk in andecore.chunks(weight_list, len(def_list)):
             count += 1
@@ -308,29 +307,28 @@ class ModelConverter(softimage.SIModel):
                     # Assign deformer indices.
                     lst3[n] = ndx
                     n += 1
-            wght_lst_temp.append(lst)
-            def_lst_tmp.append(lst2)
-            ndx_lst_tmp.append(lst3)
-        weights_list = len(nodes_per_point) * ['empty']
-        deformer_list = len(nodes_per_point) * ['empty']
-        index_list = len(nodes_per_point) * ['empty']
-        for ndx, el in enumerate(nodes_per_point):
-            weights_list[ndx] = wght_lst_temp[el]
-            deformer_list[ndx] = def_lst_tmp[el]
-            index_list[ndx] = ndx_lst_tmp[el]
+            weights_list.append(lst)
+            deformer_list.append(lst2)
+            index_list.append(lst3)
+        # weights_list = len(nodes_per_point) * ['empty']
+        # deformer_list = len(nodes_per_point) * ['empty']
+        # index_list = len(nodes_per_point) * ['empty']
+        # for ndx, el in enumerate(nodes_per_point):
+        #     weights_list[ndx] = wght_lst_temp[el]
+        #     deformer_list[ndx] = def_lst_tmp[el]
+        #     index_list[ndx] = ndx_lst_tmp[el]
         return weights_list, deformer_list, index_list
 
     def get_deformers(self):
         '''Gets a lost fof all deformers for this model.'''
-        _, _, deformers = self.export.xsi.CGA_GetWeightsZE(self.geo)
+        _, deformers = self.export.xsi.ZET_GetWeights(self.geo)
         return [deformer.encode(STR_CODEC) for deformer in deformers]
 
     def get_faces(self):
         '''Creates a FaceCollection and fills it with Faces, returns the
         collection.'''
         coll = msh2.FaceCollection()
-        node_indices = self.export.xsi.CGA_GetNodeIndices(self.geo)
-        vert_count = self.export.xsi.CGA_GetPolygonVerticesCount(self.geo)
+        node_indices, vert_count = self.export.xsi.ZET_GetPolyVertexIndicesAndCounts(self.geo)
         fc = 0
         for el in vert_count:
             face = msh2.Face()
@@ -387,8 +385,8 @@ class ModelConverter(softimage.SIModel):
         coll.msh = self.msh2_model.msh
         geometry.collection = coll
         # Then split it up into chunks for more than one material per model.
-        poly_mat_indices = self.export.xsi.CGA_GetPolyIndicesPerMaterial(self.geo)
-        mat_names = self.export.xsi.CGA_GetMaterialNames(self.geo)
+        poly_mat_indices = self.export.xsi.ZET_GetPolyMaterialIndices(self.geo)
+        mat_names = self.export.xsi.ZET_GetMaterialNames(self.geo)
         coll.add(geometry)
         # If the model only has one material just export this one chunk.
         if len(mat_names) == 1:

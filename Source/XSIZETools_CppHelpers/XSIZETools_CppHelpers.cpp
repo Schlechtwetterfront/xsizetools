@@ -19,6 +19,8 @@
 #include <xsi_clusterproperty.h>
 #include <xsi_envelopeweight.h>
 
+#include <xsi_material.h>
+
 #include <xsi_utils.h>
 
 
@@ -52,6 +54,13 @@ CALLBACK XSILoadPlugin( PluginRegistrar& in_reg )
 	in_reg.RegisterCommand(L"CGA_GetDeformers0",L"CGA_GetDeformers0");
 	in_reg.RegisterCommand(L"CGA_GetNodesPerPoint",L"CGA_GetNodesPerPoint");
 
+	in_reg.RegisterCommand(L"ZET_GetVertexPositionsWithNormals", L"ZET_GetVertexPositionsWithNormals");
+	in_reg.RegisterCommand(L"ZET_GetUVs", L"ZET_GetUVs");
+	in_reg.RegisterCommand(L"ZET_GetWeights", L"ZET_GetWeights");
+	in_reg.RegisterCommand(L"ZET_GetPolyVertexIndicesAndCounts", L"ZET_GetPolyVertexIndicesAndCounts");
+	in_reg.RegisterCommand(L"ZET_GetPolyMaterialIndices", L"ZET_GetPolyMaterialIndices");
+	in_reg.RegisterCommand(L"ZET_GetMaterialNames", L"ZET_GetMaterialNames");
+
 	return CStatus::OK;
 }
 
@@ -63,17 +72,290 @@ CALLBACK XSIUnloadPlugin( const PluginRegistrar& in_reg )
 	return CStatus::OK;
 }
 
+
+CALLBACK ZET_GetVertexPositionsWithNormals_Init(CRef& in_ctxt)
+{
+	Context context(in_ctxt);
+
+	Command command;
+	command = context.GetSource();
+
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	arguments.Add(L"calculateWorldCoordinates", true);
+	command.PutDescription(L"Returns an array containing vertex positions plus their normals in a flat array. If calculateWorldCoordinates is true, multiply the vertex positions with the object's scale.");
+	command.EnableReturnValue(true);
+
+	return CStatus::OK;
+}
+
+CALLBACK ZET_GetVertexPositionsWithNormals_Execute(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+	Application xsi;
+
+	CValueArray args = ctxt.GetAttribute(L"Arguments");
+	PolygonMesh polyMesh = args[0];
+	bool calculateWorldCoordinates = args[1];
+
+	CGeometryAccessor ga = polyMesh.GetGeometryAccessor();
+
+	CLongArray nodeIndices;
+	ga.GetNodeIndices(nodeIndices);
+
+	CFloatArray nodeNormals;
+	ga.GetNodeNormals(nodeNormals);
+
+	CLongArray vertexIndices;
+	ga.GetVertexIndices(vertexIndices);
+
+	CDoubleArray vertexPositions;
+	ga.GetVertexPositions(vertexPositions);
+
+	// Double the length so we can put the normals in the same array.
+	CFloatArray result;
+	result.Resize(vertexPositions.GetCount() * 2);
+
+	// Get the scale of the object this geometry belongs to so we can calculate world coordinates.
+	MATH::CTransformation transform = ga.GetTransform();
+	double scaleX = transform.GetSclX(), scaleY = transform.GetSclY(), scaleZ = transform.GetSclZ();
+
+	for (long i = 0; i < vertexIndices.GetCount(); i++) {
+		long nodeIndex = nodeIndices[i], vertexIndex = vertexIndices[i];
+		if (calculateWorldCoordinates) {
+			result[vertexIndex * 6] = vertexPositions[vertexIndex * 3] * scaleX;
+			result[vertexIndex * 6 + 1] = vertexPositions[vertexIndex * 3 + 1] * scaleY;
+			result[vertexIndex * 6 + 2] = vertexPositions[vertexIndex * 3 + 2] * scaleZ;
+		}
+		else {
+			result[vertexIndex * 6] = vertexPositions[vertexIndex * 3];
+			result[vertexIndex * 6 + 1] = vertexPositions[vertexIndex * 3 + 1];
+			result[vertexIndex * 6 + 2] = vertexPositions[vertexIndex * 3 + 2];
+		}
+		result[vertexIndex * 6 + 3] = nodeNormals[nodeIndex * 3];
+		result[vertexIndex * 6 + 3 + 1] = nodeNormals[nodeIndex * 3 + 1];
+		result[vertexIndex * 6 + 3 + 2] = nodeNormals[nodeIndex * 3 + 2];
+	}
+
+	ctxt.PutAttribute(L"ReturnValue", result);
+	return CStatus::OK;
+}
+
+
+CALLBACK ZET_GetUVs_Init(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+	Command command;
+	command = ctxt.GetSource();
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	arguments.Add(L"uvSetIndex", 0);
+	command.PutDescription(L"Returns UV values of the UV cluster wiht index uvSetIndex.");
+	command.EnableReturnValue(true);
+
+	return CStatus::OK;
+}
+
+CALLBACK ZET_GetUVs_Execute(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+	Application xsi;
+
+	CValueArray args = ctxt.GetAttribute(L"Arguments");
+	PolygonMesh polyMesh = args[0];
+	long uvSetIndex = args[1];
+
+	CGeometryAccessor ga = polyMesh.GetGeometryAccessor();
+
+	CRefArray uvs = ga.GetUVs();
+
+	ClusterProperty uv = uvs[uvSetIndex];
+
+	CFloatArray uvCoordinates;
+	uv.GetValues(uvCoordinates);
+
+	ctxt.PutAttribute(L"ReturnValue", uvCoordinates);
+	return CStatus::OK;
+}
+
+
+CALLBACK ZET_GetPolyMaterialIndices_Init(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+	Command command;
+	command = ctxt.GetSource();
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	command.PutDescription(L"Returns a flat list of indices where the index represents the index of the polygon and the stored value the index of the material.");
+	command.EnableReturnValue(true);
+
+	return CStatus::OK;
+}
+
+CALLBACK ZET_GetPolyMaterialIndices_Execute(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+	Application xsi;
+
+	CValueArray args = ctxt.GetAttribute(L"Arguments");
+	PolygonMesh polyMesh = args[0];
+
+	CGeometryAccessor ga = polyMesh.GetGeometryAccessor();
+
+	CLongArray polyMaterialIndices;
+	ga.GetPolygonMaterialIndices(polyMaterialIndices);
+
+	ctxt.PutAttribute(L"ReturnValue", polyMaterialIndices);
+	return CStatus::OK;
+}
+
+
+CALLBACK ZET_GetMaterialNames_Init(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+	Command command;
+	command = ctxt.GetSource();
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	command.PutDescription(L"Returns a list of all materials used by this object.");
+	command.EnableReturnValue(true);
+
+	return CStatus::OK;
+}
+
+CALLBACK ZET_GetMaterialNames_Execute(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+	Application xsi;
+
+	CValueArray args = ctxt.GetAttribute(L"Arguments");
+	PolygonMesh polyMesh = args[0];
+
+	CGeometryAccessor ga = polyMesh.GetGeometryAccessor();
+
+	CRefArray materials = ga.GetMaterials();
+
+	CValueArray materialNames(materials.GetCount());
+
+	for (int i = 0; i < materials.GetCount(); i++) {
+		Material material(materials[i]);
+		materialNames[i] = material.GetName();
+	}
+
+	ctxt.PutAttribute(L"ReturnValue", materialNames);
+	return CStatus::OK;
+}
+
+
+CALLBACK ZET_GetWeights_Init(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+	Command command;
+	command = ctxt.GetSource();
+
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	arguments.Add(L"envelopePropertyIndex", 0);
+	command.PutDescription(L"Returns ( [weights], [deformernames] ). A PolygonMesh needs to be passed as argument.");
+	command.EnableReturnValue(true);
+
+	return CStatus::OK;
+}
+
+CALLBACK ZET_GetWeights_Execute(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+	Application xsi;
+	
+	CValueArray args = ctxt.GetAttribute(L"Arguments");
+	PolygonMesh polyMesh = args[0];
+	long envelopePropertyIndex = args[1];
+
+	CGeometryAccessor ga = polyMesh.GetGeometryAccessor();
+
+	CRefArray envWeights = ga.GetEnvelopeWeights();
+
+	EnvelopeWeight envWeight = envWeights[envelopePropertyIndex];
+
+	CFloatArray weights;
+	envWeight.GetValues(weights);
+
+	long valueSize = envWeight.GetValueSize();
+
+	// Declare arrays.
+	CValueArray deformerNames(valueSize);
+
+	CRefArray deformers = envWeight.GetDeformers();
+	deformerNames.Resize(deformers.GetCount());
+
+	for (long j = 0; j<deformers.GetCount(); j++) {
+		SIObject siobj(deformers[j]);
+		deformerNames[j] = siobj.GetName();
+	}
+	CValueArray resultArray(2);
+
+	resultArray[0] = weights;
+	resultArray[1] = deformerNames;
+	ctxt.PutAttribute(L"ReturnValue", resultArray);
+	return CStatus::OK;
+}
+
+
+CALLBACK ZET_GetPolyVertexIndicesAndCounts_Init(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+	Command command;
+	command = ctxt.GetSource();
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	command.PutDescription(L"Wrapper for CGeometryAccessor method GetVertexIndices. Returns a flat array of vertex indices for every polygon (1,2,44,5 , 3,4,5; for two polygons with 4 and 3 sides) and a flat array of per-poly vertex counts.");
+	command.EnableReturnValue(true);
+
+	return CStatus::OK;
+}
+
+CALLBACK ZET_GetPolyVertexIndicesAndCounts_Execute(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+	Application xsi;
+
+	CValueArray args = ctxt.GetAttribute(L"Arguments");
+	PolygonMesh polyMesh = args[0];
+
+	CGeometryAccessor ga = polyMesh.GetGeometryAccessor();
+
+	CLongArray vertexIndices;
+	ga.GetVertexIndices(vertexIndices);
+
+	CLongArray polyVertexCounts;
+	ga.GetPolygonVerticesCount(polyVertexCounts);
+
+	CValueArray returnArray(2);
+	returnArray[0] = vertexIndices;
+	returnArray[1] = polyVertexCounts;
+
+	ctxt.PutAttribute(L"ReturnValue", returnArray);
+	return CStatus::OK;
+}
+
+
 CALLBACK CGA_GetNodeVertexPositions_Init( CRef& in_ctxt )
 {
 	Context ctxt( in_ctxt );
-	Command oCmd;
-	oCmd = ctxt.GetSource();
-	ArgumentArray oArgs;
-	oArgs = oCmd.GetArguments();
-	oArgs.Add(L"polymsh");
-	oArgs.Add(L"worldCoords");
-	oCmd.PutDescription(L"Returns the corresponding vertex position for every node in an array. If worldCoords is True, multiply with scale.");
-	oCmd.EnableReturnValue(true);
+	Command command;
+	command = ctxt.GetSource();
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	arguments.Add(L"worldCoords");
+	command.PutDescription(L"Returns the corresponding vertex position for every node in an array. If worldCoords is True, multiply with scale.");
+	command.EnableReturnValue(true);
 
 	return CStatus::OK;
 }
@@ -131,13 +413,13 @@ CALLBACK CGA_GetNodeVertexPositions_Execute( CRef& in_ctxt )
 CALLBACK CGA_GetVertexIndices_Init( CRef& in_ctxt )
 {
 	Context ctxt( in_ctxt );
-	Command oCmd;
-	oCmd = ctxt.GetSource();
-	ArgumentArray oArgs;
-	oArgs = oCmd.GetArguments();
-	oArgs.Add(L"polymsh");
-	oCmd.PutDescription(L"\"Wrapper\" for CGeometryAccessor method GetVertexIndices. A PolygonMesh needs to be passed as argument.");
-	oCmd.EnableReturnValue(true);
+	Command command;
+	command = ctxt.GetSource();
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	command.PutDescription(L"\"Wrapper\" for CGeometryAccessor method GetVertexIndices. A PolygonMesh needs to be passed as argument.");
+	command.EnableReturnValue(true);
 
 	return CStatus::OK;
 }
@@ -161,13 +443,13 @@ CALLBACK CGA_GetVertexIndices_Execute( CRef& in_ctxt )
 CALLBACK CGA_GetNodeIndices_Init( CRef& in_ctxt )
 {
 	Context ctxt( in_ctxt );
-	Command oCmd;
-	oCmd = ctxt.GetSource();
-	ArgumentArray oArgs;
-	oArgs = oCmd.GetArguments();
-	oArgs.Add(L"polymsh");
-	oCmd.PutDescription(L"\"Wrapper\" for CGeometryAccessor method GetNodeIndices. A PolygonMesh needs to be passed as argument.");
-	oCmd.EnableReturnValue(true);
+	Command command;
+	command = ctxt.GetSource();
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	command.PutDescription(L"\"Wrapper\" for CGeometryAccessor method GetNodeIndices. A PolygonMesh needs to be passed as argument.");
+	command.EnableReturnValue(true);
 
 	return CStatus::OK;
 }
@@ -191,13 +473,13 @@ CALLBACK CGA_GetNodeIndices_Execute( CRef& in_ctxt )
 CALLBACK CGA_GetVertexPositions_Init( CRef& in_ctxt )
 {
 	Context ctxt( in_ctxt );
-	Command oCmd;
-	oCmd = ctxt.GetSource();
-	ArgumentArray oArgs;
-	oArgs = oCmd.GetArguments();
-	oArgs.Add(L"polymsh");
-	oCmd.PutDescription(L"\"Wrapper\" for CGeometryAccessor method GetVertexPositions. A PolygonMesh needs to be passed as argument.");
-	oCmd.EnableReturnValue(true);
+	Command command;
+	command = ctxt.GetSource();
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	command.PutDescription(L"\"Wrapper\" for CGeometryAccessor method GetVertexPositions. A PolygonMesh needs to be passed as argument.");
+	command.EnableReturnValue(true);
 
 	return CStatus::OK;
 }
@@ -227,13 +509,13 @@ CALLBACK CGA_GetVertexPositions_Execute( CRef& in_ctxt )
 CALLBACK CGA_GetPolygonVerticesCount_Init( CRef& in_ctxt )
 {
 	Context ctxt( in_ctxt );
-	Command oCmd;
-	oCmd = ctxt.GetSource();
-	ArgumentArray oArgs;
-	oArgs = oCmd.GetArguments();
-	oArgs.Add(L"polymsh");
-	oCmd.PutDescription(L"\"Wrapper\" for CGeometryAccessor method GetVerticesCount. A PolygonMesh needs to be passed as argument.");
-	oCmd.EnableReturnValue(true);
+	Command command;
+	command = ctxt.GetSource();
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	command.PutDescription(L"\"Wrapper\" for CGeometryAccessor method GetVerticesCount. A PolygonMesh needs to be passed as argument.");
+	command.EnableReturnValue(true);
 
 	return CStatus::OK;
 }
@@ -257,13 +539,13 @@ CALLBACK CGA_GetPolygonVerticesCount_Execute( CRef& in_ctxt )
 CALLBACK CGA_GetNodeNormals_Init( CRef& in_ctxt )
 {
 	Context ctxt( in_ctxt );
-	Command oCmd;
-	oCmd = ctxt.GetSource();
-	ArgumentArray oArgs;
-	oArgs = oCmd.GetArguments();
-	oArgs.Add(L"polymsh");
-	oCmd.PutDescription(L"\"Wrapper\" for CGeometryAccessor method GetNodeNormals. A PolygonMesh needs to be passed as argument.");
-	oCmd.EnableReturnValue(true);
+	Command command;
+	command = ctxt.GetSource();
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	command.PutDescription(L"\"Wrapper\" for CGeometryAccessor method GetNodeNormals. A PolygonMesh needs to be passed as argument.");
+	command.EnableReturnValue(true);
 
 	return CStatus::OK;
 }
@@ -287,13 +569,13 @@ CALLBACK CGA_GetNodeNormals_Execute( CRef& in_ctxt )
 CALLBACK CGA_GetUV0_Init( CRef& in_ctxt )
 {
 	Context ctxt( in_ctxt );
-	Command oCmd;
-	oCmd = ctxt.GetSource();
-	ArgumentArray oArgs;
-	oArgs = oCmd.GetArguments();
-	oArgs.Add(L"polymsh");
-	oCmd.PutDescription(L"Returns UV values as CFloatArray of the first UV cluster. A PolygonMesh needs to be passed as argument.");
-	oCmd.EnableReturnValue(true);
+	Command command;
+	command = ctxt.GetSource();
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	command.PutDescription(L"Returns UV values as CFloatArray of the first UV cluster. A PolygonMesh needs to be passed as argument.");
+	command.EnableReturnValue(true);
 
 	return CStatus::OK;
 }
@@ -318,13 +600,13 @@ CALLBACK CGA_GetUV0_Execute( CRef& in_ctxt )
 CALLBACK CGA_GetVertexColors0_Init( CRef& in_ctxt )
 {
 	Context ctxt( in_ctxt );
-	Command oCmd;
-	oCmd = ctxt.GetSource();
-	ArgumentArray oArgs;
-	oArgs = oCmd.GetArguments();
-	oArgs.Add(L"polymsh");
-	oCmd.PutDescription(L"Returns vertex color values of the first vertex color cluster. A PolygonMesh needs to be passed as argument.");
-	oCmd.EnableReturnValue(true);
+	Command command;
+	command = ctxt.GetSource();
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	command.PutDescription(L"Returns vertex color values of the first vertex color cluster. A PolygonMesh needs to be passed as argument.");
+	command.EnableReturnValue(true);
 
 	return CStatus::OK;
 }
@@ -348,13 +630,13 @@ CALLBACK CGA_GetVertexColors0_Execute( CRef& in_ctxt )
 CALLBACK CGA_GetWeights0_Init( CRef& in_ctxt )
 {
 	Context ctxt( in_ctxt );
-	Command oCmd;
-	oCmd = ctxt.GetSource();
-	ArgumentArray oArgs;
-	oArgs = oCmd.GetArguments();
-	oArgs.Add(L"polymsh");
-	oCmd.PutDescription(L"Returns Weight values as CFloatArray of the first UV cluster. A PolygonMesh needs to be passed as argument.");
-	oCmd.EnableReturnValue(true);
+	Command command;
+	command = ctxt.GetSource();
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	command.PutDescription(L"Returns Weight values as CFloatArray of the first UV cluster. A PolygonMesh needs to be passed as argument.");
+	command.EnableReturnValue(true);
 
 	return CStatus::OK;
 }
@@ -379,13 +661,13 @@ CALLBACK CGA_GetWeights0_Execute( CRef& in_ctxt )
 CALLBACK CGA_GetWeightsZE_Init( CRef& in_ctxt )
 {
 	Context ctxt( in_ctxt );
-	Command oCmd;
-	oCmd = ctxt.GetSource();
-	ArgumentArray oArgs;
-	oArgs = oCmd.GetArguments();
-	oArgs.Add(L"polymsh");
-	oCmd.PutDescription(L"Returns ( (elemcount), (weights), (deformerindices), (deformernames) ). A PolygonMesh needs to be passed as argument.");
-	oCmd.EnableReturnValue(true);
+	Command command;
+	command = ctxt.GetSource();
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	command.PutDescription(L"Returns ( (elemcount), (weights), (deformerindices), (deformernames) ). A PolygonMesh needs to be passed as argument.");
+	command.EnableReturnValue(true);
 
 	return CStatus::OK;
 }
@@ -426,13 +708,13 @@ CALLBACK CGA_GetWeightsZE_Execute( CRef& in_ctxt )
 CALLBACK CGA_GetNodesPerPoint_Init( CRef& in_ctxt )
 {
 	Context ctxt( in_ctxt );
-	Command oCmd;
-	oCmd = ctxt.GetSource();
-	ArgumentArray oArgs;
-	oArgs = oCmd.GetArguments();
-	oArgs.Add(L"polymsh");
-	oCmd.PutDescription(L"Returns Nodes per Point. A PolygonMesh needs to be passed as argument.");
-	oCmd.EnableReturnValue(true);
+	Command command;
+	command = ctxt.GetSource();
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	command.PutDescription(L"Returns Nodes per Point. A PolygonMesh needs to be passed as argument.");
+	command.EnableReturnValue(true);
 
 	return CStatus::OK;
 }

@@ -72,12 +72,19 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CGeoAccessorWrappers.32</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CGeoAccessorWrappers.64</TargetName>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\..\Application\Plugins\</OutDir>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>CGeoAccessorWrappers.64</TargetName>
+    <OutDir>..\..\Application\Plugins\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>CGeoAccessorWrappers.32</TargetName>
+    <OutDir>..\..\Application\Plugins\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\..\Application\Plugins\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

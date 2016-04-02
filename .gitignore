@@ -9,3 +9,7 @@
 *.sdf
 *.user
 *.opendb
+*.exp
+*.ilk
+*.lib
+*.pdb
