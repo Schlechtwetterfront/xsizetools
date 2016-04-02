@@ -38,6 +38,15 @@ Example: ```C:\\Users\\Ande\\Autodesk\\Softimage_2012\\Addons```
 
 Exit XSI, then remove the XSIZETools folder from the path mentioned in _Install_.
 
+
+Building from source
+--------
+
+Currently the solution is set up to use two installations of Softimage (one for x64, one for x86) with the corresponding XSISDK.
+
+Modify ```setup_86.bat``` and ```setup_64.bat``` to point it to the correct _SDK paths_ (XSISDK_ROOT) and ```setenv.bat```s. After that, use ```setup_86.bat``` to compile the x86 version and ```setup_64.bat``` to compile the 64 version.
+
+
 Links
 --------
 

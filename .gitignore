@@ -1,7 +1,9 @@
 /Source/XSISDK/
 /XSIZETools_src/
-/Source/x32/.vs/
-/Source/x64/.vs/
+/Source/XSIZETools_CppHelpers/.vs/
+/Source/XSIZETools_CppHelpers/x64/
+/Source/XSIZETools_CppHelpers/Debug/
+/Source/XSIZETools_CppHelpers/Release/
 
 
 *.sdf

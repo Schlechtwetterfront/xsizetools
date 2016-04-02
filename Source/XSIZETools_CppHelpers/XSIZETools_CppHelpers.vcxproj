@@ -69,19 +69,10 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\bin\nt-x86-32\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\bin\nt-x86-32\$(Configuration)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\bin\nt-x86-64\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\bin\nt-x86-64\$(Configuration)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\bin\nt-x86-32\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\bin\nt-x86-32\$(Configuration)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CGeoAccessorWrappers.32</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CGeoAccessorWrappers.64</TargetName>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>.\bin\nt-x86-64\</OutDir>
-    <IntDir>.\bin\nt-x86-64\$(Configuration)\</IntDir>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>CGeoAccessorWrappers.64</TargetName>
   </PropertyGroup>
@@ -92,8 +83,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
     </ClCompile>
+    <Link />
     <Link>
-      <OutputFile>.\bin\nt-x86-32\XSIZETools_CppHelpers.dll</OutputFile>
+      <AdditionalLibraryDirectories>$(XSISDK_ROOT)\lib\nt-x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -102,17 +94,17 @@
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
-      <OutputFile>.\bin\nt-x86-32\XSIZETools_CppHelpers.dll</OutputFile>
-      <AdditionalDependencies>$(XSISDK_ROOT)\lib\nt-x86-64\sicppsdk.lib;$(XSISDK_ROOT)\lib\nt-x86-64\sicoresdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(XSISDK_ROOT)\lib\nt-x86-64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sicppsdk.lib;sicoresdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(XSISDK_ROOT)\lib\nt-x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
     </ClCompile>
+    <Link />
     <Link>
-      <OutputFile>.\bin\nt-x86-64\XSIZETools_CppHelpers.dll</OutputFile>
+      <AdditionalLibraryDirectories>$(XSISDK_ROOT)\lib\nt-x86-64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -120,9 +112,8 @@
       <WarningLevel>Level3</WarningLevel>
     </ClCompile>
     <Link>
-      <OutputFile>CGeoAccessorWrappers.64.dll</OutputFile>
       <AdditionalLibraryDirectories>$(XSISDK_ROOT)\lib\nt-x86-64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(XSISDK_ROOT)\lib\nt-x86-64\sicppsdk.lib;sicoresdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sicppsdk.lib;sicoresdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

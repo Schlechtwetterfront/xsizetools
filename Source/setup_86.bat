@@ -1,11 +1,13 @@
+echo 86
+
 @echo off
 
-call "D:\Program Files\Autodesk\Softimage 2015\Application\bin\Setenv.bat"
+call "D:\Softimage\Softimage_Mod_Tool_7.5\Application\bin\setenv.bat"
 call  "D:\Programme (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
 
 set PATH
-set "XSISDK_ROOT=.\XSISDK"
+set "XSISDK_ROOT=D:\Softimage\Softimage_Mod_Tool_7.5\XSISDK"
 
-"D:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.exe" /useenv
+"D:\Programme (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.exe" /useenv
 
-echo on
+@echo on
