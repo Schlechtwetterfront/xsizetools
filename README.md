@@ -29,11 +29,9 @@ Installation
 
 **Install:**
 	
-Unzip the archive into:
-
-* %user_path%\\Autodesk\\%xsi_version%\\Addons _or_
-* %user_path%\\Softimage\\%xsi_version%\\Addons
-* Example: C:\\Users\\Ande\\Autodesk\\Softimage_2012\\Addons
+Unzip the archive into
+```%user_path%\\Autodesk\\%xsi_version%\\Addons``` _or_ ```%user_path%\\Softimage\\%xsi_version%\\Addons```.  
+Example: ```C:\\Users\\Ande\\Autodesk\\Softimage_2012\\Addons```
 	
 	
 **Uninstall:**
@@ -51,7 +49,7 @@ Links
 * Visual C++ 2010 redist: [x86][redist86] | [x64][redist64]
 
 [homepage]: http://schlechtwetterfront.github.io/xsizetools/ "XSIZETools Homepage"
-[gametoast]: http://gametoast.com/forums/viewtopic.php?f=36&t=26664 "Gametoast Thread"
+[gametoast]: http://gametoast.com/viewtopic.php?f=36&t=26664 "Gametoast Thread"
 [releases]: https://github.com/Schlechtwetterfront/xsizetools/releases "Releases"
 [python download]: https://www.python.org/downloads/ "Python Download"
 [python26]: http://www.python.org/ftp/python/2.6.6/python-2.6.6.msi "Python 2.6"

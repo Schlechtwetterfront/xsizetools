@@ -1,0 +1,9 @@
+/Source/XSISDK/
+/XSIZETools_src/
+/Source/x32/.vs/
+/Source/x64/.vs/
+
+
+*.sdf
+*.user
+*.opendb
