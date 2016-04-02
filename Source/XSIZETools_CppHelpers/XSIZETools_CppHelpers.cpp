@@ -20,8 +20,11 @@
 #include <xsi_envelopeweight.h>
 
 #include <xsi_material.h>
+#include <xsi_point.h>
 
 #include <xsi_utils.h>
+
+#include <vector>
 
 
 // Change callback for different SDK versions (x86 version needs to support older versions of XSI and only newer versions have x64 support).
@@ -32,8 +35,18 @@
 #endif
 
 using namespace XSI; 
+using namespace MATH;
 
-CValueArray NodesPerPoint(CGeometryAccessor ga);
+class VertexData {
+public:
+	int index = 0;
+	int nodeIndex = 0;
+	float x, y, z = 0.f;
+	float nx, ny, nz = 0.f;
+	float u, v = 0.f;
+	float weights[4] = { 0.f, 0.f, 0.f, 0.f };
+	int deformers[4] = { 0, 0, 0, 0 };
+};
 
 CALLBACK XSILoadPlugin( PluginRegistrar& in_reg )
 {
@@ -60,6 +73,7 @@ CALLBACK XSILoadPlugin( PluginRegistrar& in_reg )
 	in_reg.RegisterCommand(L"ZET_GetPolyVertexIndicesAndCounts", L"ZET_GetPolyVertexIndicesAndCounts");
 	in_reg.RegisterCommand(L"ZET_GetPolyMaterialIndices", L"ZET_GetPolyMaterialIndices");
 	in_reg.RegisterCommand(L"ZET_GetMaterialNames", L"ZET_GetMaterialNames");
+	in_reg.RegisterCommand(L"ZET_GetGeometry", L"ZET_GetGeometry");
 
 	return CStatus::OK;
 }
@@ -69,6 +83,94 @@ CALLBACK XSIUnloadPlugin( const PluginRegistrar& in_reg )
 	CString strPluginName;
 	strPluginName = in_reg.GetName();
 	Application().LogMessage(strPluginName + L" has been unloaded.",siVerboseMsg);
+	return CStatus::OK;
+}
+
+
+CALLBACK ZET_GetGeometry_Init(CRef& in_ctxt)
+{
+	Context context(in_ctxt);
+
+	Command command;
+	command = context.GetSource();
+
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	arguments.Add(L"calculateWorldCoordinates", true);
+	command.PutDescription(L"Returns an array containing vertex positions plus their normals in a flat array. If calculateWorldCoordinates is true, multiply the vertex positions with the object's scale.");
+	command.EnableReturnValue(true);
+
+	return CStatus::OK;
+}
+
+CALLBACK ZET_GetGeometry_Execute(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+	Application xsi;
+
+	CValueArray args = ctxt.GetAttribute(L"Arguments");
+	PolygonMesh polyMesh = args[0];
+	bool calculateWorldCoordinates = args[1];
+
+	CLongArray nodeIndices;
+	ga.GetNodeIndices(nodeIndices);
+
+	CFloatArray nodeNormals;
+	ga.GetNodeNormals(nodeNormals);
+
+	CLongArray vertexIndices;
+	ga.GetVertexIndices(vertexIndices);
+
+	CDoubleArray vertexPositions;
+	ga.GetVertexPositions(vertexPositions);
+
+	CLongArray nodeToVertex(nodeIndices.GetCount());
+
+	std::vector<VertexData> vertices;
+
+	for (long j = 0; j < nodeIndices.GetCount(); j++) {
+		long vertexIndex = vertexIndices[j];
+		long nodeIndex = nodeIndices[j];
+		nodeToVertex[nodeIndex] = vertexIndex;
+	}
+
+	// Double the length so we can put the normals in the same array.
+	CFloatArray result;
+	result.Resize(vertexPositions.GetCount() * 2);
+
+	// Get the scale of the object this geometry belongs to so we can calculate world coordinates.
+	MATH::CTransformation transform = ga.GetTransform();
+	double scaleX = transform.GetSclX(), scaleY = transform.GetSclY(), scaleZ = transform.GetSclZ();
+
+	for (long i = 0; i < vertexIndices.GetCount(); i++) {
+		long nodeIndex = nodeIndices[i];
+		long vertexIndex = vertexIndices[i];
+
+		VertexData* v = new VertexData();
+		v->index = vertexIndex;
+		v->nodeIndex = nodeIndex;
+
+		v->x = vertexPositions[vertexIndex * 3] * scaleX;
+		v->y = vertexPositions[vertexIndex * 3 + 1] * scaleY;
+		v->z = vertexPositions[vertexIndex * 3 + 2] * scaleZ;
+
+		v->nx = nodeNormals[nodeIndex * 3];
+		v->ny = nodeNormals[nodeIndex * 3 + 1];
+		v->nz = nodeNormals[nodeIndex * 3 + 2];
+	}
+
+	/*CPointRefArray points = polyMesh.GetPoints();
+	
+	for (long i = 0; i < points.GetCount(); i++) {
+		Point point = points[i];
+		CVector3 position = point.GetPosition();
+		bool isNormalValid = true;
+		CVector3 normal = point.GetNormal(isNormalValid);
+		point.get
+	}*/
+
+	ctxt.PutAttribute(L"ReturnValue", result);
 	return CStatus::OK;
 }
 
@@ -122,7 +224,8 @@ CALLBACK ZET_GetVertexPositionsWithNormals_Execute(CRef& in_ctxt)
 	double scaleX = transform.GetSclX(), scaleY = transform.GetSclY(), scaleZ = transform.GetSclZ();
 
 	for (long i = 0; i < vertexIndices.GetCount(); i++) {
-		long nodeIndex = nodeIndices[i], vertexIndex = vertexIndices[i];
+		long nodeIndex = nodeIndices[i];
+		long vertexIndex = vertexIndices[i];
 		if (calculateWorldCoordinates) {
 			result[vertexIndex * 6] = vertexPositions[vertexIndex * 3] * scaleX;
 			result[vertexIndex * 6 + 1] = vertexPositions[vertexIndex * 3 + 1] * scaleY;
