@@ -42,9 +42,6 @@ def add_fixed_OnClicked():
 def pick_coll_OnClicked():
     picked = xsi.PickElement('object', 'Pick Collision Object(s)', 'Pick Collision Object(s)')
     ppg = PPG.Inspected(0)
-    print picked.Count
-    print picked[2]
-    print type(picked[2])
     ppg.Parameters('collisions').Value = ','.join(element.FullName for element in picked[2])
 
 

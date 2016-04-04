@@ -2,11 +2,11 @@
     UI functionality for the import dialog.
 '''
 import softimage
-import andezetcore
-import andezetimport
+import zetcore
+import zetimport
 reload(softimage)
-reload(andezetcore)
-reload(andezetimport)
+reload(zetcore)
+reload(zetimport)
 from win32com.client import constants as const
 xsi = Application
 ADDONPATH = xsi.InstallationPath(const.siUserAddonPath)
@@ -14,8 +14,8 @@ sigen = softimage.SIGeneral()
 
 
 def store_flags_OnClicked():
-    settings = andezetcore.load_settings('import', PPG.Inspected(0))
-    andezetcore.save_settings('import', settings)
+    settings = zetcore.load_settings('import', PPG.Inspected(0))
+    zetcore.save_settings('import', settings)
     sigen.msg('Stored.')
     return
 
@@ -78,8 +78,8 @@ will persist after the import.''')
 
 
 def importbutton_OnClicked():
-    settings = andezetcore.load_settings('import', PPG.Inspected(0))
-    import_ = andezetimport.Import(xsi, settings)
+    settings = zetcore.load_settings('import', PPG.Inspected(0))
+    import_ = zetimport.Import(xsi, settings)
     try:
         import_.import_()
     except SystemExit:
@@ -87,7 +87,7 @@ def importbutton_OnClicked():
     except Exception as e:
         if sigen.msg('Encountered an error while importing, copy error to clipboard?', const.siMsgYesNo) == 6:
             import win32clipboard, traceback
-            log_path = andezetcore.get_import_log_path()
+            log_path = zetcore.get_import_log_path()
             lines = []
             if log_path:
                 with open(log_path, 'r') as file_handle:

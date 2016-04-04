@@ -12,9 +12,9 @@
 
 
 import softimage
-import andezetcore
+import zetcore
 import andecore
-reload(andezetcore)
+reload(zetcore)
 reload(softimage)
 reload(andecore)
 import logging
@@ -236,14 +236,27 @@ class ModelConverter(softimage.SIModel):
         '''Creates a Vertex Collection and fills it with normals and positions,
         returns the collection.'''
         coll = msh2.VertexCollection()
+
         # Vertex positions in a one-dimensional array.
-        positions_and_normals = self.export.xsi.ZET_GetVertexPositionsWithNormals(self.geo, True)
+        # positions_and_normals = self.export.xsi.ZET_GetVertexPositionsWithNormals(self.geo, True)
+        # n = 0
+        # while n < len(positions_and_normals):
+        #     position = positions_and_normals[n], positions_and_normals[n + 1], positions_and_normals[n + 2]
+        #     normal = positions_and_normals[n + 3], positions_and_normals[n + 4], positions_and_normals[n + 5]
+        #     n += 6
+        #     coll.add(msh2.Vertex(position, normal))
+
+        # Vertex positions in a one-dimensional array.
+        vert_pos_list = self.export.xsi.CGA_GetNodeVertexPositions(self.geo, True)
+        # Normal vectors in a one-dimensional array.
+        normals_list = self.export.xsi.CGA_GetNodeNormals(self.geo)
         n = 0
-        while n < len(positions_and_normals):
-            position = positions_and_normals[n], positions_and_normals[n + 1], positions_and_normals[n + 2]
-            normal = positions_and_normals[n + 3], positions_and_normals[n + 4], positions_and_normals[n + 5]
-            n += 6
-            coll.add(msh2.Vertex(position, normal))
+        while n < len(vert_pos_list):
+            coord = vert_pos_list[n], vert_pos_list[n + 1], vert_pos_list[n + 2]
+            normal = normals_list[n], normals_list[n + 1], normals_list[n + 2]
+            n += 3
+            coll.add(msh2.Vertex(coord, normal))
+
         logging.info('Processed %s vertices.', len(coll))
         self.export.stats.verts += len(coll)
         return coll
@@ -253,15 +266,23 @@ class ModelConverter(softimage.SIModel):
         uv_list = self.export.xsi.ZET_GetUVs(self.geo, 0)
         uvs = []
         n = 0
-        try:
-            while n < len(uv_list):
-                coord = uv_list[n], uv_list[n + 1]
-                uvs.append(coord)
-                # UVs are stored as UVWs in Softimage so ignore the W value.
-                n += 3
-        except IndexError:
-            return False
+        while n < len(uv_list):
+            coord = uv_list[n], uv_list[n + 1]
+            uvs.append(coord)
+            # UVs are stored as UVWs in Softimage so ignore the W value.
+            n += 3
         return uvs
+
+    def set_vert_colors(self, vertex_collection):
+        colors = self.export.xsi.CGA_GetVertexColors0(self.geo)
+
+        for index, vertex in enumerate(vertex_collection):
+            vertex.color = msh2.Color((colors[index * 4] * 255,
+                                       colors[index * 4 + 1] * 255,
+                                       colors[index * 4 + 2] * 255,
+                                       colors[index * 4 + 3] * 255,
+                                      ))
+
 
     def get_vert_colors(self):
         '''Gets RGBA vertex colors, returns them as a Color object.'''
@@ -277,16 +298,41 @@ class ModelConverter(softimage.SIModel):
             n += 4
         return colors
 
+    def set_weights(self, vertex_collection):
+        weights, deformer_names = self.export.xsi.ZET_GetWeights(self.geo)
+
+        logging.debug('# of verts: %s, # of weights: %s', len(vertex_collection), len(weights) / len(deformer_names))
+
+        for n in xrange(len(weights) / len(deformer_names)):
+            vertex = vertex_collection[n]
+
+            weight_values = [.0] * 4
+            deformers = [''] * 4
+            deformer_indices = [0] * 4
+
+            number_of_deformers = 0
+            for index, deformer in enumerate(deformer_names):
+                if weights[n * 3 + index] > 0 and number_of_deformers < 4:
+                    weight_values[number_of_deformers] = weights[n * 3 + index] / 100
+                    deformers[number_of_deformers] = deformer
+                    deformer_indices[number_of_deformers] = index
+                    number_of_deformers += 1
+
+            vertex.weights = weight_values
+            vertex.deformers = deformers
+            vertex.deformer_indices = deformer_indices
+        
+
     def get_weights(self):
         '''Gets weights and deformers, returns a list of four weight value
         tuples and four deformer names tuples.'''
-        weight_list, def_list = self.export.xsi.ZET_GetWeights(self.geo)
+        _, weight_list, def_list = self.export.xsi.CGA_GetWeightsZE(self.geo)
         # Nodes per point: point 0: node_index, point 1: node_index etc...
-        # nodes_per_point = self.export.xsi.CGA_GetNodesPerPoint(self.geo)
+        nodes_per_point = self.export.xsi.CGA_GetNodesPerPoint(self.geo)
         # Temporary lists.
-        weights_list = []
-        deformer_list = []
-        index_list = []
+        wght_lst_temp = []
+        def_lst_tmp = []
+        ndx_lst_tmp = []
         count = 0
         for chunk in andecore.chunks(weight_list, len(def_list)):
             count += 1
@@ -307,16 +353,16 @@ class ModelConverter(softimage.SIModel):
                     # Assign deformer indices.
                     lst3[n] = ndx
                     n += 1
-            weights_list.append(lst)
-            deformer_list.append(lst2)
-            index_list.append(lst3)
-        # weights_list = len(nodes_per_point) * ['empty']
-        # deformer_list = len(nodes_per_point) * ['empty']
-        # index_list = len(nodes_per_point) * ['empty']
-        # for ndx, el in enumerate(nodes_per_point):
-        #     weights_list[ndx] = wght_lst_temp[el]
-        #     deformer_list[ndx] = def_lst_tmp[el]
-        #     index_list[ndx] = ndx_lst_tmp[el]
+            wght_lst_temp.append(lst)
+            def_lst_tmp.append(lst2)
+            ndx_lst_tmp.append(lst3)
+        weights_list = len(nodes_per_point) * ['empty']
+        deformer_list = len(nodes_per_point) * ['empty']
+        index_list = len(nodes_per_point) * ['empty']
+        for ndx, el in enumerate(nodes_per_point):
+            weights_list[ndx] = wght_lst_temp[el]
+            deformer_list[ndx] = def_lst_tmp[el]
+            index_list[ndx] = ndx_lst_tmp[el]
         return weights_list, deformer_list, index_list
 
     def get_deformers(self):
@@ -328,7 +374,9 @@ class ModelConverter(softimage.SIModel):
         '''Creates a FaceCollection and fills it with Faces, returns the
         collection.'''
         coll = msh2.FaceCollection()
-        node_indices, vert_count = self.export.xsi.ZET_GetPolyVertexIndicesAndCounts(self.geo)
+        # node_indices, vert_count = self.export.xsi.ZET_GetPolyVertexIndicesAndCounts(self.geo)
+        node_indices = self.export.xsi.CGA_GetNodeIndices(self.geo)
+        vert_count = self.export.xsi.CGA_GetPolygonVerticesCount(self.geo)
         fc = 0
         for el in vert_count:
             face = msh2.Face()
@@ -363,17 +411,20 @@ class ModelConverter(softimage.SIModel):
             seg.vertices.set_uvs(self.get_uvs())
         if self.is_colored():
             seg.vertices.colored = True
-            seg.vertices.set_colors(self.get_vert_colors())
+            self.set_vert_colors(seg.vertices)
+            # seg.vertices.set_colors(self.get_vert_colors())
         if self.is_weighted():
             seg.vertices.weighted = True
+            # self.set_weights(seg.vertices)
             seg.vertices.set_weights(*self.get_weights())
         return seg
 
     def clear_multiverts(self, collection):
         '''Removes vertices that have the same position, normals and UVs.'''
-        for segment in collection:
-            if isinstance(segment, msh2.SegmentGeometry):
-                segment.clear_doubles()
+        with zetcore.Timer('Cleared multiverts in %ss %sms.'):
+            for segment in collection:
+                if isinstance(segment, msh2.SegmentGeometry):
+                    segment.clear_doubles()
 
     def get_segments(self):
         '''Creates segments from the main geometry and returns them in
@@ -395,6 +446,7 @@ class ModelConverter(softimage.SIModel):
         # Otherwise split the geometry.
         coll.split(0, poly_mat_indices, mat_names)
         coll.assign_materials(self.export.msh.materials)
+
         self.clear_multiverts(coll)
         return coll
 
@@ -496,8 +548,7 @@ class ModelConverter(softimage.SIModel):
         '''Gather the geometry for cloth.'''
         facecoll = msh2.FaceCollection()
         vertcoll = msh2.ClothVertexCollection()
-        uvs = self.get_uvs()
-        if not uvs:
+        if not self.is_uved():
             self.export.abort('{0} doesnt have UVs(necessary for Cloth).'.format(self.si_model.Name))
         fixed = self.get_fixed()
         # Two dimensional: [0][0] = first deformer, weight for first point in cluster.
@@ -510,22 +561,27 @@ class ModelConverter(softimage.SIModel):
             weights = self.get_cloth_weights()
             deformers = self.get_cloth_deformers()
             logging.info('Retrieved cloth deformers: %s (%s)', deformers, len(deformers))
-        facets = self.geo.Facets
-        for facet in facets:
-            pnts = facet.Points
-            face = msh2.Face()
-            for pnt in pnts:
-                face.add(pnt.Index)
+
+        vertex_indices, poly_lengths = self.export.xsi.ZET_GetPolyVertexIndicesAndCounts(self.geo)
+
+        offset = 0
+        for poly_length in poly_lengths:
+            face = msh2.Face(vertex_indices[offset:offset + poly_length])
+            offset += poly_length
             facecoll.add(face)
-        logging.info('Processed %s faces.', len(facecoll))
-        for pnt in self.geo.Points:
-            vert = msh2.ClothVertex((pnt.Position.X,
-                                     pnt.Position.Y,
-                                     pnt.Position.Z))
-            vert.uv = uvs[pnt.Samples[0].Index]
-            if pnt.Index in fixed:
+
+        positions = self.export.xsi.ZET_GetVertexPositions(self.geo, False)
+        vertex_to_node_indices = self.export.xsi.ZET_GetVertexToNodeIndices(self.geo)
+        uvs = self.export.xsi.ZET_GetUVs(self.geo, 0)
+        for n in xrange(len(self.geo.Points)):
+            vert = msh2.ClothVertex((positions[n * 3],
+                                     positions[n * 3 + 1],
+                                     positions[n * 3 + 2],))
+            node_index = vertex_to_node_indices[n]
+            vert.uv = uvs[node_index * 3], uvs[node_index * 3 + 1]
+            if n in fixed:
                 vert.is_fixed = True
-            vert.deformer = deformers[weights[pnt.Index]].encode(STR_CODEC)
+            vert.deformer = deformers[weights[n]].encode(STR_CODEC)
             vertcoll.add(vert)
         logging.info('Processed %s vertices.', len(vertcoll))
         return facecoll, vertcoll
@@ -542,11 +598,15 @@ class ModelConverter(softimage.SIModel):
         collisions = []
         for ps in self.si_model.Properties:
             if 'ZEC' in ps.Name:
-                collision_names = ps.Parameters('collisions').Value.encode(STR_CODEC).split(',')
+                collision_names = ps.Parameters('collisions').Value
+                if collision_names:
+                    collision_names = collision_names.encode(STR_CODEC).split(',')
                 break
         for collision_name in collision_names:
             # Split name by periods to remove possible Softimage Model names (ie MyModel.MyObject).
-            short_collision_name = collision_name.encode(STR_CODEC).split('.')[-1]
+            short_collision_name = collision_name.encode(STR_CODEC)
+            if '.' in short_collision_name:
+                short_collision_name = short_collision_name.split('.')[-1]
             if not short_collision_name.lower().startswith('c_'):
                 self.export.abort('Cloth collision names should start with "c_" ({0}).'.format(short_collision_name))
             collision = msh2.ClothCollision(geo)
@@ -559,12 +619,15 @@ class ModelConverter(softimage.SIModel):
         '''Get the cloth data for this model.'''
         coll = msh2.SegmentCollection(self.msh2_model)
         clothgeo = msh2.ClothGeometry(coll)
-        clothgeo.faces, clothgeo.vertices = self.get_cloth_geo()
+        with zetcore.Timer('Cloth geometry in %ss %sms.'):
+            clothgeo.faces, clothgeo.vertices = self.get_cloth_geo()
         clothgeo.assign_parents()
         clothgeo.texture = self.get_cloth_tex()
-        clothgeo.create_constraints()
+        with zetcore.Timer('Cloth constraints in %ss %sms.'):
+            clothgeo.create_constraints()
 
-        clothgeo.collisions = self.get_cloth_collisions(clothgeo)
+        with zetcore.Timer('Cloth collisions in %ss %sms.'):
+            clothgeo.collisions = self.get_cloth_collisions(clothgeo)
 
         coll.add(clothgeo)
         return coll
@@ -585,12 +648,14 @@ class ModelConverter(softimage.SIModel):
         if 'geo' in self.msh2_model.model_type:
             logging.info('Is geometry.')
             self.msh2_model.segments = None
-            self.msh2_model.segments = self.get_segments()
+            with zetcore.Timer('Segments in %ss %sms.'):
+                self.msh2_model.segments = self.get_segments()
             self.process_bbox()
         if self.msh2_model.model_type == 'cloth':
             logging.info('Is cloth.')
             self.msh2_model.segments = None
-            self.msh2_model.segments = self.get_cloth()
+            with zetcore.Timer('Cloth Segment in %ss %sms.'):
+                self.msh2_model.segments = self.get_cloth()
             if self.is_weighted():
                 self.msh2_model.deformers = self.get_deformers()
                 self.export.add_deformers(self.msh2_model.deformers)
@@ -600,10 +665,12 @@ class ModelConverter(softimage.SIModel):
             self.export.add_deformers(self.msh2_model.deformers)
         if self.is_collprim():
             logging.info('Is collision primitive.')
-            self.process_collision_prim()
+            with zetcore.Timer('CollPrim in %ss %sms.'):
+                self.process_collision_prim()
         elif self.is_cloth_collprim():
             logging.info('Is cloth collision primitive.')
-            self.process_c_collision_primitive()
+            with zetcore.Timer('ClothCollPrim in %ss %sms.'):
+                self.process_c_collision_primitive()
         # Reset scale because we're using vertex world coordinates.
         # And do it after process_collision_prim because it needs the scale.
         self.msh2_model.transform.scale = 1.0, 1.0, 1.0
@@ -724,7 +791,7 @@ class Export(softimage.SIGeneral):
         self.ADDONPATH = self.xsi.InstallationPath(const.siUserAddonPath)
         self.notifications = None
         self.model_deformers = None
-        self.stats = andezetcore.ExportStats()
+        self.stats = zetcore.ExportStats()
         self.dontexport = []
         # pb = progress bar
         self.pb = softimage.SIProgressBar()
@@ -732,7 +799,7 @@ class Export(softimage.SIGeneral):
             self.ppg_params = config
         else:
             return
-            self.ppg_params = andezetcore.load_settings('export', PPG.Inspected(0))
+            self.ppg_params = zetcore.load_settings('export', PPG.Inspected(0))
         logpath = os.path.join(softimage.Softimage.get_plugin_origin('XSIZETools'), 'export_log.log')
         logging.basicConfig(format='%(levelname)s (%(lineno)d, %(funcName)s): %(message)s',
                             filename=logpath,
@@ -808,7 +875,7 @@ class Export(softimage.SIGeneral):
         '''Prepares export.'''
         self.stats.start = datetime.now()
         self.pb.inc()
-        andezetcore.save_settings('export', self.ppg_params)
+        zetcore.save_settings('export', self.ppg_params)
         self.si_root = self.xsi.Selection(0)
         if not self.si_root:
             self.abort('No models selected.')
@@ -837,54 +904,50 @@ class Export(softimage.SIGeneral):
         logging.info('.msh file path: {0}'.format(self.ppg_params.get('path')))
         self.msh = None
         self.msh = msh2.Msh()
+
         # Convert materials from XSI to msh2.
         self.pb.set(len(self.si_materials), 'Processing materials...')
         self.pb.show()
         self.msh.materials = msh2.MaterialCollection(self.msh)
         self.msh.materials.replace([])
-        time_material_start = datetime.now()
-        for ndx, material in enumerate(self.si_materials):
-            logging.info('Processing material "{0}".'.format(material.Name))
-            self.pb.setc('Processing Material {0}... {1}/{2}'.format(material.Name,
-                                                                     ndx + 1,
-                                                                     len(self.si_materials)))
-            conv = MaterialConverter(material, self, ndx)
-            self.msh.materials.add(conv.convert())
-            logging.info('Finished processing.')
-            self.pb.inc()
-        self.msh.materials.assign_indices()
+        with zetcore.Timer('Materials in %ss %sms.'):
+            for ndx, material in enumerate(self.si_materials):
+                logging.info('Processing material "{0}".'.format(material.Name))
+                self.pb.setc('Processing Material {0}... {1}/{2}'.format(material.Name,
+                                                                         ndx + 1,
+                                                                         len(self.si_materials)))
+                conv = MaterialConverter(material, self, ndx)
+                self.msh.materials.add(conv.convert())
+                logging.info('Finished processing.')
+                self.pb.inc()
+            self.msh.materials.assign_indices()
         self.stats.mats += len(self.msh.materials)
-        time_material = datetime.now() - time_material_start
-        logging.info('Processed materials in %s s %s ms.', time_material.seconds, time_material.microseconds)
+
         # Now Models.
         self.pb.set(len(self.si_models), 'Processing models...')
         self.msh.models = None
         self.msh.models = msh2.ModelCollection(self.msh)
         self.msh.models.replace([])
-        time_models_start = datetime.now()
-        for ndx, model in enumerate(self.si_models):
-            self.pb.setc('Processing Model {0}... {1}/{2}'.format(model.Name,
-                                                                  ndx + 1,
-                                                                  len(self.si_models)))
-            logging.info('Processing model "{0}".'.format(model.Name))
-            conv = ModelConverter(model, self)
-            self.msh.models.add(conv.convert())
-            logging.info('Finished processing.')
-            self.pb.inc()
-        self.msh.models.assign_indices()
-        self.msh.models.assign_parents()
-        time_models_processed = datetime.now()
-        time_models = time_models_processed - time_models_start
-        logging.info('Processed models in %s s %s ms.', time_models.seconds, time_models.microseconds)
+        with zetcore.Timer('Models in %ss %sms.'):
+            for ndx, model in enumerate(self.si_models):
+                self.pb.setc('Processing Model {0}... {1}/{2}'.format(model.Name,
+                                                                      ndx + 1,
+                                                                      len(self.si_models)))
+                logging.info('Processing model "{0}".'.format(model.Name))
+                with zetcore.Timer('Model in %ss %sms.'):
+                    conv = ModelConverter(model, self)
+                    self.msh.models.add(conv.convert())
+                logging.info('Finished processing.')
+                self.pb.inc()
+            self.msh.models.assign_indices()
+            self.msh.models.assign_parents()
+
         self.msh.models.remove_multi(self.dontexport)
-        time_models_removed_multis = datetime.now()
-        time_models = time_models_removed_multis - time_models_processed
-        logging.info('Remove multiple vertices in %s s %s ms.', time_models.seconds, time_models.microseconds)
-        self.msh.models.assign_cloth_collisions()
-        time_models_removed_multis = datetime.now()
-        time_models = time_models_removed_multis - time_models_removed_multis
-        logging.info('Assigned cloth collisions in %s s %s ms.', time_models.seconds, time_models.microseconds)
+
+        with zetcore.Timer('Assigned cloth collisions in %ss %sms.'):
+            self.msh.models.assign_cloth_collisions()
         self.stats.models += len(self.msh.models)
+
         # Scene Info.
         self.pb.set(1, 'Getting Scene Info...')
         logging.info('Processing Scene Info.')
@@ -893,19 +956,18 @@ class Export(softimage.SIGeneral):
         self.msh.info = scnnfo.convert()
         logging.info('Finished processing Scene Info.')
         self.pb.inc()
+
         # Animation.
         self.pb.set(2, 'Processing Animation...')
-        time_animation_start = datetime.now()
-        if self.ppg_params.get('anim'):
-            logging.info('Processing animation.')
-            anim = AnimationConverter(self)
-            self.msh.animation = anim.convert()
-        else:
-            logging.info('Setting empty animation.')
-            self.msh.animation = msh2.Animation(None, 'empty')
+        with zetcore.Timer('Processed animation in %ss %sms.'):
+            if self.ppg_params.get('anim'):
+                logging.info('Processing animation.')
+                anim = AnimationConverter(self)
+                self.msh.animation = anim.convert()
+            else:
+                logging.info('Setting empty animation.')
+                self.msh.animation = msh2.Animation(None, 'empty')
         self.pb.inc()
-        time_animation = datetime.now() - time_animation
-        logging.info('Processed animation in %s s %s ms.', time_animation.seconds, time_animation.microseconds)
         # Make nulls which are used as envelopes bones.
         if self.model_deformers:
             logging.info('Setting model type to "bone" for {0}.'.format(self.model_deformers))

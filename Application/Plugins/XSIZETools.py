@@ -268,13 +268,13 @@ def ZETHelp_Execute():
     add_to_path()
     import softimage
     reload(softimage)
-    import andezetcore
-    reload(andezetcore)
+    import zetcore
+    reload(zetcore)
     #remove old custom property
     for x in xsi.ActiveSceneRoot.Properties:
         if x.Name == 'ZETH':
             xsi.DeleteObj('ZETH')
-    currver = andezetcore.get_current_version(softimage.Softimage.get_plugin_origin('XSIZETools') + '\\xsizet.ver')
+    currver = zetcore.get_current_version(softimage.Softimage.get_plugin_origin('XSIZETools') + '\\xsizet.ver')
     pset = xsi.ActiveSceneRoot.AddProperty('CustomProperty', False, 'ZETH')
     pset.AddParameter3('bitmap', const.siString)
 
@@ -293,22 +293,20 @@ def ZETHelp_Execute():
     lay.EndRow()
     lay.AddRow()
     lay.AddSpacer(60, 1)
-    lay.AddStaticText('Code Copyright (C) Ande 2012')
+    lay.AddStaticText('Code Copyright (C) Benedikt Schatz')
     lay.EndRow()
     lay.AddRow()
     lay.AddStaticText('      http://schlechtwetterfront.github.io/xsizetools/', 290)
     lay.EndRow()
     lay.EndGroup()
     lay.AddGroup('Credits', 1)
-    lay.AddStaticText('Credits for templates go to:' +
+    lay.AddStaticText('Additional templates:' +
                       '\n\tAceMastermind' +
                       '\n\tDarthD.U.C.K.' +
                       '\n\tFragMe!' +
-                      '\n\tpsych0fred' +
-                      '\n\tAnde')
-    lay.AddStaticText('Credits for .msh research go to:' +
+                      '\n\tpsych0fred')
+    lay.AddStaticText('Additional .msh research:' +
                       '\n\tRileyman' +
-                      '\n\tAnde' +
                       '\n\ttirpider' +
                       '\n\tAceMastermind' +
                       '\n\tFragMe!' +
@@ -354,12 +352,12 @@ def MSHExport_Execute():
     add_to_path()
     import softimage
     reload(softimage)
-    import andezetcore
-    reload(andezetcore)
+    import zetcore
+    reload(zetcore)
     for x in xsi.ActiveSceneRoot.Properties:
         if x.Name == 'MSHExport':
             xsi.DeleteObj('MSHExport')
-    settings = andezetcore.load_settings('export')
+    settings = zetcore.load_settings('export')
 
     pS = xsi.ActiveSceneRoot.AddProperty('CustomProperty', False, 'MSHExport')
     pS.AddParameter3('path', const.siString, settings.get('path'))
@@ -464,12 +462,12 @@ def MSHImport_Execute():
     add_to_path()
     import softimage
     reload(softimage)
-    import andezetcore
-    reload(andezetcore)
+    import zetcore
+    reload(zetcore)
     for x in xsi.ActiveSceneRoot.Properties:
         if x.Name == 'MSHImport':
             xsi.DeleteObj('MSHImport')
-    settings = andezetcore.load_settings('import')
+    settings = zetcore.load_settings('import')
 
     pS = xsi.ActiveSceneRoot.AddProperty('CustomProperty', False, 'MSHImport')
     pS.AddParameter3('path', const.siString, settings.get('path'))

@@ -1140,12 +1140,9 @@ class SegmentGeometry(Packer):
             index_original = None
             try:
                 index_original = new_vertices.index(vert)
-            except ValueError:
-                pass
-            if index_original:
                 # Insert into indices map.
                 self.index_map[index] = index_original
-            else:
+            except ValueError:
                 new_vertices.append(vert)
                 self.index_map[index] = len_new_verts
                 len_new_verts += 1
@@ -1328,18 +1325,22 @@ class ClothGeometry(Packer):
             last_vertex = face.vertices[-1]
             # Stretch constraints.
             for vert in face.vertices:
-                self.stretch_constraints.append((last_vertex, vert))
+                if not ((last_vertex, vert) in self.stretch_constraints or (vert, last_vertex) in self.stretch_constraints):
+                    self.stretch_constraints.append((last_vertex, vert))
                 last_vertex = vert
             # Cross constraints.
             if len(face.vertices) == 4:
                 self.cross_constraints.extend(((face.vertices[0], face.vertices[2]), (face.vertices[1], face.vertices[3])))
+        # logging.info(self.stretch_constraints)
+        # logging.info(self.cross_constraints)
 
+        # n^2
         for face in self.faces:
             for face2 in self.faces:
                 if face is face2:
                     continue
                 shared_vertices = []
-                share_map = {}
+                # share_map = {}
                 not_shared_vertices = []
                 for vertex in face2.vertices:
                     # Shares an index.
@@ -1347,8 +1348,10 @@ class ClothGeometry(Packer):
                         shared_vertices.append(vertex)
                     else:
                         not_shared_vertices.append(vertex)
-                connections = {}
-                for shared_vertex in shared_vertices:
+                # connections = {}
+                # for shared_vertex in shared_vertices:
+                if shared_vertices:
+                    shared_vertex = shared_vertices[0]
                     connections1 = []
                     for connection_vertex in face.get_connections(shared_vertex):
                         if connection_vertex not in shared_vertices:
@@ -1357,9 +1360,11 @@ class ClothGeometry(Packer):
                     for connection_vertex in face2.get_connections(shared_vertex):
                         if connection_vertex not in shared_vertices:
                             connections2.append(connection_vertex)
+                    # logging.info('%s - %s', connections1, connections2)
                     for v1, v2 in zip(connections1, connections2):
-                        self.bend_constraints.append((v1, v2))
-                continue
+                        if not ((v1, v2) in self.bend_constraints or (v2, v1) in self.bend_constraints):
+                            self.bend_constraints.append((v1, v2))
+        # logging.info(self.bend_constraints)
 
     def pack_stretch(self):
         data = ['SPRS', struct.pack('<LL', 4 + 4 * len(self.stretch_constraints), len(self.stretch_constraints))]
@@ -1740,8 +1745,6 @@ class FaceCollection(object):
         num = 0
         for face in self.faces:
             facetris = face.pack_tris()
-            logging.debug(facetris)
-            logging.debug(len(facetris))
             num += len(facetris)
             data.extend(facetris)
         # Number of tris * number of points * size of float + size indicator size.

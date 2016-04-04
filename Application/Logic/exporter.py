@@ -4,26 +4,26 @@
 from win32com.client import constants as const
 import win32com.client
 import softimage
-import andezetcore
-import andezetexport
-reload(andezetcore)
+import zetcore
+import zetexport
+reload(zetcore)
 reload(softimage)
-reload(andezetexport)
+reload(zetexport)
 xsi = Application
 addonpath = xsi.InstallationPath(const.siUserAddonPath)
 sigen = softimage.SIGeneral()
 
 
 def store_flags_OnClicked():
-    settings = andezetcore.load_settings('export', PPG.Inspected(0))
-    andezetcore.save_settings('export', settings)
+    settings = zetcore.load_settings('export', PPG.Inspected(0))
+    zetcore.save_settings('export', settings)
     sigen.msg('Stored.')
     return
 
 
 def exportbutton_OnClicked():
-    settings = andezetcore.load_settings('export', PPG.Inspected(0))
-    export = andezetexport.Export(xsi, settings)
+    settings = zetcore.load_settings('export', PPG.Inspected(0))
+    export = zetexport.Export(xsi, settings)
     try:
         export.export()
     except SystemExit:
@@ -31,7 +31,7 @@ def exportbutton_OnClicked():
     except Exception as e:
         if sigen.msg('Encountered an error while exporting, copy error to clipboard?', const.siMsgYesNo) == 6:
             import win32clipboard, traceback
-            log_path = andezetcore.get_export_log_path()
+            log_path = zetcore.get_export_log_path()
             lines = []
             if log_path:
                 with open(log_path, 'r') as file_handle:
@@ -56,7 +56,7 @@ def check_sel_OnClicked():
     if not mdls:
         sigen.msg('No models selected.')
         return
-    checksel = andezetcore.CheckSel(xsi, mdls, xsi.ActiveSceneRoot, softimage.SIProgressBar())
+    checksel = zetcore.CheckSel(xsi, mdls, xsi.ActiveSceneRoot, softimage.SIProgressBar())
     checksel.check()
     checksel.build_UI()
 

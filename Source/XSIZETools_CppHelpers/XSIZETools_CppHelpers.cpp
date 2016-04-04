@@ -37,17 +37,6 @@
 using namespace XSI; 
 using namespace MATH;
 
-class VertexData {
-public:
-	int index = 0;
-	int nodeIndex = 0;
-	float x, y, z = 0.f;
-	float nx, ny, nz = 0.f;
-	float u, v = 0.f;
-	float weights[4] = { 0.f, 0.f, 0.f, 0.f };
-	int deformers[4] = { 0, 0, 0, 0 };
-};
-
 CALLBACK XSILoadPlugin( PluginRegistrar& in_reg )
 {
 	in_reg.PutAuthor(L"Benedikt 'Schlechtwetterfront' Schatz");
@@ -58,7 +47,7 @@ CALLBACK XSILoadPlugin( PluginRegistrar& in_reg )
 	in_reg.RegisterCommand(L"CGA_GetNodeIndices",L"CGA_GetNodeIndices");
 	in_reg.RegisterCommand(L"CGA_GetVertexPositions",L"CGA_GetVertexPositions");
 	in_reg.RegisterCommand(L"CGA_GetPolygonVerticesCount",L"CGA_GetPolygonVerticesCount");
-	in_reg.RegisterCommand(L"CGA_GetNodeNormals",L"CGA_GetNodeNormals");
+	in_reg.RegisterCommand(L"CGA_GetNodeNormals", L"CGA_GetNodeNormals");
 	in_reg.RegisterCommand(L"CGA_GetUV0",L"CGA_GetUV0");
 	in_reg.RegisterCommand(L"CGA_GetVertexColors0",L"CGA_GetVertexColors0");
 	in_reg.RegisterCommand(L"CGA_GetNodeVertexPositions",L"CGA_GetNodeVertexPositions");
@@ -67,14 +56,22 @@ CALLBACK XSILoadPlugin( PluginRegistrar& in_reg )
 	in_reg.RegisterCommand(L"CGA_GetDeformers0",L"CGA_GetDeformers0");
 	in_reg.RegisterCommand(L"CGA_GetNodesPerPoint",L"CGA_GetNodesPerPoint");
 
-	in_reg.RegisterCommand(L"ZET_GetVertexPositionsWithNormals", L"ZET_GetVertexPositionsWithNormals");
+	in_reg.RegisterCommand(L"ZET_GetVertexPositions", L"ZET_GetVertexPositions");
+	in_reg.RegisterCommand(L"ZET_GetNodePositions", L"ZET_GetNodePositions");
+	in_reg.RegisterCommand(L"ZET_GetNodeNormals",L"ZET_GetNodeNormals");
+
 	in_reg.RegisterCommand(L"ZET_GetUVs", L"ZET_GetUVs");
 	in_reg.RegisterCommand(L"ZET_GetWeights", L"ZET_GetWeights");
+
 	in_reg.RegisterCommand(L"ZET_GetPolyVertexIndicesAndCounts", L"ZET_GetPolyVertexIndicesAndCounts");
 	in_reg.RegisterCommand(L"ZET_GetPolyMaterialIndices", L"ZET_GetPolyMaterialIndices");
+
 	in_reg.RegisterCommand(L"ZET_GetMaterialNames", L"ZET_GetMaterialNames");
+
 	in_reg.RegisterCommand(L"ZET_GetGeometry", L"ZET_GetGeometry");
+
 	in_reg.RegisterCommand(L"ZET_GetNodeToVertexIndices", L"ZET_GetNodeToVertexIndices");
+	in_reg.RegisterCommand(L"ZET_GetVertexToNodeIndices", L"ZET_GetVertexToNodeIndices");
 
 	return CStatus::OK;
 }
@@ -107,78 +104,11 @@ CALLBACK ZET_GetGeometry_Init(CRef& in_ctxt)
 
 CALLBACK ZET_GetGeometry_Execute(CRef& in_ctxt)
 {
-	Context ctxt(in_ctxt);
-	Application xsi;
-
-	CValueArray args = ctxt.GetAttribute(L"Arguments");
-	PolygonMesh polyMesh = args[0];
-	bool calculateWorldCoordinates = args[1];
-
-	CGeometryAccessor ga = polyMesh.GetGeometryAccessor();
-
-	CLongArray nodeIndices;
-	ga.GetNodeIndices(nodeIndices);
-
-	CFloatArray nodeNormals;
-	ga.GetNodeNormals(nodeNormals);
-
-	CLongArray vertexIndices;
-	ga.GetVertexIndices(vertexIndices);
-
-	CDoubleArray vertexPositions;
-	ga.GetVertexPositions(vertexPositions);
-
-	CLongArray nodeToVertex(nodeIndices.GetCount());
-
-	std::vector<VertexData> vertices;
-
-	for (long j = 0; j < nodeIndices.GetCount(); j++) {
-		long vertexIndex = vertexIndices[j];
-		long nodeIndex = nodeIndices[j];
-		nodeToVertex[nodeIndex] = vertexIndex;
-	}
-
-	// Double the length so we can put the normals in the same array.
-	CFloatArray result;
-	result.Resize(vertexPositions.GetCount() * 2);
-
-	// Get the scale of the object this geometry belongs to so we can calculate world coordinates.
-	MATH::CTransformation transform = ga.GetTransform();
-	double scaleX = transform.GetSclX(), scaleY = transform.GetSclY(), scaleZ = transform.GetSclZ();
-
-	for (long i = 0; i < vertexIndices.GetCount(); i++) {
-		long nodeIndex = nodeIndices[i];
-		long vertexIndex = vertexIndices[i];
-
-		VertexData* v = new VertexData();
-		v->index = vertexIndex;
-		v->nodeIndex = nodeIndex;
-
-		v->x = vertexPositions[vertexIndex * 3] * scaleX;
-		v->y = vertexPositions[vertexIndex * 3 + 1] * scaleY;
-		v->z = vertexPositions[vertexIndex * 3 + 2] * scaleZ;
-
-		v->nx = nodeNormals[nodeIndex * 3];
-		v->ny = nodeNormals[nodeIndex * 3 + 1];
-		v->nz = nodeNormals[nodeIndex * 3 + 2];
-	}
-
-	/*CPointRefArray points = polyMesh.GetPoints();
-	
-	for (long i = 0; i < points.GetCount(); i++) {
-		Point point = points[i];
-		CVector3 position = point.GetPosition();
-		bool isNormalValid = true;
-		CVector3 normal = point.GetNormal(isNormalValid);
-		point.get
-	}*/
-
-	ctxt.PutAttribute(L"ReturnValue", result);
 	return CStatus::OK;
 }
 
 
-CALLBACK ZET_GetVertexPositionsWithNormals_Init(CRef& in_ctxt)
+CALLBACK ZET_GetVertexPositions_Init(CRef& in_ctxt)
 {
 	Context context(in_ctxt);
 
@@ -189,15 +119,16 @@ CALLBACK ZET_GetVertexPositionsWithNormals_Init(CRef& in_ctxt)
 	arguments = command.GetArguments();
 	arguments.Add(L"polyMesh");
 	arguments.Add(L"calculateWorldCoordinates", true);
-	command.PutDescription(L"Returns an array containing vertex positions plus their normals in a flat array. If calculateWorldCoordinates is true, multiply the vertex positions with the object's scale.");
+	command.PutDescription(L"Returns an array containing vertex positions in a flat array. If calculateWorldCoordinates is true, multiply the vertex positions with the object's scale.");
 	command.EnableReturnValue(true);
 
 	return CStatus::OK;
 }
 
-CALLBACK ZET_GetVertexPositionsWithNormals_Execute(CRef& in_ctxt)
+CALLBACK ZET_GetVertexPositions_Execute(CRef& in_ctxt)
 {
 	Context ctxt(in_ctxt);
+
 	Application xsi;
 
 	CValueArray args = ctxt.GetAttribute(L"Arguments");
@@ -206,27 +137,76 @@ CALLBACK ZET_GetVertexPositionsWithNormals_Execute(CRef& in_ctxt)
 
 	CGeometryAccessor ga = polyMesh.GetGeometryAccessor();
 
-	CLongArray nodeIndices;
-	ga.GetNodeIndices(nodeIndices);
+	CDoubleArray vertexPositions;
+	ga.GetVertexPositions(vertexPositions);
 
-	CFloatArray nodeNormals;
-	ga.GetNodeNormals(nodeNormals);
+	CFloatArray result(vertexPositions.GetCount());
 
-	CLongArray vertexIndices;
-	ga.GetVertexIndices(vertexIndices);
+	MATH::CTransformation transform = ga.GetTransform();
+	double scaleX = transform.GetSclX(), scaleY = transform.GetSclY(), scaleZ = transform.GetSclZ();
+
+	for (long i = 0; i < vertexPositions.GetCount(); i++) {
+		if (calculateWorldCoordinates) {
+			result[i * 3] = vertexPositions[i * 3] * scaleX;
+			result[i * 3 + 1] = vertexPositions[i * 3 + 1] * scaleY;
+			result[i * 3 + 2] = vertexPositions[i * 3 + 2] * scaleZ;
+		}
+		else {
+			result[i * 3] = vertexPositions[i * 3];
+			result[i * 3 + 1] = vertexPositions[i * 3 + 1];
+			result[i * 3 + 2] = vertexPositions[i * 3 + 2];
+		}
+	}
+
+	ctxt.PutAttribute(L"ReturnValue", result);
+	return CStatus::OK;
+}
+
+
+CALLBACK ZET_GetNodePositions_Init(CRef& in_ctxt)
+{
+	Context context(in_ctxt);
+
+	Command command;
+	command = context.GetSource();
+
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	arguments.Add(L"calculateWorldCoordinates", true);
+	command.PutDescription(L"Returns an array containing vertex positions in a flat array mapped to the vertex's nodes. If calculateWorldCoordinates is true, multiply the vertex positions with the object's scale.");
+	command.EnableReturnValue(true);
+
+	return CStatus::OK;
+}
+
+CALLBACK ZET_GetNodePositions_Execute(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+
+	Application xsi;
+
+	CValueArray args = ctxt.GetAttribute(L"Arguments");
+	PolygonMesh polyMesh = args[0];
+	bool calculateWorldCoordinates = args[1];
+
+	CGeometryAccessor ga = polyMesh.GetGeometryAccessor();
 
 	CDoubleArray vertexPositions;
 	ga.GetVertexPositions(vertexPositions);
 
-	// Double the length so we can put the normals in the same array.
-	CFloatArray result;
-	result.Resize(vertexPositions.GetCount() * 2);
+	CLongArray nodeIndices;
+	ga.GetNodeIndices(nodeIndices);
 
-	// Get the scale of the object this geometry belongs to so we can calculate world coordinates.
+	CLongArray vertexIndices;
+	ga.GetVertexIndices(vertexIndices);
+
+	CFloatArray result(vertexPositions.GetCount());
+
 	MATH::CTransformation transform = ga.GetTransform();
 	double scaleX = transform.GetSclX(), scaleY = transform.GetSclY(), scaleZ = transform.GetSclZ();
 
-	for (long i = 0; i < vertexIndices.GetCount(); i++) {
+	for (long i = 0; i < nodeIndices.GetCount(); i++) {
 		long nodeIndex = nodeIndices[i];
 		long vertexIndex = vertexIndices[i];
 		if (calculateWorldCoordinates) {
@@ -239,12 +219,42 @@ CALLBACK ZET_GetVertexPositionsWithNormals_Execute(CRef& in_ctxt)
 			result[vertexIndex * 6 + 1] = vertexPositions[vertexIndex * 3 + 1];
 			result[vertexIndex * 6 + 2] = vertexPositions[vertexIndex * 3 + 2];
 		}
-		result[vertexIndex * 6 + 3] = nodeNormals[nodeIndex * 3];
-		result[vertexIndex * 6 + 3 + 1] = nodeNormals[nodeIndex * 3 + 1];
-		result[vertexIndex * 6 + 3 + 2] = nodeNormals[nodeIndex * 3 + 2];
 	}
 
 	ctxt.PutAttribute(L"ReturnValue", result);
+	return CStatus::OK;
+}
+
+
+CALLBACK ZET_GetNodeNormals_Init(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+	Command command;
+	command = ctxt.GetSource();
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+	command.PutDescription(L"Returns all node's normals in a flat array. A PolygonMesh needs to be passed as argument.");
+	command.EnableReturnValue(true);
+
+	return CStatus::OK;
+}
+
+CALLBACK ZET_GetNodeNormals_Execute(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+
+	Application xsi;
+
+	CValueArray args = ctxt.GetAttribute(L"Arguments");
+	PolygonMesh polyMesh = args[0];
+
+	CGeometryAccessor ga = polyMesh.GetGeometryAccessor();
+
+	CFloatArray normals;
+	ga.GetNodeNormals(normals);
+
+	ctxt.PutAttribute(L"ReturnValue", normals);
 	return CStatus::OK;
 }
 
@@ -490,6 +500,52 @@ CALLBACK ZET_GetNodeToVertexIndices_Execute(CRef& in_ctxt)
 		long vertIndex = vertIndices[i];
 		long nodeIndex = nodeIndices[i];
 		ordered[nodeIndex] = vertIndex;
+	}
+
+	ctxt.PutAttribute(L"ReturnValue", ordered);
+	return CStatus::OK;
+}
+
+
+CALLBACK ZET_GetVertexToNodeIndices_Init(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+
+	Command command;
+	command = ctxt.GetSource();
+
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+
+	command.PutDescription(L"Returns an array where the array index is the node index and the value stored at that position is the vertex index. A PolygonMesh needs to be passed as argument.");
+	command.EnableReturnValue(true);
+
+	return CStatus::OK;
+}
+
+CALLBACK ZET_GetVertexToNodeIndices_Execute(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+	Application xsi;
+
+	CValueArray args = ctxt.GetAttribute(L"Arguments");
+	PolygonMesh polyMesh = args[0];
+	CGeometryAccessor ga = polyMesh.GetGeometryAccessor();
+
+	CLongArray nodeIndices;
+	ga.GetNodeIndices(nodeIndices);
+
+	CLongArray vertIndices;
+	ga.GetVertexIndices(vertIndices);
+
+	CValueArray ordered;
+	ordered.Resize(vertIndices.GetCount());
+
+	for (long i = 0; i < nodeIndices.GetCount(); i++) {
+		long vertIndex = vertIndices[i];
+		long nodeIndex = nodeIndices[i];
+		ordered[vertIndex] = nodeIndex;
 	}
 
 	ctxt.PutAttribute(L"ReturnValue", ordered);
@@ -903,4 +959,16 @@ CALLBACK CGA_GetNodesPerPoint_Execute( CRef& in_ctxt )
 	}
 	ctxt.PutAttribute( L"ReturnValue", ordered);
 	return CStatus::OK;
+}
+
+
+/*
+		HELPER FUNCTIONS
+
+*/
+
+
+void GetVertexPositions(Context context, PolygonMesh* polyMesh, CFloatArray& in_positions) {
+	
+
 }

@@ -4,6 +4,8 @@
 import json
 import softimage
 import os
+from datetime import datetime as dt
+import logging
 
 
 def get_current_version(versionpath):
@@ -15,6 +17,20 @@ def get_current_version(versionpath):
             major, minor, build = line.split('.')
             break
     return major, minor, build
+
+
+class Timer():
+    def __init__(self, text):
+        self.text = text
+        self.start_time = None
+        self.result_time = None
+
+    def __enter__(self):
+        self.start_time = dt.now()
+
+    def __exit__(self, type_, value, traceback):
+        self.result_time = dt.now() - self.start_time
+        logging.info(self.text, self.result_time.seconds, self.result_time.microseconds / 1000)
 
 
 class CheckSel(object):

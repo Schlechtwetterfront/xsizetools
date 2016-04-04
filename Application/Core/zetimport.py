@@ -7,8 +7,8 @@ import logging
 reload(logging)
 import softimage
 reload(softimage)
-import andezetcore
-reload(andezetcore)
+import zetcore
+reload(zetcore)
 from pythoncom import com_error
 import msh2
 reload(msh2)
@@ -23,20 +23,6 @@ xsimath = win32com.client.Dispatch('XSI.Math')
 xsifact = win32com.client.Dispatch('XSI.Factory')
 
 STR_CODEC = 'utf-8'
-
-
-class Timer():
-    def __init__(self, text):
-        self.text = text
-        self.start_time = None
-        self.result_time = None
-
-    def __enter__(self):
-        self.start_time = dt.now()
-
-    def __exit__(self, type_, value, traceback):
-        self.result_time = dt.now() - self.start_time
-        logging.info(self.text, self.result_time.seconds, self.result_time.microseconds)
 
 
 class MshImportError(Exception):
@@ -374,7 +360,7 @@ class ChainItemBuilder(softimage.SIModel):
             self.build_null()
             return
         try:
-            with Timer('Built polygon mesh in %ss %sms.'):
+            with zetcore.Timer('Built polygon mesh in %ss %sms.'):
                 self.si_model = parent.AddPolygonMesh(vertex_positions,
                                                       faces,
                                                       self.model.name)
@@ -391,7 +377,7 @@ class ChainItemBuilder(softimage.SIModel):
         self.process_uvs()
         self.process_colors()
 
-        with Timer('Creating segments in %ss %sms.'):
+        with zetcore.Timer('Creating segments in %ss %sms.'):
             if len(self.model.segments) > 1:
                 logging.debug('Model {0} has {1} segments, creating poly clusters.'.format(self.model.name, len(self.model.segments)))
                 self.create_poly_clusters()
@@ -404,7 +390,7 @@ class ChainItemBuilder(softimage.SIModel):
 
     def process_normals(self):
         '''Applies normals to the SI model.'''
-        with Timer('Processing normals in %ss %sms.'):
+        with zetcore.Timer('Processing normals in %ss %sms.'):
             normal_cluster = self.geo.AddCluster(const.siSampledPointCluster)
             normal_cluster.AddProperty('User Normal Property', False, 'ZETools-NormalsProperty')
             self.set_normals(0, self.make_normals())
@@ -417,7 +403,7 @@ class ChainItemBuilder(softimage.SIModel):
                 is_uved = True
                 break
         if is_uved:
-            with Timer('Processing UVs in %ss %sms.'):
+            with zetcore.Timer('Processing UVs in %ss %sms.'):
                 uvs = self.make_uvs_persample()
                 self.xsi.CreateProjection(self.si_model)
                 # Freeze object to hide the projections. Is quite expensive.
@@ -429,7 +415,7 @@ class ChainItemBuilder(softimage.SIModel):
     def process_colors(self):
         '''Applies vertex colors to the SI model if it is colored.'''
         is_colored = False
-        with Timer('Processing vertex colors in %ss %sms.'):
+        with zetcore.Timer('Processing vertex colors in %ss %sms.'):
             for segment in self.model.segments:
                 if segment.vertices.colored:
                     is_colored = True
@@ -484,7 +470,7 @@ class ChainItemBuilder(softimage.SIModel):
     def get_vertex_positions(self):
         v_pos = []
 
-        with Timer('Retrieved vertices in %ss %sms.'):
+        with zetcore.Timer('Retrieved vertices in %ss %sms.'):
             for segment in self.model.segments:
                 for vert in segment.vertices:
                     v_pos.extend(vert.pos)
@@ -497,7 +483,7 @@ class ChainItemBuilder(softimage.SIModel):
         offset = 0
         numfaces = 0
 
-        with Timer('Retrieved faces in %ss %sms.'):
+        with zetcore.Timer('Retrieved faces in %ss %sms.'):
             for segment in self.model.segments:
                 for face in segment.faces:
                     numfaces += 1
@@ -851,7 +837,7 @@ class Import(softimage.SIGeneral):
         sys.exit()
 
     def store_flags(self):
-        andezetcore.save_settings('import', self.config)
+        zetcore.save_settings('import', self.config)
 
     def import_(self):
         '''Prepares the import.'''
@@ -891,7 +877,7 @@ class Import(softimage.SIGeneral):
         try:
             logging.info('Starting unpack.')
 
-            with Timer('Finished unpack in %s s %s ms.'):
+            with zetcore.Timer('Finished unpack in %s s %s ms.'):
                 self.msh = unpacker.unpack()
         except (CRCError, msh2_unpack.UnpackError):
             logging.exception('')
@@ -905,7 +891,7 @@ class Import(softimage.SIGeneral):
             logging.info('Selection item count: {0}, msh2 Model count: {1}.'.format(len(self.chain),
                                                                                     len(self.msh.models)))
         else:
-            with Timer('Built chain in %s s %s ms.'):
+            with zetcore.Timer('Built chain in %s s %s ms.'):
                 if not self.config.get('ignoregeo'):
                     logging.info('Ignore Geo is unchecked, building with geo.')
                     matbuilder = MaterialBuilder(self, self.msh)
@@ -919,7 +905,7 @@ class Import(softimage.SIGeneral):
                     logging.exception('')
                     self.abort_checklog()
 
-            with Timer('Enveloped in %s s %s ms.'):
+            with zetcore.Timer('Enveloped in %s s %s ms.'):
                 enveloper = Enveloper(self, self.msh, self.chain)
                 enveloper.envelope()
 
@@ -930,7 +916,7 @@ class Import(softimage.SIGeneral):
                     self.xsi.ApplyTopoOp('WeldEdges', item)
                     self.xsi.SetValue('{0}.polymsh.weldedgesop.distance'.format(item.Name), 0.02)
         if not self.msh.animation.empty and not self.config.get('ignoreanim'):
-            with Timer('Animated in %s s %s ms.'):
+            with zetcore.Timer('Animated in %s s %s ms.'):
                 anim = AnimationImport(self, self.chain, self.msh.animation.bones)
                 anim.import_()
         if self.config.get('framerange'):
