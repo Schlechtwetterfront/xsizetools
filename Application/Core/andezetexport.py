@@ -842,6 +842,7 @@ class Export(softimage.SIGeneral):
         self.pb.show()
         self.msh.materials = msh2.MaterialCollection(self.msh)
         self.msh.materials.replace([])
+        time_material_start = datetime.now()
         for ndx, material in enumerate(self.si_materials):
             logging.info('Processing material "{0}".'.format(material.Name))
             self.pb.setc('Processing Material {0}... {1}/{2}'.format(material.Name,
@@ -853,11 +854,14 @@ class Export(softimage.SIGeneral):
             self.pb.inc()
         self.msh.materials.assign_indices()
         self.stats.mats += len(self.msh.materials)
+        time_material = datetime.now() - time_material_start
+        logging.info('Processed materials in %s s %s ms.', time_material.seconds, time_material.microseconds)
         # Now Models.
         self.pb.set(len(self.si_models), 'Processing models...')
         self.msh.models = None
         self.msh.models = msh2.ModelCollection(self.msh)
         self.msh.models.replace([])
+        time_models_start = datetime.now()
         for ndx, model in enumerate(self.si_models):
             self.pb.setc('Processing Model {0}... {1}/{2}'.format(model.Name,
                                                                   ndx + 1,
@@ -869,10 +873,17 @@ class Export(softimage.SIGeneral):
             self.pb.inc()
         self.msh.models.assign_indices()
         self.msh.models.assign_parents()
+        time_models_processed = datetime.now()
+        time_models = time_models_processed - time_models_start
+        logging.info('Processed models in %s s %s ms.', time_models.seconds, time_models.microseconds)
         self.msh.models.remove_multi(self.dontexport)
-        logging.info('Removed multiple vertices.')
+        time_models_removed_multis = datetime.now()
+        time_models = time_models_removed_multis - time_models_processed
+        logging.info('Remove multiple vertices in %s s %s ms.', time_models.seconds, time_models.microseconds)
         self.msh.models.assign_cloth_collisions()
-        logging.info('Assigned cloth collisions.')
+        time_models_removed_multis = datetime.now()
+        time_models = time_models_removed_multis - time_models_removed_multis
+        logging.info('Assigned cloth collisions in %s s %s ms.', time_models.seconds, time_models.microseconds)
         self.stats.models += len(self.msh.models)
         # Scene Info.
         self.pb.set(1, 'Getting Scene Info...')
@@ -884,15 +895,17 @@ class Export(softimage.SIGeneral):
         self.pb.inc()
         # Animation.
         self.pb.set(2, 'Processing Animation...')
+        time_animation_start = datetime.now()
         if self.ppg_params.get('anim'):
             logging.info('Processing animation.')
             anim = AnimationConverter(self)
             self.msh.animation = anim.convert()
-            logging.info('Finished processing animation.')
         else:
             logging.info('Setting empty animation.')
             self.msh.animation = msh2.Animation(None, 'empty')
         self.pb.inc()
+        time_animation = datetime.now() - time_animation
+        logging.info('Processed animation in %s s %s ms.', time_animation.seconds, time_animation.microseconds)
         # Make nulls which are used as envelopes bones.
         if self.model_deformers:
             logging.info('Setting model type to "bone" for {0}.'.format(self.model_deformers))

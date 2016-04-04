@@ -819,6 +819,15 @@ class Model(Packer):
         data[1] = struct.pack('<L', self.sum_seq(data, 2))
         return ''.join(data)
 
+    def get_vertex_by_index(self, vertex_index):
+        '''Get a Vertex from an index that is not relative to a segment.
+           Basically combines all vertices of all segments into one list to array into.'''
+        offset = 0
+        for segment in self.segments:
+            if vertex_index < len(segment.vertices) + offset:
+                    return segment.vertices[vertex_index - offset]
+            offset += len(segment.vertices)
+
 
 class ModelCollection(object):
     def __init__(self, msh=None, models=None):

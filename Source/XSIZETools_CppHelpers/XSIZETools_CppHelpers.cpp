@@ -74,6 +74,7 @@ CALLBACK XSILoadPlugin( PluginRegistrar& in_reg )
 	in_reg.RegisterCommand(L"ZET_GetPolyMaterialIndices", L"ZET_GetPolyMaterialIndices");
 	in_reg.RegisterCommand(L"ZET_GetMaterialNames", L"ZET_GetMaterialNames");
 	in_reg.RegisterCommand(L"ZET_GetGeometry", L"ZET_GetGeometry");
+	in_reg.RegisterCommand(L"ZET_GetNodeToVertexIndices", L"ZET_GetNodeToVertexIndices");
 
 	return CStatus::OK;
 }
@@ -112,6 +113,8 @@ CALLBACK ZET_GetGeometry_Execute(CRef& in_ctxt)
 	CValueArray args = ctxt.GetAttribute(L"Arguments");
 	PolygonMesh polyMesh = args[0];
 	bool calculateWorldCoordinates = args[1];
+
+	CGeometryAccessor ga = polyMesh.GetGeometryAccessor();
 
 	CLongArray nodeIndices;
 	ga.GetNodeIndices(nodeIndices);
@@ -446,6 +449,58 @@ CALLBACK ZET_GetPolyVertexIndicesAndCounts_Execute(CRef& in_ctxt)
 	ctxt.PutAttribute(L"ReturnValue", returnArray);
 	return CStatus::OK;
 }
+
+
+CALLBACK ZET_GetNodeToVertexIndices_Init(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+
+	Command command;
+	command = ctxt.GetSource();
+
+	ArgumentArray arguments;
+	arguments = command.GetArguments();
+	arguments.Add(L"polyMesh");
+
+	command.PutDescription(L"Returns an array where the array index is the node index and the value stored at that position is the vertex index. A PolygonMesh needs to be passed as argument.");
+	command.EnableReturnValue(true);
+
+	return CStatus::OK;
+}
+
+CALLBACK ZET_GetNodeToVertexIndices_Execute(CRef& in_ctxt)
+{
+	Context ctxt(in_ctxt);
+	Application xsi;
+
+	CValueArray args = ctxt.GetAttribute(L"Arguments");
+	PolygonMesh polyMesh = args[0];
+	CGeometryAccessor ga = polyMesh.GetGeometryAccessor();
+
+	CLongArray nodeIndices;
+	ga.GetNodeIndices(nodeIndices);
+	
+	CLongArray vertIndices;
+	ga.GetVertexIndices(vertIndices);
+
+	CValueArray ordered;
+	ordered.Resize(nodeIndices.GetCount());
+
+	for (long i = 0; i < nodeIndices.GetCount(); i++) {
+		long vertIndex = vertIndices[i];
+		long nodeIndex = nodeIndices[i];
+		ordered[nodeIndex] = vertIndex;
+	}
+
+	ctxt.PutAttribute(L"ReturnValue", ordered);
+	return CStatus::OK;
+}
+
+
+/* 
+	Old code, just keeping it for reference for now.
+
+*/
 
 
 CALLBACK CGA_GetNodeVertexPositions_Init( CRef& in_ctxt )

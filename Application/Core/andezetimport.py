@@ -25,6 +25,20 @@ xsifact = win32com.client.Dispatch('XSI.Factory')
 STR_CODEC = 'utf-8'
 
 
+class Timer():
+    def __init__(self, text):
+        self.text = text
+        self.start_time = None
+        self.result_time = None
+
+    def __enter__(self):
+        self.start_time = dt.now()
+
+    def __exit__(self, type_, value, traceback):
+        self.result_time = dt.now() - self.start_time
+        logging.info(self.text, self.result_time.seconds, self.result_time.microseconds)
+
+
 class MshImportError(Exception):
     def __init__(self, msg):
         self.msg = msg
@@ -160,15 +174,20 @@ class ChainItemBuilder(softimage.SIModel):
 
     def __init__(self, model, chainbuilder):
         self.model = model
+        # Will be set in build() after the model is built.
+        self.si_model = None
         self.chainbuilder = chainbuilder
         self.xsi = self.chainbuilder.xsi
         self.imp = self.chainbuilder.imp
+        self.geo = None
         if self.imp.config.get('ignoregeo'):
             self.build_geo = self.build_null
             self.build_prim = self.build_null
             self.build_shadow = self.build_null
 
     def build(self):
+        '''Builds an object depending on the model type.'''
+        time_start = dt.now()
         if self.model.model_type == 'null' or self.model.model_type == 'bone':
             self.build_null()
         elif self.model.model_type == 'geoshadow':
@@ -185,43 +204,38 @@ class ChainItemBuilder(softimage.SIModel):
         else:
             raise MshImportError('Unsupported model type {0} on {1}.'.format(self.model.model_type,
                                                                              self.model.name))
-        logging.info('Finished building {0}.'.format(self.model.name))
+        time = dt.now() - time_start
+        logging.info('Finished building %s in %ss %sms.', self.model.name, time.seconds, time.microseconds)
         return self.si_model
 
     def build_cloth(self):
-        logging.info('Building {0} as cloth(originally {1}).'.format(self.model.name, self.model.model_type))
+        '''Build enveloped geometry with special cloth properties.'''
+        logging.info('Building %s as cloth(originally %s).', self.model.name, self.model.model_type)
+
         vertex_positions = self.get_vertex_positions()
+
         faces = self.get_faces()
+
         if self.model.parent_name:
             parent = self.chainbuilder.name_dict[self.model.parent_name]
         else:
             parent = self.xsi.ActiveSceneRoot
         if not parent:
-            logging.error('Cant find parent {0} for {1}.'.format(self.model.parent_name,
-                                                                 self.model.name))
+            logging.error('Cant find parent %s for %s.', self.model.parent_name,
+                                                         self.model.name)
         try:
             self.si_model = parent.AddPolygonMesh(vertex_positions,
                                                   faces,
                                                   self.model.name)
         except com_error:
-            logging.exception('verts: {0}, faces: {1}, name: {2}.'.format(vertex_positions,
-                                                                          faces, self.model.name))
+            logging.exception('verts: %s, faces: %s, name: %s.', vertex_positions,
+                                                                 faces, self.model.name)
             self.imp.abort_checklog()
+
         self.geo = self.si_model.ActivePrimitive.GetGeometry2(0)
-        if self.model.vis == 1:
-            self.xsi.ToggleVisibility(self.si_model, None, None)
-        is_uved = False
-        for segment in self.model.segments:
-            if segment.vertices.uved:
-                is_uved = True
-                break
-        if is_uved:
-            uvs = self.make_uvs_persample()
-            self.xsi.CreateProjection(self.si_model)
-            self.xsi.FreezeObj(self.si_model)
-            self.set_uvs(0, uvs)
-        else:
-            logging.debug('Model {0} has no UVs.'.format(self.model.name))
+
+        self.process_uvs()
+
         self.set_transform()
         self.set_vis()
 
@@ -232,12 +246,14 @@ class ChainItemBuilder(softimage.SIModel):
         self.geo.AddCluster(const.siVertexCluster, 'ZEFixedPoints', self.model.segments[0].vertices.fixed_indices())
 
     def build_shadow(self):
+        '''Build a null instead of a shadow mesh.'''
         logging.info('Building {0} as shadow(originally {1}).'.format(self.model.name, self.model.model_type))
         self.si_model = self.xsi.GetPrim('Null', '{0}(shadow)'.format(self.model.name), self.model.parent_name)
         self.set_transform()
         self.set_vis()
 
     def build_c_prim(self):
+        '''Builds primitive objectives from cloth collisions.'''
         logging.info('Building {0} as cloth prim(originally {1}).'.format(self.model.name, self.model.model_type))
 
         # Find a cloth which has this cloth primitive as cloth collision so we can retrieve the necessary primitive data.
@@ -271,9 +287,10 @@ class ChainItemBuilder(softimage.SIModel):
             logging.error('{0} is unknown prim type({1}).'.format(self.model.name, self.model.primitive[0]))
 
     def build_prim(self):
-        logging.info('Building {0} as prim(originally {1}).'.format(self.model.name, self.model.model_type))
+        '''Build primitive objects from collision primitives.'''
+        logging.info('Building %s as prim(originally %s).', self.model.name, self.model.model_type)
         if self.model.primitive[0] == 3:
-            logging.error('Primitive {0} is of type 3. Invalid. Building null instead.'.format(self.model.name))
+            logging.error('Primitive %s is of type 3. Invalid. Building null instead.', self.model.name)
             self.imp.notify('Primitive {0} is of type 3. Invalid. Building null instead.'.format(self.model.name))
             self.build_null()
             return
@@ -340,8 +357,11 @@ class ChainItemBuilder(softimage.SIModel):
 
     def build_geo(self):
         logging.info('Building {0} as polymesh(originally {1}).'.format(self.model.name, self.model.model_type))
+
         vertex_positions = self.get_vertex_positions()
+
         faces = self.get_faces()
+
         if self.model.parent_name:
             parent = self.chainbuilder.name_dict[self.model.parent_name]
         else:
@@ -354,94 +374,101 @@ class ChainItemBuilder(softimage.SIModel):
             self.build_null()
             return
         try:
-            self.si_model = parent.AddPolygonMesh(vertex_positions,
-                                                  faces,
-                                                  self.model.name)
+            with Timer('Built polygon mesh in %ss %sms.'):
+                self.si_model = parent.AddPolygonMesh(vertex_positions,
+                                                      faces,
+                                                      self.model.name)
         except com_error:
             logging.exception('verts: {0}, faces: {1}, name: {2}.'.format(vertex_positions,
                                                                           faces, self.model.name))
             self.imp.abort_checklog()
         self.geo = self.si_model.ActivePrimitive.GetGeometry2(0)
-        # Normals
-        normal_cluster = self.geo.AddCluster(const.siSampledPointCluster)
-        normal_cluster.AddProperty('User Normal Property', False, 'ZETools-NormalsProperty')
-        self.set_normals(0, self.make_normals())
-        if self.model.vis == 1:
-            self.xsi.ToggleVisibility(self.si_model, None, None)
+
+        # if self.model.vis == 1:
+        #     self.xsi.ToggleVisibility(self.si_model, None, None)
+
+        self.process_normals()
+        self.process_uvs()
+        self.process_colors()
+
+        with Timer('Creating segments in %ss %sms.'):
+            if len(self.model.segments) > 1:
+                logging.debug('Model {0} has {1} segments, creating poly clusters.'.format(self.model.name, len(self.model.segments)))
+                self.create_poly_clusters()
+            else:
+                self.xsi.SIAssignMaterial(self.si_model,
+                                          self.chainbuilder.materials[self.model.segments[0].material.name])
+
+        self.set_transform()
+        self.set_vis()
+
+    def process_normals(self):
+        '''Applies normals to the SI model.'''
+        with Timer('Processing normals in %ss %sms.'):
+            normal_cluster = self.geo.AddCluster(const.siSampledPointCluster)
+            normal_cluster.AddProperty('User Normal Property', False, 'ZETools-NormalsProperty')
+            self.set_normals(0, self.make_normals())
+
+    def process_uvs(self):
+        '''Applies UVs to the SI model if it is UVed.'''
         is_uved = False
         for segment in self.model.segments:
             if segment.vertices.uved:
                 is_uved = True
                 break
         if is_uved:
-            uvs = self.make_uvs_persample()
-            self.xsi.CreateProjection(self.si_model)
-            self.xsi.FreezeObj(self.si_model)
-            self.set_uvs(0, uvs)
+            with Timer('Processing UVs in %ss %sms.'):
+                uvs = self.make_uvs_persample()
+                self.xsi.CreateProjection(self.si_model)
+                # Freeze object to hide the projections. Is quite expensive.
+                self.xsi.FreezeObj(self.si_model)
+                self.set_uvs(0, uvs)
         else:
-            logging.debug('Model {0} has no UVs.'.format(self.model.name))
-        if len(self.model.segments) > 1:
-            logging.debug('Model {0} has {1} segments, creating poly clusters.'.format(self.model.name, len(self.model.segments)))
-            self.create_poly_clusters()
-        else:
-            self.xsi.SIAssignMaterial(self.si_model,
-                                      self.chainbuilder.materials[self.model.segments[0].material.name])
+            logging.debug('Model %s has no UVs.', self.model.name)
+
+    def process_colors(self):
+        '''Applies vertex colors to the SI model if it is colored.'''
         is_colored = False
-        for segment in self.model.segments:
-            if segment.vertices.colored:
-                is_colored = True
-                break
-        if is_colored:
-            colors = self.make_colors_persample()
-            self.xsi.CreateVertexColorSupport('', 'Vertex_Color', [self.si_model])
-            self.set_vertex_colors(0, colors)
-        else:
-            logging.debug('Model {0} is not colored.'.format(self.model.name))
-        self.set_transform()
-        self.set_vis()
+        with Timer('Processing vertex colors in %ss %sms.'):
+            for segment in self.model.segments:
+                if segment.vertices.colored:
+                    is_colored = True
+                    break
+            if is_colored:
+                colors = self.make_colors_persample()
+                self.xsi.CreateVertexColorSupport('', 'Vertex_Color', [self.si_model])
+                self.set_vertex_colors(0, colors)
+            else:
+                logging.debug('Model {0} is not colored.'.format(self.model.name))
 
     def make_normals(self):
-        '''Creates Normals.'''
-        numsamples = self.geo.Samples.Count
-        normals = [[0.0] * numsamples, [0.0] * numsamples, [0.0] * numsamples]
-        # Will offset the index by the number of vertices the precedent
-        # segments had.
-        offset = 0
-        for segm in self.model.segments:
-            numverts = len(segm.vertices)
-            for n in xrange(numverts):
-                vert = segm.vertices[n]
-                point = self.geo.Points[n + offset]
-                for sample in point.Samples:
-                    normals[0][sample.Index] = vert.nx
-                    normals[1][sample.Index] = vert.ny
-                    normals[2][sample.Index] = vert.nz
-            offset += numverts
-        logging.debug('Created Normals for {0} samples/nodes.'.format(numsamples))
+        '''Creates Normal data for every sample using the corresponding Vertex and returns the data as list.'''
+        node_to_vertex_index_list = self.xsi.ZET_GetNodeToVertexIndices(self.geo)
+
+        # Create a list of 3 lists for X, Y and Z vectors.
+        normals = [[0.0] * len(node_to_vertex_index_list) for _ in range(3)]
+
+        for node_index, vertex_index in enumerate(node_to_vertex_index_list):
+            vertex = self.model.get_vertex_by_index(vertex_index)
+            normals[0][node_index] = vertex.nx
+            normals[1][node_index] = vertex.ny
+            normals[2][node_index] = vertex.nz
         return normals
 
     def make_colors_persample(self):
-        numsamples = self.geo.Samples.Count
-        colors = [[0.0] * numsamples,
-                 [0.0] * numsamples,
-                 [0.0] * numsamples,
-                 [0.0] * numsamples]
-        # Will offset the index by the number of vertices the precedent
-        # segments had.
-        offset = 0
-        for segm in self.model.segments:
-            numverts = len(segm.vertices)
-            for n in xrange(numverts):
-                vert = segm.vertices[n]
-                point = self.geo.Points[n + offset]
-                for sample in point.Samples:
-                    col = vert.color.get_f()
-                    colors[0][sample.Index] = col[0]
-                    colors[1][sample.Index] = col[1]
-                    colors[2][sample.Index] = col[2]
-                    colors[3][sample.Index] = col[3]
-            offset += numverts
-        logging.debug('Created Vertex Colors for {0} samples/nodes.'.format(numsamples))
+        '''Creates Normal data for every sample using the corresponding Vertex and returns the data as list.'''
+        node_to_vertex_index_list = self.xsi.ZET_GetNodeToVertexIndices(self.geo)
+
+        # Create a list of 3 lists for X, Y and Z vectors.
+        colors = [[0.0] * len(node_to_vertex_index_list) for _ in range(4)]
+
+        for node_index, vertex_index in enumerate(node_to_vertex_index_list):
+            vertex = self.model.get_vertex_by_index(vertex_index)
+            r, g, b, a = vertex.color.get_f()
+            colors[0][node_index] = r
+            colors[1][node_index] = g
+            colors[2][node_index] = b
+            colors[3][node_index] = a
         return colors
 
     def create_poly_clusters(self):
@@ -456,48 +483,47 @@ class ChainItemBuilder(softimage.SIModel):
 
     def get_vertex_positions(self):
         v_pos = []
-        for segment in self.model.segments:
-            for vert in segment.vertices:
-                v_pos.extend(vert.pos)
-        logging.debug('Retrieved {0} vertex positions.'.format(len(v_pos) / 3))
+
+        with Timer('Retrieved vertices in %ss %sms.'):
+            for segment in self.model.segments:
+                for vert in segment.vertices:
+                    v_pos.extend(vert.pos)
+            logging.debug('Retrieved {0} vertex positions.'.format(len(v_pos) / 3))
+
         return v_pos
 
     def get_faces(self):
         faces = []
         offset = 0
         numfaces = 0
-        for segment in self.model.segments:
-            for face in segment.faces:
-                numfaces += 1
-                faces.append(face.sides)
-                sii = face.SIindices()
-                if len(sii) == 4:
-                    sii = (sii[0] + offset, sii[1] + offset,
-                           sii[2] + offset, sii[3] + offset)
-                else:
-                    sii = sii[0] + offset, sii[1] + offset, sii[2] + offset
-                faces.extend(sii)
-            offset += len(segment.vertices)
-        logging.debug('Created {0} faces.'.format(numfaces))
+
+        with Timer('Retrieved faces in %ss %sms.'):
+            for segment in self.model.segments:
+                for face in segment.faces:
+                    numfaces += 1
+                    faces.append(face.sides)
+                    sii = face.SIindices()
+                    if len(sii) == 4:
+                        sii = (sii[0] + offset, sii[1] + offset,
+                               sii[2] + offset, sii[3] + offset)
+                    else:
+                        sii = sii[0] + offset, sii[1] + offset, sii[2] + offset
+                    faces.extend(sii)
+                offset += len(segment.vertices)
+
         return faces
 
     def make_uvs_persample(self):
-        '''Creates UVs if the mesh has more samples than points.'''
-        numsamples = self.geo.Samples.Count
-        uvs = [[0.0] * numsamples, [0.0] * numsamples, [0.0] * numsamples]
-        # Will offset the index by the number of vertices the precedent
-        # segments had.
-        offset = 0
-        for segm in self.model.segments:
-            numverts = len(segm.vertices)
-            for n in xrange(numverts):
-                vert = segm.vertices[n]
-                point = self.geo.Points[n + offset]
-                for sample in point.Samples:
-                    uvs[0][sample.Index] = vert.u
-                    uvs[1][sample.Index] = vert.v
-            offset += numverts
-        logging.debug('Created UVs for {0} samples/nodes.'.format(numsamples))
+        '''Creates UV data for every sample using the corresponding Vertex and returns the data as list.'''
+        node_to_vertex_index_list = self.xsi.ZET_GetNodeToVertexIndices(self.geo)
+
+        # Create a list of 3 lists because Softimage stores U, V and W data.
+        uvs = [[0.0] * len(node_to_vertex_index_list) for _ in range(3)]
+
+        for node_index, vertex_index in enumerate(node_to_vertex_index_list):
+            vertex = self.model.get_vertex_by_index(vertex_index)
+            uvs[0][node_index] = vertex.u
+            uvs[1][node_index] = vertex.v
         return uvs
 
     def make_uvs(self):
@@ -864,8 +890,9 @@ class Import(softimage.SIGeneral):
         unpacker = msh2_unpack.MSHUnpack(self.config.get('path'), unpacker_config)
         try:
             logging.info('Starting unpack.')
-            self.msh = unpacker.unpack()
-            logging.info('Finished unpack.')
+
+            with Timer('Finished unpack in %s s %s ms.'):
+                self.msh = unpacker.unpack()
         except (CRCError, msh2_unpack.UnpackError):
             logging.exception('')
             self.abort_checklog()
@@ -878,20 +905,24 @@ class Import(softimage.SIGeneral):
             logging.info('Selection item count: {0}, msh2 Model count: {1}.'.format(len(self.chain),
                                                                                     len(self.msh.models)))
         else:
-            if not self.config.get('ignoregeo'):
-                logging.info('Ignore Geo is unchecked, building with geo.')
-                matbuilder = MaterialBuilder(self, self.msh)
-                materials = matbuilder.build()
-                builder = ChainBuilder(self, self.msh, materials)
-            else:
-                builder = ChainBuilder(self, self.msh)
-            try:
-                self.chain = builder.build()
-            except MshImportError:
-                logging.exception('')
-                self.abort_checklog()
-            enveloper = Enveloper(self, self.msh, self.chain)
-            enveloper.envelope()
+            with Timer('Built chain in %s s %s ms.'):
+                if not self.config.get('ignoregeo'):
+                    logging.info('Ignore Geo is unchecked, building with geo.')
+                    matbuilder = MaterialBuilder(self, self.msh)
+                    materials = matbuilder.build()
+                    builder = ChainBuilder(self, self.msh, materials)
+                else:
+                    builder = ChainBuilder(self, self.msh)
+                try:
+                    self.chain = builder.build()
+                except MshImportError:
+                    logging.exception('')
+                    self.abort_checklog()
+
+            with Timer('Enveloped in %s s %s ms.'):
+                enveloper = Enveloper(self, self.msh, self.chain)
+                enveloper.envelope()
+
             if self.config.get('weld') and not self.config.get('ignoregeo'):
                 for item in self.chain:
                     if not item.Type == 'polymsh':
@@ -899,8 +930,9 @@ class Import(softimage.SIGeneral):
                     self.xsi.ApplyTopoOp('WeldEdges', item)
                     self.xsi.SetValue('{0}.polymsh.weldedgesop.distance'.format(item.Name), 0.02)
         if not self.msh.animation.empty and not self.config.get('ignoreanim'):
-            anim = AnimationImport(self, self.chain, self.msh.animation.bones)
-            anim.import_()
+            with Timer('Animated in %s s %s ms.'):
+                anim = AnimationImport(self, self.chain, self.msh.animation.bones)
+                anim.import_()
         if self.config.get('framerange'):
             scn = softimage.SIScene()
             pc = scn.get_playcontrol()
@@ -909,6 +941,7 @@ class Import(softimage.SIGeneral):
         end = dt.now()
         res = end - start
         self.stats = res.seconds, res.microseconds
+        logging.info('Imported in %ss %sms.', res.seconds, res.microseconds)
         # Enable logging.
         prefs.SetPreferenceValue('scripting.cmdlog', originalcmd)
         prefs.SetPreferenceValue('Interaction.autoinspect', originalins)
