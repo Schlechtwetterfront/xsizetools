@@ -573,7 +573,8 @@ class ModelConverter(softimage.SIModel):
         positions = self.export.xsi.ZET_GetVertexPositions(self.geo, False)
         vertex_to_node_indices = self.export.xsi.ZET_GetVertexToNodeIndices(self.geo)
         uvs = self.export.xsi.ZET_GetUVs(self.geo, 0)
-        for n in xrange(len(self.geo.Points)):
+        
+        for n in xrange(len(vertex_to_node_indices)):
             vert = msh2.ClothVertex((positions[n * 3],
                                      positions[n * 3 + 1],
                                      positions[n * 3 + 2],))

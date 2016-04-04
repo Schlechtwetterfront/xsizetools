@@ -1135,15 +1135,18 @@ class SegmentGeometry(Packer):
         '''Clears Vertices appearing more than once.'''
         self.index_map = dict()
         new_vertices = []
+        # Use a set to quickly check if we have a duplicate.
+        new_vertices_set = set()
         len_new_verts = 0
+
         for index, vert in enumerate(self.vertices):
-            index_original = None
-            try:
+            if vert in new_vertices_set:
                 index_original = new_vertices.index(vert)
                 # Insert into indices map.
                 self.index_map[index] = index_original
-            except ValueError:
+            else:
                 new_vertices.append(vert)
+                new_vertices_set.add(vert)
                 self.index_map[index] = len_new_verts
                 len_new_verts += 1
         self.vertices.vertices = new_vertices
@@ -1477,6 +1480,7 @@ class Face(object):
         else:
             self.collection = None
         self.classname = 'Face'
+
 
     def get_json(self):
         data = {

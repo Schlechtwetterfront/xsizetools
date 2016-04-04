@@ -540,7 +540,7 @@ CALLBACK ZET_GetVertexToNodeIndices_Execute(CRef& in_ctxt)
 	ga.GetVertexIndices(vertIndices);
 
 	CValueArray ordered;
-	ordered.Resize(vertIndices.GetCount());
+	ordered.Resize(ga.GetVertexCount());
 
 	for (long i = 0; i < nodeIndices.GetCount(); i++) {
 		long vertIndex = vertIndices[i];
