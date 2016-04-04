@@ -1277,11 +1277,11 @@ class ClothGeometry(Packer):
         self.vertices = None
         self.faces = None
         self.stretch = ''
-        self.stretch_constraints = []
+        self.stretch_constraints = set()
         self.cross = ''
-        self.cross_constraints = []
+        self.cross_constraints = set()
         self.bend = ''
-        self.bend_constraints = []
+        self.bend_constraints = set()
         self.collision = ''
         self.collisions = []
 
@@ -1324,50 +1324,51 @@ class ClothGeometry(Packer):
         self.faces.segment = self
 
     def create_constraints(self):
+        '''Creates constraints between faces and vertices so the cloth simulation can keep the cloth's shape.'''
         for face in self.faces:
             last_vertex = face.vertices[-1]
             # Stretch constraints.
             for vert in face.vertices:
                 if not ((last_vertex, vert) in self.stretch_constraints or (vert, last_vertex) in self.stretch_constraints):
-                    self.stretch_constraints.append((last_vertex, vert))
+                    self.stretch_constraints.add((last_vertex, vert))
                 last_vertex = vert
             # Cross constraints.
             if len(face.vertices) == 4:
-                self.cross_constraints.extend(((face.vertices[0], face.vertices[2]), (face.vertices[1], face.vertices[3])))
-        # logging.info(self.stretch_constraints)
-        # logging.info(self.cross_constraints)
+                self.cross_constraints.update(((face.vertices[0], face.vertices[2]), (face.vertices[1], face.vertices[3])))
 
-        # n^2
+        # Loop through faces to generate constraints/connections between faces.
         for face in self.faces:
             for face2 in self.faces:
                 if face is face2:
                     continue
+
                 shared_vertices = []
-                # share_map = {}
                 not_shared_vertices = []
+
                 for vertex in face2.vertices:
-                    # Shares an index.
+                    # Both faces share an index.
                     if vertex in face.vertices:
                         shared_vertices.append(vertex)
                     else:
                         not_shared_vertices.append(vertex)
-                # connections = {}
-                # for shared_vertex in shared_vertices:
+
                 if shared_vertices:
+                    # Just take the first index because it should generate the same indices.
                     shared_vertex = shared_vertices[0]
                     connections1 = []
                     for connection_vertex in face.get_connections(shared_vertex):
                         if connection_vertex not in shared_vertices:
                             connections1.append(connection_vertex)
+
                     connections2 = []
                     for connection_vertex in face2.get_connections(shared_vertex):
                         if connection_vertex not in shared_vertices:
                             connections2.append(connection_vertex)
-                    # logging.info('%s - %s', connections1, connections2)
+
+
                     for v1, v2 in zip(connections1, connections2):
                         if not ((v1, v2) in self.bend_constraints or (v2, v1) in self.bend_constraints):
-                            self.bend_constraints.append((v1, v2))
-        # logging.info(self.bend_constraints)
+                            self.bend_constraints.add((v1, v2))
 
     def pack_stretch(self):
         data = ['SPRS', struct.pack('<LL', 4 + 4 * len(self.stretch_constraints), len(self.stretch_constraints))]
