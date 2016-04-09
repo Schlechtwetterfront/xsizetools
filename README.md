@@ -19,8 +19,8 @@ Required
 --------
 
 * XSI 6.0+ (including ModTools)
-* [Python 2.x][python download] & [pywin32][pywin download]
-* Visual C++ 2010 redistributable: [x86][redist86] | [x64][redist64] (only if x86 didn't work)
+* [Python 2.x][python download] & [pywin32][pywin download] (check the Links section for an older combination that definitely works)
+* [Visual C++ 2015 redistributable][redist15] (alternatively [2010 x86][redist86] or [2010 x64][redist64] (only if x86 didn't work))
 
 Note that Softimage 2011 and higher already includes python and pywin.
 
@@ -64,6 +64,6 @@ Links
 [python26]: http://www.python.org/ftp/python/2.6.6/python-2.6.6.msi "Python 2.6"
 [pywin]: http://sourceforge.net/projects/pywin32/files/pywin32/Build%20217/pywin32-217.win32-py2.6.exe/download "Pywin for 2.6"
 [pywin download]: https://sourceforge.net/projects/pywin32/files/ "Pywin Download"
-[c++ redist download]: http://www.microsoft.com/download/en/details.aspx?id=5555 "C++ 2010 redist Download"
+[redist15]: https://www.microsoft.com/en-us/download/details.aspx?id=48145 "C++ 2015 redist"
 [redist86]: http://www.microsoft.com/download/en/details.aspx?id=5555 "C++ 2010 redist Download"
 [redist64]: http://www.microsoft.com/downloads/de-de/details.aspx?FamilyID=bd512d9e-43c8-4655-81bf-9350143d5867 "C++ 2010 redist Download"

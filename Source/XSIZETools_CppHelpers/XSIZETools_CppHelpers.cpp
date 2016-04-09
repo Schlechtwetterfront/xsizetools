@@ -68,8 +68,6 @@ CALLBACK XSILoadPlugin( PluginRegistrar& in_reg )
 
 	in_reg.RegisterCommand(L"ZET_GetMaterialNames", L"ZET_GetMaterialNames");
 
-	in_reg.RegisterCommand(L"ZET_GetGeometry", L"ZET_GetGeometry");
-
 	in_reg.RegisterCommand(L"ZET_GetNodeToVertexIndices", L"ZET_GetNodeToVertexIndices");
 	in_reg.RegisterCommand(L"ZET_GetVertexToNodeIndices", L"ZET_GetVertexToNodeIndices");
 
@@ -81,29 +79,6 @@ CALLBACK XSIUnloadPlugin( const PluginRegistrar& in_reg )
 	CString strPluginName;
 	strPluginName = in_reg.GetName();
 	Application().LogMessage(strPluginName + L" has been unloaded.",siVerboseMsg);
-	return CStatus::OK;
-}
-
-
-CALLBACK ZET_GetGeometry_Init(CRef& in_ctxt)
-{
-	Context context(in_ctxt);
-
-	Command command;
-	command = context.GetSource();
-
-	ArgumentArray arguments;
-	arguments = command.GetArguments();
-	arguments.Add(L"polyMesh");
-	arguments.Add(L"calculateWorldCoordinates", true);
-	command.PutDescription(L"Returns an array containing vertex positions plus their normals in a flat array. If calculateWorldCoordinates is true, multiply the vertex positions with the object's scale.");
-	command.EnableReturnValue(true);
-
-	return CStatus::OK;
-}
-
-CALLBACK ZET_GetGeometry_Execute(CRef& in_ctxt)
-{
 	return CStatus::OK;
 }
 
@@ -959,16 +934,4 @@ CALLBACK CGA_GetNodesPerPoint_Execute( CRef& in_ctxt )
 	}
 	ctxt.PutAttribute( L"ReturnValue", ordered);
 	return CStatus::OK;
-}
-
-
-/*
-		HELPER FUNCTIONS
-
-*/
-
-
-void GetVertexPositions(Context context, PolygonMesh* polyMesh, CFloatArray& in_positions) {
-	
-
 }
