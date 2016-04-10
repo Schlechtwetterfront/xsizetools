@@ -612,7 +612,11 @@ class ModelConverter(softimage.SIModel):
                 self.export.abort('Cloth collision names should start with "c_" ({0}).'.format(short_collision_name))
             collision = msh2.ClothCollision(geo)
             collision.name = short_collision_name
-            collision.parent = self.export.xsi.Dictionary.GetObject(collision_name, False).Parent.Name.encode(STR_CODEC)
+            try:
+                collision.parent = self.export.xsi.Dictionary.GetObject(collision_name, False).Parent.Name.encode(STR_CODEC)
+            except AttributeError as e:
+                logging.exception(e)
+                self.export.abort('Could not find cloth collision "{0}" for "{1}".'.format(collision_name, self.msh2_model.name))
             collisions.append(collision)
         return collisions
 
