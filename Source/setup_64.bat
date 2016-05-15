@@ -2,12 +2,15 @@ echo 64
 
 @echo off
 
-call "D:\Program Files\Autodesk\Softimage 2015\Application\bin\setenv.bat"
-call  "D:\Programme (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
+SET "SI_PATH=E:\Program Files\Autodesk\Softimage 2015"
+SET "VS_PATH=E:\Programme (x86)\Microsoft Visual Studio 14.0"
+
+call "%SI_PATH%\Application\bin\setenv.bat"
+call "%VS_PATH%\VC\vcvarsall.bat" amd64
 
 set PATH
-set "XSISDK_ROOT=D:\Program Files\Autodesk\Softimage 2015\XSISDK"
+set "XSISDK_ROOT=%SI_PATH%\XSISDK"
 
-"D:\Programme (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.exe" /useenv
+"%VS_PATH%\Common7\IDE\devenv.exe" /useenv
 
 @echo on
