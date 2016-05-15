@@ -15,28 +15,25 @@ For more information on usage go to the [XSIZETools homepage][homepage].
 
 If you encounter bugs or have problems, feel free to post on the [Gametoast forums][gametoast] (you might need to use a proxy) or send me a mail via Github.
 
-Required
---------
-
-* XSI 6.0+ (including ModTools)
-* [Python 2.x][python download] & [pywin32][pywin download] (check the Links section for an older combination that definitely works)
-* [Visual C++ 2015 redistributable][redist15] (alternatively [2010 x86][redist86] or [2010 x64][redist64] (only if x86 didn't work))
-
-Note that Softimage 2011 and higher already includes python and pywin.
 
 Installation
 --------
 
-**Install:**
-	
-Unzip the archive into
-```%user_path%\\Autodesk\\%xsi_version%\\Addons``` _or_ ```%user_path%\\Softimage\\%xsi_version%\\Addons```.  
-Example: ```C:\\Users\\Ande\\Autodesk\\Softimage_2012\\Addons```
-	
-	
-**Uninstall:**
+To use XSIZETools you need the following:
 
-Exit XSI, then remove the XSIZETools folder from the path mentioned in _Install_.
+1. Choose one of the [releases from here][releases] and download it.
+
+1. If you **don't** have a Softimage version of 2011 or higher,
+download and install [python][python26] and 
+[pywin32][pywin26]. You can also choose your own combination from [python downloads][python] and [pywin downloads][pywin].
+
+1. Download and install the [Visual C++ 2015 Redistributable](https://www.visualstudio.com/downloads/download-visual-studio-vs#d-visual-c).
+Download both versions by selecting the format and activating the _Download_ button.
+If the page doesn't automatically navigate to the Visual C++ 2015 redist select _Tools for Visual Studio 2015_ on the left and then choose _Microsoft Visual C++ 2015 Redistributable_.
+
+1. Unzip the downloaded archive into
+```C:/users/%user%/Autodesk/Softimage_%version%/Addons/``` or ```C:/users/%user%/Softimage/Softimage_%version%/Addons/```.
+In the end, the directory including ``README.md``, ``xsizet.ver``, etc should be ``C:/Users/%user%/Autodesk/Softimage_2015/Addons/xsizetools/``.
 
 
 Building from source
@@ -52,18 +49,18 @@ Links
 
 * [XSIZETools Homepage][homepage]
 * [Gametoast Thread][gametoast]
-* [Python Downloads][python download]
-* [Pywin Downloads][pywin download]
-* [Python 2.6][python26] + [Pywin][pywin]
+* [Python Downloads][python]
+* [Pywin Downloads][pywin]
+* [Python 2.6][python26] + [Pywin][pywin26]
 * Visual C++ 2010 redist: [x86][redist86] | [x64][redist64]
 
 [homepage]: http://schlechtwetterfront.github.io/xsizetools/ "XSIZETools Homepage"
 [gametoast]: http://gametoast.com/viewtopic.php?f=36&t=26664 "Gametoast Thread"
 [releases]: https://github.com/Schlechtwetterfront/xsizetools/releases "Releases"
-[python download]: https://www.python.org/downloads/ "Python Download"
+[python]: https://www.python.org/downloads/ "Python Download"
 [python26]: http://www.python.org/ftp/python/2.6.6/python-2.6.6.msi "Python 2.6"
-[pywin]: http://sourceforge.net/projects/pywin32/files/pywin32/Build%20217/pywin32-217.win32-py2.6.exe/download "Pywin for 2.6"
-[pywin download]: https://sourceforge.net/projects/pywin32/files/ "Pywin Download"
-[redist15]: https://www.microsoft.com/en-us/download/details.aspx?id=48145 "C++ 2015 redist"
+[pywin26]: http://sourceforge.net/projects/pywin32/files/pywin32/Build%20217/pywin32-217.win32-py2.6.exe/download "Pywin for 2.6"
+[pywin]: https://sourceforge.net/projects/pywin32/files/ "Pywin Download"
+[redist15]: https://www.visualstudio.com/downloads/download-visual-studio-vs#d-visual-c "C++ 2015 redist"
 [redist86]: http://www.microsoft.com/download/en/details.aspx?id=5555 "C++ 2010 redist Download"
 [redist64]: http://www.microsoft.com/downloads/de-de/details.aspx?FamilyID=bd512d9e-43c8-4655-81bf-9350143d5867 "C++ 2010 redist Download"
