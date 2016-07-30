@@ -3,21 +3,21 @@
 '''
 import os
 import sys
-import logging
-reload(logging)
-import softimage
-reload(softimage)
-import zetcore
-reload(zetcore)
 from pythoncom import com_error
-import msh2
-reload(msh2)
-import msh2_unpack
-reload(msh2_unpack)
-from msh2_crc import CRCError
 from datetime import datetime as dt
 import win32com
 from win32com.client import constants as const
+from msh2_crc import CRCError
+import logging
+import softimage
+import zetcore
+import msh2
+import msh2_unpack
+reload(logging)
+reload(softimage)
+reload(zetcore)
+reload(msh2)
+reload(msh2_unpack)
 
 xsimath = win32com.client.Dispatch('XSI.Math')
 xsifact = win32com.client.Dispatch('XSI.Factory')
@@ -26,6 +26,7 @@ STR_CODEC = 'utf-8'
 
 
 class MshImportError(Exception):
+
     def __init__(self, msg):
         self.msg = msg
 
@@ -34,6 +35,7 @@ class MshImportError(Exception):
 
 
 class MaterialBuilder(object):
+
     def __init__(self, imp, msh):
         self.msh = msh
         self.imp = imp
@@ -207,15 +209,22 @@ class ChainItemBuilder(softimage.SIModel):
         else:
             parent = self.xsi.ActiveSceneRoot
         if not parent:
-            logging.error('Cant find parent %s for %s.', self.model.parent_name,
-                                                         self.model.name)
+            logging.error(
+                'Cant find parent %s for %s.',
+                self.model.parent_name,
+                self.model.name
+            )
         try:
             self.si_model = parent.AddPolygonMesh(vertex_positions,
                                                   faces,
                                                   self.model.name)
         except com_error:
-            logging.exception('verts: %s, faces: %s, name: %s.', vertex_positions,
-                                                                 faces, self.model.name)
+            logging.exception(
+                'verts: %s, faces: %s, name: %s.',
+                vertex_positions,
+                faces,
+                self.model.name
+            )
             self.imp.abort_checklog()
 
         self.geo = self.si_model.ActivePrimitive.GetGeometry2(0)
@@ -267,7 +276,7 @@ class ChainItemBuilder(softimage.SIModel):
             self.si_model.height = my_collision.primitive_data[1]
             self.set_cloth_prim_scale(my_collision)
         elif my_collision.primitive_type == 2:
-            self.si_model.length = 1.0 # my_collision.primitive_data[0]
+            self.si_model.length = 1.0  # my_collision.primitive_data[0]
             self.set_cloth_prim_scale(my_collision)
         else:
             logging.error('{0} is unknown prim type({1}).'.format(self.model.name, self.model.primitive[0]))
@@ -403,7 +412,7 @@ class ChainItemBuilder(softimage.SIModel):
                 is_uved = True
                 break
         if is_uved:
-            with zetcore.Timer('Processing UVs in %ss %sms.'):
+            with zetcore.Timer('Making UVs in %ss %sms.'):
                 uvs = self.make_uvs_persample()
                 self.xsi.CreateProjection(self.si_model)
                 # Freeze object to hide the projections. Is quite expensive.
@@ -599,16 +608,18 @@ class ChainItemBuilder(softimage.SIModel):
             transform.SetScalingFromValues(*self.model.transform.scale)
             # It seems we have to pipe the transform in we got before.
             self.si_model.Kinematics.Local.Transform = transform
-            logging.debug('''Set local tranform for {0} to:
+            logging.debug('Model transform: %s', self.model.transform)
+            logging.debug('''Set local transform for {0} to:
 \t\t\t\t\t\t\tPosition: {1}, {2}, {3};
 \t\t\t\t\t\t\tRotation: {4}, {5}, {6};
 \t\t\t\t\t\t\tScale:    {7}, {8}, {9}.'''.format(self.si_model.Name,
-                                               transform.PosX, transform.PosY, transform.PosZ,
-                                               transform.RotX, transform.RotY, transform.RotZ,
-                                               transform.SclX, transform.SclY, transform.SclZ))
+                                                 transform.PosX, transform.PosY, transform.PosZ,
+                                                 transform.RotX, transform.RotY, transform.RotZ,
+                                                 transform.SclX, transform.SclY, transform.SclZ))
 
 
 class ChainBuilder(object):
+
     def __init__(self, imp, msh, materials=None):
         self.msh = msh
         # imp = Import. Can't use import, can I?
@@ -638,6 +649,7 @@ class ChainBuilder(object):
 
 
 class AnimationImport(object):
+
     def __init__(self, imp, chain, bones):
         # imp = Import. Can't use import, can I?
         self.imp = imp
@@ -705,6 +717,7 @@ class AnimationImport(object):
 
 
 class Enveloper(object):
+
     def __init__(self, imp, msh, chain):
         self.imp = imp
         self.msh = msh
@@ -785,6 +798,7 @@ class Enveloper(object):
 
 
 class Import(softimage.SIGeneral):
+
     def __init__(self, app, config=None):
         self.msh = None
         self.xsi = app
