@@ -30,7 +30,7 @@ class Timer():
 
     def __exit__(self, type_, value, traceback):
         self.result_time = dt.now() - self.start_time
-        logging.info(self.text, self.result_time.seconds, self.result_time.microseconds / 1000)
+        logging.info(self.text, self.result_time.seconds, self.result_time.microseconds)
 
 
 class CheckSel(object):
