@@ -1139,17 +1139,23 @@ class SegmentGeometry(Packer):
         new_vertices_set = set()
         len_new_verts = 0
 
+        num_cleared_vertices = 0
+
         for index, vert in enumerate(self.vertices):
             if vert in new_vertices_set:
                 index_original = new_vertices.index(vert)
                 # Insert into indices map.
                 self.index_map[index] = index_original
+
+                num_cleared_vertices += 1
             else:
                 new_vertices.append(vert)
                 new_vertices_set.add(vert)
                 self.index_map[index] = len_new_verts
                 len_new_verts += 1
         self.vertices.vertices = new_vertices
+
+        logging.info('Cleared %s doubles.', num_cleared_vertices)
 
     def dump(self, fh):
         '''Dump information to open filehandler fileh.'''
@@ -1850,6 +1856,9 @@ class Vertex(object):
         fh.write('\t\tVERTEX\n')
         fh.write('\t\t\tPos: {0:3}, {1:3}, {2:3}\n'.format(*self.pos))
         fh.write('\t\t\tUV:  {0:3}, {1:3}\n'.format(*self.uv))
+
+    def __hash__(self):
+        return hash((self.x, self.y, self.z, self.u, self.v, self.nx, self.ny, self.nz))
 
     def __eq__(self, other):
         if (self.x == other.x) and (self.y == other.y) and (self.z == other.z):
