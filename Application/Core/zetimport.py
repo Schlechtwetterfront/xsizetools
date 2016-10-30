@@ -183,7 +183,7 @@ class ChainItemBuilder(softimage.SIModel):
         elif 'geo' in self.model.model_type:
             if self.model.collprim:
                 self.build_prim()
-            elif self.model.name.startswith('c_'):
+            elif self.model.name.startswith('c_') and self.get_c_prim_data():
                 self.build_c_prim()
             else:
                 self.build_geo()
@@ -247,19 +247,21 @@ class ChainItemBuilder(softimage.SIModel):
         self.set_transform()
         self.set_vis()
 
-    def build_c_prim(self):
-        '''Builds primitive objectives from cloth collisions.'''
-        logging.info('Building {0} as cloth prim(originally {1}).'.format(self.model.name, self.model.model_type))
-
-        # Find a cloth which has this cloth primitive as cloth collision so we can retrieve the necessary primitive data.
-        my_collision = None
+    def get_c_prim_data(self):
+        '''Gets the corresponding COLL data for this model.'''
         for model in self.imp.msh.models:
             if model.model_type == 'cloth':
                 cloth_geo = model.segments[0]
                 for collision in cloth_geo.collisions:
                     if collision.name == self.model.name:
-                        my_collision = collision
-                        break
+                        return collision
+
+    def build_c_prim(self):
+        '''Builds primitive objectives from cloth collisions.'''
+        logging.info('Building {0} as cloth prim(originally {1}).'.format(self.model.name, self.model.model_type))
+
+        # Find a cloth which has this cloth primitive as cloth collision so we can retrieve the necessary primitive data.
+        my_collision = self.get_c_prim_data()
 
         self.si_model = self.xsi.CreatePrim(self.cloth_prim_types[my_collision.primitive_type],
                                             'MeshSurface',
