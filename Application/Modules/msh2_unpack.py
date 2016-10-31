@@ -487,7 +487,12 @@ class GeometryUnpacker(Unpacker):
                 self.fh.read(size)
             elif hdr == 'NDXT':
                 last_chunk = 'NDXT'
-                self.fh.read(size)
+                num_triangles = unpack('<L', self.fh.read(4))[0]
+                faces = msh2.FaceCollection(self.seg)
+                for n in range(num_triangles):
+                    face = msh2.Face(unpack('<HHH', self.fh.read(2 * 3)))
+                    faces.add(face)
+                self.seg.faces = faces
             else:
                 if hdr not in CHUNK_LIST:
                     if last_chunk == 'STRP':
