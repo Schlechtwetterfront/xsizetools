@@ -495,10 +495,12 @@ class GeometryUnpacker(Unpacker):
 
                 num_triangles = unpack('<L', self.fh.read(4))[0]
 
+                logging.info('Sizes: %d == %d', num_triangles * 6 + 4, size)
+
                 faces = msh2.FaceCollection(self.seg)
 
                 for n in range(num_triangles):
-                    face = msh2.Face(unpack('<HHH', self.fh.read(2 * 3)))
+                    face = msh2.Face(list(unpack('<HHH', self.fh.read(2 * 3))))
                     faces.add(face)
 
                 self.seg.faces = faces

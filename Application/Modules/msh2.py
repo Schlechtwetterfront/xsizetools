@@ -1637,7 +1637,7 @@ class Face(object):
 class FaceCollection(object):
     def __init__(self, segm=None):
         # List of Face objects.
-        self.faces = None
+        self.faces = []
         # Ref to parent(SegmentGeometry).
         if segm:
             self.segment = segm
