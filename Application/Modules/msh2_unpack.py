@@ -504,6 +504,12 @@ class GeometryUnpacker(Unpacker):
                     faces.add(face)
 
                 self.seg.faces = faces
+
+                # If there are any bytes left (which seems to happen in some
+                # .msh files), skip them.
+                used_bytes = len(faces) * 6 + 4
+                if used_bytes < size:
+                    self.fh.read(size - used_bytes)
             else:
                 if hdr not in CHUNK_LIST:
                     if last_chunk == 'STRP':
