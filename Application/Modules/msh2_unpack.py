@@ -15,8 +15,8 @@ CHUNK_LIST = ['HEDR', 'SHVO', 'MSH2',
               'SINF', 'FRAM', 'CAMR',
               'MATL', 'DATA', 'MATD', 'ATRB', 'TX0D', 'TX1D', 'TX2D', 'TX3D',
               'MODL', 'MTYP', 'MNDX', 'PRNT', 'FLGS', 'TRAN', 'ENVL', 'SWCI',
-              'GEOM', 'SEGM', 'SHDW', 'MATI', 'POSL', 'NRML', 'UV0L', 'CLRL',
-              'CLRB', 'WGHT', 'NDXL', 'NDXT', 'STRP',
+              'GEOM', 'SEGM', 'SHDW', 'MATI', 'POSL', 'NRML', 'UV0L', 'UV1L',
+              'UV2L', 'CLRL', 'CLRB', 'WGHT', 'NDXL', 'NDXT', 'STRP',
               'CLTH', 'CTEX', 'CPOS', 'CUV0', 'FIDX', 'FWGT', 'SPRS', 'CPRS',
               'BPRS', 'COLL',
               'SKL2', 'BLN2', 'ANM2', 'CYCL', 'KFR3',
@@ -431,6 +431,9 @@ class GeometryUnpacker(Unpacker):
                 for n in xrange(num_uvs):
                     self.seg.vertices[n].uv = unpack('<ff', self.fh.read(8))
                 self.seg.vertices.uved = True
+            elif hdr in ('UV1L', 'UV2L', 'UV3L'):
+                # Never seen UV2L + but just to be sure.
+                self.fh.read(size)
             elif hdr == 'CLRL':
                 self.up.up.last_chunk = 'CLRL'
                 num_colors = unpack('<L', self.fh.read(4))[0]
