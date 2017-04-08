@@ -1,490 +1,398 @@
 <!doctype html>
-<html>
+<html lang="en">
 	<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <!-- <link rel="stylesheet" href="../css/styles.css"> -->
-    <!-- <link rel="stylesheet" href="../css/schlechtwetterfront_dark.css"> -->
-    <!-- <link rel="stylesheet" href="../css/schlechtwetterfront_light.css"> -->
-    <link rel="stylesheet" href="../css/bootstrap.min.css">
-    <link rel="stylesheet" href="../css/shared.css">
-    <link rel="stylesheet" href="../css/site.css">
-    <link rel="stylesheet" href="../css/site-mainpage.css">
-    <link href="../css/lightbox.min.css" rel="stylesheet">
-    <script src="../js/respond.js"></script>
-    <script src="../js/jquery-1.11.0.min.js"></script>
-    <script src="../js/bootstrap.min.js"></script>
-    <script src="../js/schlechtwetterfront_functional.js"></script>
-    <script src="../js/schlechtwetterfront_visual.js"></script>
-    <link rel="icon" type="image/png" href="../favicon.png"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>XSI ZETools</title>
-</head>
-	<body>
-        <div class="container-fluid hidden-lg hidden-md">
-    <nav class="navbar" id="s-navbar">
-        <ul class="nav navbar-nav">
-            
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Navigation</a>
-                <ul class="dropdown-menu">
-                
-                    <li><a href="#overview" class="rectangle-button rectangle-button-semi">Overview</a></li>
-                
-                    <li><a href="#download_installation" class="rectangle-button rectangle-button-semi">Download & Installation</a></li>
-                
-                    <li><a href="#contributors" class="rectangle-button rectangle-button-semi">Contributors</a></li>
-                
-                </ul>
-            
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Downloads</a>
-                <ul class="dropdown-menu">
-                
-                    <li><a href="https://github.com/Schlechtwetterfront/xsizetools/releases" class="rectangle-button rectangle-button-semi">Releases</a></li>
-                
-                    <li><a href="http://schlechtwetterfront.github.io/xsizetools/XSIZETools_src.7z" class="rectangle-button rectangle-button-semi">C++ Source (deprecated)</a></li>
-                
-                </ul>
-            
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Guidelines</a>
-                <ul class="dropdown-menu">
-                
-                    <li><a href="#export-guidelines" class="rectangle-button rectangle-button-semi">Export</a></li>
-                
-                    <li><a href="#import-guidelines" class="rectangle-button rectangle-button-semi">Import</a></li>
-                
-                    <li><a href="#cloth-guidelines" class="rectangle-button rectangle-button-semi">Cloth</a></li>
-                
-                </ul>
-            
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Documentation</a>
-                <ul class="dropdown-menu">
-                
-                    <li><a href="#scripts" class="rectangle-button rectangle-button-semi">Scripts</a></li>
-                
-                    <li><a href="#export-docs" class="rectangle-button rectangle-button-semi">.msh Export</a></li>
-                
-                    <li><a href="#import-docs" class="rectangle-button rectangle-button-semi">.msh Import</a></li>
-                
-                    <li><a href="#material-docs" class="rectangle-button rectangle-button-semi">Material Manager</a></li>
-                
-                    <li><a href="#msh2txt" class="rectangle-button rectangle-button-semi">MSH 2 TXT</a></li>
-                
-                    <li><a href="#animation-export" class="rectangle-button rectangle-button-semi">Animation Export</a></li>
-                
-                </ul>
-            
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Other Resources</a>
-                <ul class="dropdown-menu">
-                
-                    <li><a href="https://github.com/Schlechtwetterfront/xsizetools" class="rectangle-button rectangle-button-semi">View on GitHub</a></li>
-                
-                    <li><a href="http://gametoast.com/viewtopic.php?f=36&t=26664" class="rectangle-button rectangle-button-semi">View Thread on GameToast</a></li>
-                
-                </ul>
-            
-            </li>
-        </ul>
-    </nav>
-</div>
-		<div class="container-fluid container-main">
-            <div class="row">
-    		
-    			
+		
+		<title>XSIZETools</title>
+		
 
-<div class="col-md-2" role="complementary">
-	<nav class="affix hidden-xs hidden-sm">
-		<div class="sidebar">
-			<a href="http://schlechtwetterfront.github.io/" class="sidebar-homepage"></a>
-            <div class="sidebar-title">
+		<meta name="description" content="">
+		<meta name="keywords" content="programming, code">
 
-            XSI ZETools
-            </div>
-			<div class="hr"></div>
-			<div id="sidebar-content">
-			
-				<div class="category_label">Navigation</div>
-				
-				
-			        
-		<a class="rectangle-button rectangle-button-semi" href="#overview">Overview</a>
-	
-			    
-			        
-		<a class="rectangle-button rectangle-button-semi" href="#download_installation">Download & Installation</a>
-	
-			    
-			        
-		<a class="rectangle-button rectangle-button-semi" href="#contributors">Contributors</a>
-	
-			    
-			    
-			
-				<div class="category_label">Downloads</div>
-				
-				
-			        
-		<a class="rectangle-button rectangle-button-semi" href="https://github.com/Schlechtwetterfront/xsizetools/releases">Releases</a>
-	
-			    
-			        
-		<a class="rectangle-button rectangle-button-semi" href="http://schlechtwetterfront.github.io/xsizetools/XSIZETools_src.7z">C++ Source (deprecated)</a>
-	
-			    
-			    
-			
-				<div class="category_label">Guidelines</div>
-				
-				
-			        
-		<a class="rectangle-button rectangle-button-semi" href="#export-guidelines">Export</a>
-	
-			    
-			        
-		<a class="rectangle-button rectangle-button-semi" href="#import-guidelines">Import</a>
-	
-			    
-			        
-		<a class="rectangle-button rectangle-button-semi" href="#cloth-guidelines">Cloth</a>
-	
-			    
-			    
-			
-				<div class="category_label">Documentation</div>
-				
-				
-			        
-		<a class="rectangle-button rectangle-button-semi" href="#scripts">Scripts</a>
-	
-			    
-			        
-		<a class="rectangle-button rectangle-button-semi" href="#export-docs">.msh Export</a>
-	
-			    
-			        
-		<a class="rectangle-button rectangle-button-semi" href="#import-docs">.msh Import</a>
-	
-			    
-			        
-		<a class="rectangle-button rectangle-button-semi" href="#material-docs">Material Manager</a>
-	
-			    
-			        
-		<a class="rectangle-button rectangle-button-semi" href="#msh2txt">MSH 2 TXT</a>
-	
-			    
-			        
-		<a class="rectangle-button rectangle-button-semi" href="#animation-export">Animation Export</a>
-	
-			    
-			    
-			
-				<div class="category_label">Other Resources</div>
-				
-				
-			        
-		<a class="rectangle-button rectangle-button-semi" href="https://github.com/Schlechtwetterfront/xsizetools">View on GitHub</a>
-	
-			    
-			        
-		<a class="rectangle-button rectangle-button-semi" href="http://gametoast.com/viewtopic.php?f=36&t=26664">View Thread on GameToast</a>
-	
-			    
-			    
-			
-			</div>
-		</div>
-	</nav>
-</div>
-    			
+		<link rel="shortcut icon" type="image/png" href="../images/personal_logo_small.png"/>
+		<link rel="stylesheet" href="../css/style.css" type="text/css" />
+	</head>
+	<body class="page-xsizetools">
 
-<!-- <div class="content"> -->
-<div class="col-md-10 section-container" role="main">
-	
-		<div class="section">
-			<a name="main_info"></a>
-				<!-- <div> -->
-					<div class="section-header">Main Info</div>
-					<!-- 
-		<a class="toggle_collapse" content-id="main_info_content" id="main_info_content_start" starts-collapsed="False">Collapse</a>
-	 -->
-				<!-- </div> -->
-				<div id="main_info_content" class="section-content">
-				<p>XSIZETools is an addon for Softimage with full export and import of 3D .msh files for ZeroEngine (Star Wars Battlefront I and II). That includes geometry, materials with all ZeroEngine-specific flags, animations, collisions and simulated cloth.</p>
+		<div class="container">
+
+			
+				<aside class="menu">
+	<a href="/" class="no-style home">
+		
+		<h1 class="page-title">
+		
+			<span class="line"><span>X</span> <span>S</span> <span>I</span> <span>Z</span> <span>E</span>
+</span>
+		
+			<span class="line"><span>T</span> <span>o</span> <span>o</span> <span>l</span> <span>s</span>
+</span>
+		
+		</h1>
+	</a>
+	<span class="no-select hr">&middot; &middot; &middot;</span>
+	<ul class="navigation blocks">
+		
+			<li class="category"><h6 class="category-title">Navigation</h6></li>
+			
+			<li class="link"><a href="\#overview">Overview</a></li>
+			
+			<li class="link"><a href="\#installation">Download & Installation</a></li>
+			
+			<li class="link"><a href="\#contributors">Contributors</a></li>
+			
+		
+			<li class="category"><h6 class="category-title">Downloads</h6></li>
+			
+			<li class="link"><a href="https://github.com/Schlechtwetterfront/xsizetools/releases">Releases</a></li>
+			
+		
+			<li class="category"><h6 class="category-title">Guidelines</h6></li>
+			
+			<li class="link"><a href="\#export-guidelines">Export</a></li>
+			
+			<li class="link"><a href="\#import-guidelines">Import</a></li>
+			
+			<li class="link"><a href="\#cloth-guidelines">Cloth</a></li>
+			
+		
+			<li class="category"><h6 class="category-title">Documentation</h6></li>
+			
+			<li class="link"><a href="\#scripts">Scripts</a></li>
+			
+			<li class="link"><a href="\#export-docs">.msh Export</a></li>
+			
+			<li class="link"><a href="\#import-docs">.msh Import</a></li>
+			
+			<li class="link"><a href="\#material-docs">Material Manager</a></li>
+			
+			<li class="link"><a href="\#msh2txt">msh2txt</a></li>
+			
+			<li class="link"><a href="\#animation-export">Animation Export</a></li>
+			
+		
+			<li class="category"><h6 class="category-title">Other Resources</h6></li>
+			
+			<li class="link"><a href="https://github.com/Schlechtwetterfront/xsizetools">View on Github</a></li>
+			
+			<li class="link"><a href="http://gametoast.com/viewtopic.php?f=36&t=26664">View Thread on Gametoast</a></li>
+			
+		
+	</ul>
+</aside>
+			
+
+			
+			<div class="content">
+				
+				
+
+				
+						
+							<section class="block">
+
+<h2 id="overview">Overview</h2>
+
+<p>XSIZETools is an addon for Softimage with full export and import of 3D .msh files for ZeroEngine (Star Wars Battlefront I and II). That includes geometry, materials with all ZeroEngine-specific flags, animations, collisions and simulated cloth.</p>
 <p>In general, important updates will be gathered into a <a href="https://github.com/Schlechtwetterfront/xsizetools/releases" title="Releases">release</a>, so choosing the latest release should give you the latest working features. Alternatively you can download the most recent commit directly with the "Download ZIP" button.</p>
-<p>For more information on usage go to the <a href="http://schlechtwetterfront.github.io/xsizetools/" title="XSIZETools Homepage">XSIZETools homepage</a>.</p>
-<p>If you encounter bugs or have problems, feel free to post on the <a href="http://gametoast.com/viewtopic.php?f=36&amp;t=26664" title="Gametoast Thread">Gametoast forums</a> (you might need to use a proxy from some countries)
+<p>For more information on usage go to the <a href="http://schlechtwetterfront.github.io/xsizetools/" title="XSIZETools Homepage">XSIZETools homepage</a>.
+If you encounter bugs or have problems, feel free to post on the <a href="http://gametoast.com/viewtopic.php?f=36&amp;t=26664" title="Gametoast Thread">Gametoast forums</a> (you might need to use a proxy from some countries)
 or send me a mail via Github.</p>
-				<!-- 
-		<div></div>
-	 -->
-				</div>
-			<!-- <div class="hr"></div> -->
-		</div>
-	
-		<div class="section">
-			<a name="download_installation"></a>
-				<!-- <div> -->
-					<div class="section-header">Download & Installation</div>
-					<!-- 
-		<a class="toggle_collapse" content-id="download_installation_content" id="download_installation_content_start" starts-collapsed="False">Collapse</a>
-	 -->
-				<!-- </div> -->
-				<div id="download_installation_content" class="section-content">
-				<p>To use XSIZETools you need the following:</p>
+
+</section>
+						
+							<section class="block">
+
+<h2 id="installation">Download & Installation</h2>
+
+<p>To use XSIZETools you need the following:</p>
 <ol>
-<li>
-<p>Choose one of the <a href="https://github.com/Schlechtwetterfront/xsizetools/releases" title="Releases">releases from here</a> and download it.</p>
-</li>
-<li>
-<p>If you <strong>don't</strong> have a Softimage version of 2011 or higher,
-download and install <a href="http://www.python.org/ftp/python/2.6.6/python-2.6.6.msi">python</a> and 
-<a href="http://sourceforge.net/projects/pywin32/files/pywin32/Build%20217/pywin32-217.win32-py2.6.exe/download">pywin32</a>.</p>
-</li>
-<li>
-<p>Download and install the <a href="https://www.visualstudio.com/downloads/download-visual-studio-vs#d-visual-c">Visual C++ 2015 Redistributable</a>.
-Download both versions by selecting the format and activating the <em>Download</em> button.
-If the page doesn't automatically navigate to the Visual C++ 2015 redist select <em>Tools for Visual Studio 2015</em> on the left and then choose <em>Microsoft Visual C++ 2015 Redistributable</em>.</p>
-</li>
-<li>
-<p>Unzip the downloaded archive into
-<code>C:/users/%user%/Autodesk/Softimage_%version%/Addons/</code> or <code>C:/users/%user%/Softimage/Softimage_%version%/Addons/</code>.
-In the end, the directory including <code>README.md</code>, <code>xsizet.ver</code>, etc should be <code>C:/Users/%user%/Autodesk/Softimage_2015/Addons/xsizetools/</code>.</p>
-</li>
+<li>Choose one of the <a href="https://github.com/Schlechtwetterfront/xsizetools/releases" title="Releases">releases from here</a> and download it.</li>
+<li>If you <strong>don't</strong> have a Softimage version of 2011 or higher,
+    download and install <a href="http://www.python.org/ftp/python/2.6.6/python-2.6.6.msi">python</a> and 
+    <a href="http://sourceforge.net/projects/pywin32/files/pywin32/Build%20217/pywin32-217.win32-py2.6.exe/download">pywin32</a>.</li>
+<li>Download and install the <a href="https://www.visualstudio.com/downloads/download-visual-studio-vs#d-visual-c">Visual C++ 2015 Redistributable</a>.
+    Download both versions by selecting the format and activating the <em>Download</em> button.
+    If the page doesn't automatically navigate to the Visual C++ 2015 redist select <em>Tools for Visual Studio 2015</em> on the left and then choose <em>Microsoft Visual C++ 2015 Redistributable</em>.</li>
+<li>Unzip the downloaded archive into
+    <code>C:/users/%user%/Autodesk/Softimage_%version%/Addons/</code>.
+    In the end, the directory including <code>README.md</code>, <code>xsizet.ver</code>, etc should be <code>C:/Users/%user%/Autodesk/Softimage_2015/Addons/xsizetools/</code>.</li>
 </ol>
 <p>If python and pywin32 was installed correctly it should look something like
 <a href="installed_python.jpg">this</a>.  </p>
-				<!-- 
-		<div></div>
-	 -->
-				</div>
-			<!-- <div class="hr"></div> -->
-		</div>
-	
-		<div class="section">
-			<a name="contributors"></a>
-				<!-- <div> -->
-					<div class="section-header">Contributors</div>
-					<!-- 
-		<a class="toggle_collapse" content-id="contributors_content" id="contributors_content_start" starts-collapsed="True">Collapse</a>
-	 -->
-				<!-- </div> -->
-				<div id="contributors_content" class="section-content">
-				<ul>
-<li><strong>Schlechtwetterfront/ANDEWEGET:</strong> Programming, Graphics/UI, most .msh file research.</li>
-<li><strong>AceMastermind (gametoast.com):</strong> Created most templates, provided example .msh files, additional .msh research.</li>
-<li><strong>DarthD.U.C.K (gametoast.com):</strong> Created some templates, provided example .msh files, additional .msh research.</li>
-<li><strong>tirpider (gametoast.com, swbfgamers.com):</strong> Additional .msh research, MSH Info Tool greatly helped with debugging, interesting discussions.</li>
-<li><strong>FragMe! (gametoast.com):</strong> Provided a tool/material for some additional research.</li>
-<li>All the modders using this tool and reporting bugs.</li>
-</ul>
-				<!-- 
-		<div></div>
-	 -->
-				</div>
-			<!-- <div class="hr"></div> -->
-		</div>
-	
-		<div class="section">
-			<a name="export-guidelines"></a>
-				<!-- <div> -->
-					<div class="section-header">Export Guidelines</div>
-					<!-- 
-		<a class="toggle_collapse" content-id="export-guidelines_content" id="export-guidelines_content_start" starts-collapsed="False">Collapse</a>
-	 -->
-				<!-- </div> -->
-				<div id="export-guidelines_content" class="section-content">
-				<ul>
-<li><strong>Error Checking:</strong> The CheckSel function in the export dialog can detect some problems.</li>
-<li><strong>Exported Objects:</strong> The currently selected object + all it's children will be exported.</li>
-<li><strong>Overlapping clusters:</strong> Might break the .msh file. Might mess up the exported .msh's UVs/Weights/Vertex Colors.</li>
-<li><strong>5-Sided(or more) Polygons:</strong> Might break the .msh file. Will mess up export result(missing polies).</li>
-<li><strong>Supported Model Types:</strong> The supported model types are: poly mesh, null, bone.</li>
-<li><strong>UV:</strong> Only apply one 'master' UV projection to a object. All subsequent projections should be Sub-projections.</li>
-<li><strong>Collision:</strong> Collision meshes can be created by naming the model <em>collision_*</em> or <em>*_collision</em>.</li>
-<li><strong>Collision:</strong> Do not freeze any primitives, freezing will remove essential information.</li>
-<li><strong>Animation:</strong> It's not important how you animate bones (FK or IK etc), the exporter will go through all frames one-by-one and get the current local transforms of every bone.</li>
-<li><strong>Always apply the envelope to ALL bones.</strong> This might slow your workflow down but it ensures the points are weighted to the correct bone after export.</li>
-<li><strong>Weighting:</strong> Only weight to objects with bone in their name(NOT: root, eff).</li>
-<li><strong>Weighting:</strong> Try to apply the envelope only to models which won't be merged after weighting. This does not have to break the .msh, it could though.</li>
-<li><strong>No Materials:</strong> You should have at least one material named Scene_Material when exporting. If you have at least one material you don't need Scene_Material.</li>
-<li><strong>Material/Render flags are applied per material.</strong> You can apply them by opening the ZETools Material Manager, selecting a material and then clicking "ZE-ify".
-            This will add all the ZeroEngine material flags to the material.
-            Afterwards inspect your material (click the "Edit" button) and change those settings in the appended options.</li>
-</ul>
-				<!-- 
-		<div></div>
-	 -->
-				</div>
-			<!-- <div class="hr"></div> -->
-		</div>
-	
-		<div class="section">
-			<a name="import-guidelines"></a>
-				<!-- <div> -->
-					<div class="section-header">Import Guidelines</div>
-					<!-- 
-		<a class="toggle_collapse" content-id="import-guidelines_content" id="import-guidelines_content_start" starts-collapsed="False">Collapse</a>
-	 -->
-				<!-- </div> -->
-				<div id="import-guidelines_content" class="section-content">
-				<ul>
-<li><strong>Animation:</strong> Animations will be imported as linear animations on a per-frame basis.</li>
-<li><strong>Animation:</strong> It should be possible to re-export animations directly after import. For SWBF1 you need to have at least one material though.</li>
-<li><strong>Geometry:</strong> There might be some misplaced edges.</li>
-</ul>
-				<!-- 
-		<div></div>
-	 -->
-				</div>
-			<!-- <div class="hr"></div> -->
-		</div>
-	
-		<div class="section">
-			<a name="cloth-guidelines"></a>
-				<!-- <div> -->
-					<div class="section-header">Cloth Guidelines</div>
-					<!-- 
-		<a class="toggle_collapse" content-id="cloth-guidelines_content" id="cloth-guidelines_content_start" starts-collapsed="False">Collapse</a>
-	 -->
-				<!-- </div> -->
-				<div id="cloth-guidelines_content" class="section-content">
-				<ul>
-<li><strong>Geometry:</strong> Try to avoid triangles in the cloth mesh. There's a high change triangles might produce artifacts in the cloth simulation.</li>
-<li><strong>UV/Cloth Splits:</strong> Cloth will be split along UV seams, so UV accordingly.</li>
-<li><strong>Collision:</strong> For ZETools to recognize cloth collision primitives the name needs to start with "c_".</li>
-<li><strong>Error Reporting:</strong> If you have problems with cloth simulation artifacts, provide a screenshot from the debug SWBF.exe with "render_cloth_connections" enabled via the console.</li>
-</ul>
-				<!-- 
-		<div></div>
-	 -->
-				</div>
-			<!-- <div class="hr"></div> -->
-		</div>
-	
-		<div class="section">
-			<a name="scripts"></a>
-				<!-- <div> -->
-					<div class="section-header">Scripts</div>
-					<!-- 
-		<a class="toggle_collapse" content-id="scripts_content" id="scripts_content_start" starts-collapsed="False">Collapse</a>
-	 -->
-				<!-- </div> -->
-				<div id="scripts_content" class="section-content">
-				<ul>
-<li><strong>Create Bone Group</strong><br />
-Creates a group of all objects which have 'bone' in their name. If you have a SWBF2 skeleton in your scene this will group all bones you need to envelope to.  </li>
-<li><strong>Addon Mesh Setup</strong><br />
-Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Root</em> text box) and matching its position and rotation to the selected <em>Addon Bone</em>. You can then move the currently selected object(s) into the hierarchy by pressing <em>Set As Addon Mesh</em>.</li>
-</ul>
-				<!-- 
-		<div></div>
-	 -->
-				</div>
-			<!-- <div class="hr"></div> -->
-		</div>
-	
-		<div class="section">
-			<a name="export-docs"></a>
-				<!-- <div> -->
-					<div class="section-header">Export Documentation</div>
-					<!-- 
-		<a class="toggle_collapse" content-id="export-docs_content" id="export-docs_content_start" starts-collapsed="True">Collapse</a>
-	 -->
-				<!-- </div> -->
-				<div id="export-docs_content" class="section-content">
-				<ul>
-<li><strong>Auto-Overwrite.</strong> Overwrites any output files if they already exist.</li>
-<li><strong>Use root model name for .msh file name.</strong> Will use the name of the topmost object in the currently selected hierarchy as the .msh file name. Has to be enabled when Batch Exporting.</li>
-<li><strong>Batch Export.</strong> Exports all children of the currently selected object as a full hierarchy.</li>
-<li><strong>Export Animation.</strong> Exports animation for the current frame range.</li>
-<li><strong>Current Frame as Basepose.</strong> Exports only the currently selected and following frame to minimize file size.</li>
-<li><strong>Check Sel.</strong> Loops through all objects in the currently selected hierarchy and analyzes it for problems which could cause a bad export.</li>
-<li><strong>Check Sel: Bad model type.</strong> Only nulls, bones and polygon meshes should be used.</li>
-<li><strong>Check Sel: Bad Faces.</strong> Faces should not have more than 4 sides. To fix use Modify&gt;PolygonMesh&gt;Triangulate or Select&gt;Select n-sided polygons&gt;Five sides or more.</li>
-<li><strong>Check Sel: Bad Clusters.</strong> Overlapping clusters, should be fixed.</li>
-<li><strong>Check Sel: Unnecessary clusters.</strong> Do not need to be fixed, just warnings.</li>
-<li><strong>Store Flags.</strong> Stores the current export configuration (path, check boxes etc).</li>
-</ul>
-				<!-- 
-		<div></div>
-	 -->
-				</div>
-			<!-- <div class="hr"></div> -->
-		</div>
-	
-		<div class="section">
-			<a name="import-docs"></a>
-				<!-- <div> -->
-					<div class="section-header">Import Documentation</div>
-					<!-- 
-		<a class="toggle_collapse" content-id="import-docs_content" id="import-docs_content_start" starts-collapsed="True">Collapse</a>
-	 -->
-				<!-- </div> -->
-				<div id="import-docs_content" class="section-content">
-				<ul>
-<li><strong>Texture Folder.</strong> If the textures for the to-be-imported .msh file are not located in the same folder as the .msh file.</li>
-<li><strong>Set Frame Range.</strong> Will set the frame range to that stored in the .msh file.</li>
-<li><strong>Apply animation to selected hierarchy.</strong> If you have already imported a .msh file (like a unit) then you can apply an animation stored in another .msh file to the previously imported mesh (root of that hierarchy must be selected).</li>
-<li><strong>Null Display Size.</strong> Set the display size of nulls.</li>
-<li><strong>Ignore Geometry.</strong> Will replace any meshes with nulls, use this if you are applying an animation to a hierarchy.</li>
-<li><strong>Ignore Animation.</strong> Ignores any animation. Use this if you are importing baseposes to later apply animations (and just generally if you do not need the animation).</li>
-<li><strong>Color Nulls.</strong> Will color nulls if the importer can find out which type they are (bones, effs and roots).</li>
-<li><strong>Hide Roots/Effectors.</strong> Will hide roots and effectors in the hierarchy so they are not accidentally animated.</li>
-<li><strong>Wield Boundary Edges.</strong> Imported meshes usually have splits along the UV seams. This option will wield any of these edges after geometry import.</li>
-<li><strong>Store Flags.</strong> Stores the current import configuration (path, check boxes etc).</li>
-<li><strong>Triangulate.</strong> Triangulates any quads or more-sided polygons on import.</li>
-<li><strong>Log.</strong> Logs the MSH unpack (can be slow).</li>
-</ul>
-				<!-- 
-		<div></div>
-	 -->
-				</div>
-			<!-- <div class="hr"></div> -->
-		</div>
-	
-		<div class="section">
-			<a name="material-docs"></a>
-				<!-- <div> -->
-					<div class="section-header">Material Manager Documentation</div>
-					<!-- 
-		<a class="toggle_collapse" content-id="material-docs_content" id="material-docs_content_start" starts-collapsed="True">Collapse</a>
-	 -->
-				<!-- </div> -->
-				<div id="material-docs_content" class="section-content">
-				<ul>
-<li><strong>Create.</strong> Creates a new Phong material with the name in the box to the left of the button.</li>
-<li><strong>Edit.</strong> Will inspect the currently selected material for editing.</li>
-<li><strong>ZEify.</strong> Will add ZeroEngine specific material and shader settings to the selected material(s). This lets you add features like scrolling textures, glow, bump mapping and many more.<br>
-    For more information on render types <a href="http://schlechtwetterfront.github.io/ze_filetypes/rendertypes.html">look here</a>. Textures listed under <em>Additional</em> on that page will need to be put into the <em>Texture 1-3</em> slots.</li>
-<li><strong>De-ZEify.</strong> Removes ZeroEngine specific settings.</li>
-<li><strong>Remove.</strong> Deletes the currently selected material(s).</li>
-<li><strong>Assign Tex.</strong> Opens a dialog to assign a color/diffuse texture to the selected material.</li>
-<li><strong>Assign.</strong> Assigns the currently selected material to the currently selected component/object in the scene.</li>
-<li><strong>Unassign.</strong> Unassigns the material.</li>
-</ul>
-				<!-- 
-		<div></div>
-	 -->
-				</div>
-			<!-- <div class="hr"></div> -->
-		</div>
-	
-		<div class="section">
-			<a name="msh2txt"></a>
-				<!-- <div> -->
-					<div class="section-header">MSH2TXT</div>
-					<!-- 
-		<a class="toggle_collapse" content-id="msh2txt_content" id="msh2txt_content_start" starts-collapsed="True">Collapse</a>
-	 -->
-				<!-- </div> -->
-				<div id="msh2txt_content" class="section-content">
-				<h3>Model Types</h3>
+
+</section>
+						
+							<section class="block">
+
+<h2 id="contributors">Contributors</h2>
+
+<dl>
+<dt>Schlechtwetterfront/ANDEWEGET</dt>
+<dd>Programming, Graphics/UI, most .msh file research.</dd>
+<dt>AceMastermind (gametoast.com)</dt>
+<dd>Created most templates, provided example .msh files, additional .msh research.</dd>
+<dt>DarthD.U.C.K (gametoast.com)</dt>
+<dd>Created some templates, provided example .msh files, additional .msh research.</dd>
+<dt>tirpider (gametoast.com, swbfgamers.com)</dt>
+<dd>Additional .msh research, MSH Info Tool greatly helped with debugging, interesting discussions.</dd>
+<dt>FragMe! (gametoast.com)</dt>
+<dd>Provided a tool/material for some additional research.</dd>
+</dl>
+
+</section>
+						
+							<section class="block">
+
+<h2 id="export-guidelines">Export Guidelines</h2>
+
+<dl>
+<dt>Error Checking</dt>
+<dd>The CheckSel function in the export dialog can detect some problems.</dd>
+<dt>Exported Objects</dt>
+<dd>The currently selected object + all it's children will be exported.</dd>
+<dt>Overlapping clusters</dt>
+<dd>Might break the .msh file. Might mess up the exported .msh's UVs/Weights/Vertex Colors.</dd>
+<dt>5-Sided(or more) Polygons</dt>
+<dd>Might break the .msh file. Will mess up export result(missing polies).</dd>
+<dt>Supported Model Types</dt>
+<dd>The supported model types are: poly mesh, null, bone.</dd>
+<dt>UV</dt>
+<dd>Only apply one 'master' UV projection to a object. All subsequent projections should be Sub-projections.</dd>
+<dt>Collision</dt>
+<dd>Collision meshes can be created by naming the model <em>collision_*</em> or <em>*_collision</em>.</dd>
+<dd>Do not freeze any primitives, freezing will remove essential information.</dd>
+<dt>Animation</dt>
+<dd>It's not important how you animate bones (FK or IK etc), the exporter will go through all frames one-by-one and get the current local transforms of every bone.</dd>
+<dt>Weighting</dt>
+<dd>Only weight to objects with bone in their name(NOT: root, eff).</dd>
+<dd>Always apply the envelope to ALL bones. This might slow your workflow down but it ensures the points are weighted to the correct bone after export.</dd>
+<dd>Try to apply the envelope only to models which won't be merged after weighting. This does not have to break the .msh, it could though.</dd>
+<dt>No Materials</dt>
+<dd>You should have at least one material named Scene_Material when exporting. If you have at least one material you don't need Scene_Material.</dd>
+<dt>Material/Render flags are applied per material</dt>
+<dd>You can apply them by opening the ZETools Material Manager, selecting a material and then clicking "ZE-ify".
+  This will add all the ZeroEngine material flags to the material.
+  Afterwards inspect your material (click the "Edit" button) and change those settings in the appended options.</dd>
+</dl>
+
+</section>
+						
+							<section class="block">
+
+<h2 id="import-guidelines">Import Guidelines</h2>
+
+<dl>
+<dt>Animation</dt>
+<dd>Animations will be imported as linear animations on a per-frame basis.</dd>
+<dd>It should be possible to re-export animations directly after import. For SWBF1 you need to have at least one material though.</dd>
+<dt>Geometry</dt>
+<dd>There might be some misplaced edges.</dd>
+</dl>
+
+</section>
+						
+							<section class="block">
+
+<h2 id="cloth-guidelines">Cloth Guidelines</h2>
+
+<dl>
+<dt>Geometry</dt>
+<dd>Try to avoid triangles in the cloth mesh. There's a high change triangles might produce artifacts in the cloth simulation.</dd>
+<dt>UV/Cloth Splits</dt>
+<dd>Cloth will be split along UV seams, so UV accordingly.</dd>
+<dt>Collision</dt>
+<dd>For ZETools to recognize cloth collision primitives the name needs to start with "c_".</dd>
+<dt>Error Reporting</dt>
+<dd>If you have problems with cloth simulation artifacts, provide a screenshot from the debug SWBF.exe with "render_cloth_connections" enabled via the console.</dd>
+</dl>
+
+</section>
+						
+							<section class="block">
+
+<h2 id="scripts">Scripts</h2>
+
+<dl>
+<dt>Create Bone Group</dt>
+<dd>Creates a group of all objects which have 'bone' in their name. If you have a SWBF2 skeleton in your scene this
+  will group all bones you need to envelope to.  </dd>
+<dt>Addon Mesh Setup</dt>
+<dd>Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Root</em> text box) and matching its position
+  and rotation to the selected <em>Addon Bone</em>. You can then move the currently selected object(s) into the hierarchy by pressing <em>Set As Addon Mesh</em>.</dd>
+</dl>
+
+</section>
+						
+							<section class="block">
+
+<h2 id="export-docs">Export Documentation</h2>
+
+<dl>
+<dt>Auto-Overwrite</dt>
+<dd>Overwrites any output files if they already exist.</dd>
+<dt>Use root model name for .msh file name</dt>
+<dd>Will use the name of the topmost object in the currently selected hierarchy as the .msh file name. Has to be enabled when Batch Exporting.</dd>
+<dt>Batch Export</dt>
+<dd>Exports all children of the currently selected object as a full hierarchy.</dd>
+<dt>Export Animation</dt>
+<dd>Exports animation for the current frame range.</dd>
+<dt>Current Frame as Basepose</dt>
+<dd>Exports only the currently selected and following frame to minimize file size.</dd>
+<dt>Check Sel</dt>
+<dd>Loops through all objects in the currently selected hierarchy and analyzes it for problems which could cause a bad export.  </dd>
+<dd>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bad model type</td>
+<td>Only nulls, bones and polygon meshes should be used.</td>
+</tr>
+<tr>
+<td>Bad Faces</td>
+<td>Faces should not have more than 4 sides. To fix use <code>Modify &gt; PolygonMesh &gt; Triangulate</code> or <code>Select &gt; Select n-sided polygons &gt; Five sides or more</code>.</td>
+</tr>
+<tr>
+<td>Bad Clusters</td>
+<td>Overlapping clusters, should be fixed.</td>
+</tr>
+<tr>
+<td>Unnecessary clusters</td>
+<td>Do not need to be fixed, just warnings.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+<dt>Store Flags</dt>
+<dd>Stores the current export configuration (path, check boxes etc).</dd>
+</dl>
+
+</section>
+						
+							<section class="block">
+
+<h2 id="import-docs">Import Documentation</h2>
+
+<dl>
+<dt>Texture Folder</dt>
+<dd>If the textures for the to-be-imported .msh file are not located in the same folder as the .msh file.</dd>
+<dt>Set Frame Range</dt>
+<dd>Will set the frame range to that stored in the .msh file.</dd>
+<dt>Apply animation to selected hierarchy</dt>
+<dd>If you have already imported a .msh file (like a unit) then you can apply an animation stored in another .msh file to the previously imported mesh (root of that hierarchy must be selected).</dd>
+<dt>Null Display Size</dt>
+<dd>Set the display size of nulls.</dd>
+<dt>Ignore Geometry</dt>
+<dd>Will replace any meshes with nulls, use this if you are applying an animation to a hierarchy.</dd>
+<dt>Ignore Animation</dt>
+<dd>Ignores any animation. Use this if you are importing baseposes to later apply animations (and just generally if you do not need the animation).</dd>
+<dt>Color Nulls</dt>
+<dd>Will color nulls if the importer can find out which type they are (bones, effs and roots).</dd>
+<dt>Hide Roots/Effectors</dt>
+<dd>Will hide roots and effectors in the hierarchy so they are not accidentally animated.</dd>
+<dt>Wield Boundary Edges</dt>
+<dd>Imported meshes usually have splits along the UV seams. This option will wield any of these edges after geometry import.</dd>
+<dt>Store Flags</dt>
+<dd>Stores the current import configuration (path, check boxes etc).</dd>
+<dt>Triangulate</dt>
+<dd>Triangulates any quads or more-sided polygons on import.</dd>
+<dt>Log</dt>
+<dd>Logs the MSH unpack (can be slow).</dd>
+</dl>
+
+</section>
+						
+							<section class="block">
+
+<h2 id="material-docs">Material Manager Documentation</h2>
+
+<dl>
+<dt>Create</dt>
+<dd>Creates a new Phong material with the name in the box to the left of the button.</dd>
+<dt>Edit</dt>
+<dd>Will inspect the currently selected material for editing.</dd>
+<dt>ZEify</dt>
+<dd>Will add ZeroEngine specific material and shader settings to the selected material(s).
+  This lets you add features like scrolling textures, glow, bump mapping and many more.</dd>
+<dd>For more information on render types <a href="http://schlechtwetterfront.github.io/ze_filetypes/rendertypes.html">look here</a>.
+  Textures listed under <em>Additional</em> on that page will need to be put into the <em>Texture 1-3</em> slots.</dd>
+<dt>De-ZEify</dt>
+<dd>Removes ZeroEngine specific settings.</dd>
+<dt>Remove</dt>
+<dd>Deletes the currently selected material(s).</dd>
+<dt>Assign Tex</dt>
+<dd>Opens a dialog to assign a color/diffuse texture to the selected material.</dd>
+<dt>Assign</dt>
+<dd>Assigns the currently selected material to the currently selected component/object in the scene.</dd>
+<dt>Unassign</dt>
+<dd>Unassigns the material.</dd>
+</dl>
+
+</section>
+						
+							<section class="block">
+
+<h2 id="animation-export">Animation Export</h2>
+
+<p>Each of the following steps will produce one <code>.msh</code> file.</p>
+<dl>
+<dt>SWBF 1 Note</dt>
+<dd>The ZenAsset.exe which comes with the SWBF1 mod tools seems to need at least one material to work.
+  Just add a small primitive(eg: cube, you can hide it, too) to the scene.
+  It needs to be in the exported hierarchy for animations so don't move it out.
+  To minimize filesize you could replace one of the needed nulls with the primitive(maybe dummyroot).
+  Sereja got his animation into SWBF1 by using a textured primitive as DummyRoot.
+  It's not important what type of model the other models are.</dd>
+</dl>
+<h4>Step 1</h4>
+<dl>
+<dt>Placeable model for ZeroEditor</dt>
+<dd>Export the model which will be called in the <code>.odf</code> and place in ZE.
+  To do this move the frame cursor to the first frame of your animation
+  (usually 1, it's not relevant what the frame range is).
+  Then select your root, uncheck <em>Export Animation</em> and export.</dd>
+<dd>Resulting file: <code>stuff_door.msh</code></dd>
+<dt>Animation preparation</dt>
+<dd>To cut down on possible problems you can now drag'n'drop all object which are not a part of the skeleton
+  (collisions, meshes, shadows) out of your current hierarchy.</dd>
+</dl>
+<p><img alt="Placeable model" src="to_be_placed.jpg" /></p>
+<h4>Step 2</h4>
+<dl>
+<dt>Animation Export</dt>
+<dd>This file will contain the actual animation. Here it's important to set the right frame range.</dd>
+<dd>It's not important where the frame cursor is, but the frame range must be correct.
+  In my example it's 1 - 20. Check <em>Export Animation</em> and export.</dd>
+<dd>Resulting file: i.e. <code>open.msh</code></dd>
+</dl>
+<p><img alt="Animation" src="anim_open.jpg" /></p>
+<h4>Step 3</h4>
+<dl>
+<dt>Basepose of the animation</dt>
+<dd>This will be the pose the model is in when it's <em>not</em> animated.</dd>
+<dd>If your first frame is 1 move the frame cursor to frame 0. Check <em>Export Animation</em> and <em>Current frame as Basepose</em>.
+  With that the preparation is finished. Select the root of your hierarchy and export.</dd>
+<dd>Resulting file: <code>basepose.msh</code></dd>
+</dl>
+<p><img alt="Basepose" src="anim_basepose.jpg" /></p>
+
+</section>
+						
+							<section class="block">
+
+<h2 id="msh2txt">MSH2TXT</h2>
+
+<p>Documentation for the .msh to .txt converter. Lays out data structure.</p>
+<h4>Model Types</h4>
+<p>Models can have different types, some with geometry, some without etc.</p>
 <table>
 <thead>
 <tr>
@@ -494,38 +402,40 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 </thead>
 <tbody>
 <tr>
-<td><strong>null</strong></td>
+<td>null</td>
 <td>Dummy object without segments.</td>
 </tr>
 <tr>
-<td><strong>geodynamic</strong></td>
+<td>geodynamic</td>
 <td>Geometry with envelope and modifiers.</td>
 </tr>
 <tr>
-<td><strong>cloth</strong></td>
+<td>cloth</td>
 <td>Simulated cloth (ClothGeometry segments).</td>
 </tr>
 <tr>
-<td><strong>bone</strong></td>
+<td>bone</td>
 <td>Animated null.</td>
 </tr>
 <tr>
-<td><strong>geobone</strong></td>
+<td>geobone</td>
 <td>Animated geometry (only SegmentGeometry segments).</td>
 </tr>
 <tr>
-<td><strong>geostatic</strong></td>
+<td>geostatic</td>
 <td>Standard geometry, no envelope or deformers.</td>
 </tr>
 <tr>
-<td><strong>geoshadow</strong></td>
+<td>geoshadow</td>
 <td>Shadow geometry (ShadowGeometry segments).</td>
 </tr>
 </tbody>
 </table>
-<h3>File Structure and Naming Conventions</h3>
-<p>MSH Name = <em>name</em>  </p>
-<p><strong><em>name</em> .txt</strong></p>
+<h4>File Structure and Naming Conventions</h4>
+<p>When msh2txt converts a .msh file to text representation it will create files in the following schema.
+All these files are JSON files.</p>
+<p>Tags in angled quotes (<code>&lt;&gt;</code>) represent placeholders. I.e. <code>&lt;name&gt;</code> will be replaced with the .msh's name.</p>
+<h5>Scene Root <code>&lt;name&gt;.txt</code></h5>
 <table>
 <thead>
 <tr>
@@ -542,7 +452,7 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 </tr>
 </tbody>
 </table>
-<p><strong><em>name</em> nfo.txt</strong></p>
+<h5>Scene Info <code>&lt;name&gt; nfo.txt</code></h5>
 <table>
 <thead>
 <tr>
@@ -579,8 +489,8 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 </tr>
 </tbody>
 </table>
-<p>For every Model:<br />
-<strong><em>name</em> mdl <em>model_name</em> .txt</strong></p>
+<h5>Model Root <code>&lt;name&gt; mdl &lt;model_name&gt; .txt</code></h5>
+<p>For every Model.</p>
 <table>
 <thead>
 <tr>
@@ -642,9 +552,9 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 </tr>
 </tbody>
 </table>
-<p>For every segment (SEGM/CLTH/SHDW) in the models geometry:<br />
-<strong><em>name</em> mdl <em>model_name</em> seg <em>#_of_segment</em> .txt</strong><br />
-<strong>SegmentGeometry</strong></p>
+<h5>Model Mesh Segment <code>&lt;name&gt; mdl &lt;model_name&gt; seg &lt;# of segment&gt; .txt</code></h5>
+<p>For every segment (SEGM/CLTH/SHDW) in the models geometry.</p>
+<h6><code>SegmentGeometry</code></h6>
 <table>
 <thead>
 <tr>
@@ -686,7 +596,7 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 </tr>
 </tbody>
 </table>
-<p><strong>ShadowGeometry</strong></p>
+<h6><code>ShadowGeometry</code></h6>
 <table>
 <thead>
 <tr>
@@ -723,7 +633,7 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 </tr>
 </tbody>
 </table>
-<p><strong>ClothGeometry</strong></p>
+<h6><code>ClothGeometry</code></h6>
 <table>
 <thead>
 <tr>
@@ -785,8 +695,8 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 </tr>
 </tbody>
 </table>
-<p>For every Material:<br />
-<strong><em>name</em> mtl <em>material_name</em> .txt</strong></p>
+<h5>Material <code>&lt;name&gt; mtl &lt;material name&gt; .txt</code></h5>
+<p>For every Material.</p>
 <table>
 <thead>
 <tr>
@@ -868,8 +778,8 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 </tr>
 </tbody>
 </table>
-<h3>Structs</h3>
-<p><strong>BBox</strong></p>
+<h4>Structs</h4>
+<h6><code>BBox</code></h6>
 <table>
 <thead>
 <tr>
@@ -901,7 +811,7 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 </tr>
 </tbody>
 </table>
-<p><strong>Transform</strong></p>
+<h6><code>Transform</code></h6>
 <table>
 <thead>
 <tr>
@@ -928,7 +838,7 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 </tr>
 </tbody>
 </table>
-<p><strong>Color</strong></p>
+<h6><code>Color</code></h6>
 <table>
 <thead>
 <tr>
@@ -962,7 +872,7 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 </tr>
 </tbody>
 </table>
-<p><strong>Vertex</strong></p>
+<h6><code>Vertex</code></h6>
 <table>
 <thead>
 <tr>
@@ -1004,7 +914,7 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 </tr>
 </tbody>
 </table>
-<p><strong>Face</strong></p>
+<h6><code>Face</code></h6>
 <table>
 <thead>
 <tr>
@@ -1021,7 +931,7 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 </tr>
 </tbody>
 </table>
-<p><strong>ClothVertex</strong></p>
+<h6><code>ClothVertex</code></h6>
 <table>
 <thead>
 <tr>
@@ -1053,7 +963,7 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 </tr>
 </tbody>
 </table>
-<p><strong>ClothCollision</strong></p>
+<h6><code>ClothCollision</code></h6>
 <table>
 <thead>
 <tr>
@@ -1085,104 +995,19 @@ Creates an addon mesh hierarchy, by creating a null (named like the <em>Addon Ro
 </tr>
 </tbody>
 </table>
-				<!-- 
-		<a class="toggle_collapse_end" content-id="msh2txt_content" id="msh2txt_content_end">Collapse</a>
-	 -->
-				</div>
-			<!-- <div class="hr"></div> -->
+
+</section>
+						
+				
+			</div>
+			
+
+			
+				<footer>
+</footer>
+			
+
 		</div>
-	
-		<div class="section">
-			<a name="animation-export"></a>
-				<!-- <div> -->
-					<div class="section-header">Animation Export</div>
-					<!-- 
-		<a class="toggle_collapse" content-id="animation-export_content" id="animation-export_content_start" starts-collapsed="True">Collapse</a>
-	 -->
-				<!-- </div> -->
-				<div id="animation-export_content" class="section-content">
-				<p>Every of the following steps will produce one .msh file.</p>
-<div class="row"><div class="col-md-7">
-<p>
-<b>SWBF 1 NOTE:</b> The ZenAsset.exe which comes with the SWBF1 mod tools seems to need at least one material to work. Just add a small primitive(eg: cube, you can hide it, too)
-to the scene. It needs to be in the exported hierarchy for animations so don't move it out. To minimize filesize you could replace one of the needed nulls
-with the primitive(maybe dummyroot). Sereja got his animation into SWBF1 by using a textured primitive as DummyRoot. It's not important what type of model the other models are.
-</p>
-</div></div>
 
-<div class="row">
-<div class="col-md-7">
-<h3>Step 1</h3>
-<p>
-<b>Placeable model for ZeroEditor.</b> Export the model which will be called in the odf and placed in ZE. To do this move the frame cursor to the first frame of your
-animation (usually 1, it's not important what the frame range is [ie 0 to 100]). Then select your root, uncheck Export Animation and export.<br>
-.MSH File: stuff_door.msh
-<br>
-<b>Animation preparation.</b> To cut down on possible problems you can now drag'n'drop all object which are not a part of
-the skeleton(collisions, meshes, shadows) out of your current hierarchy.<br>
-Best way to do this is select them all and drag'n'drop them onto Scene_Root. In my example I only move out thing_ (that's the model with Stuff painted on it).
-You can move out hard points, too. Animations don't need this as basepose and open/whatever you called your animation will end up in .zafbin/.zaabin
-files which don't hold geometry etc. Note: I forgot to move out thing_ for the main animation in the screenshot at step 2. It should be not be a (direct or indirect) children of the root you're exporting though.
-</p>
-</div>
-<div class="col-md-3">
-<a href="to_be_placed.jpg" class="thumbnail bordered" data-toggle="lightbox" data-title="Setup" data-gallery="animexport" data-lightbox="animexport">
-<img src="to_be_placed.jpg" class="img-responsive">
-</a>
-</div>
-</div>
-
-<div class="row">
-<div class="col-md-7">
-<h3>Step 2</h3>
-<p>
-<b>Animation Export</b> This will contain the actual animation. Here it's important to set the right frame range.<br>
-It's not important where the frame cursor is, but the frame range must be correct. In my example it's 1 - 20. Check Export Animation and export button.<br>
-.MSH File: ie open.msh<br>
-</p>
-</div>
-<div class="col-md-3">
-<a href="anim_open.jpg" class="thumbnail bordered" data-toggle="lightbox" data-title="Export" data-gallery="animexport" data-lightbox="animexport">
-<img src="anim_open.jpg" class="img-responsive">
-</a>
-</div>
-</div>
-
-<div class="row">
-<div class="col-md-7">
-<h3>Step 3</h3>
-<p>
-<b>Basepose of the animation.</b> This will be the pose the model is in when it's not animated.<br>
-If your first frame is 1 move the frame cursor to frame 0. Check Export Animation and Current frame as Basepose.<br>
-If you check Current frame as Basepose you can ignore the last frame. If you want to do it 'old-fashioned' set your frame range to 0 - 1 and uncheck Current frame as Basepose.<br>
-I assume you use the Current frame as Basepose way. Now the preparation is finished. All boxes are checked and the hierarchy is set up. Do the deed and select your root and hit export.
-.MSH File: basepose.msh
-</p>
-</div>
-
-<div class="col-md-3">
-<a href="anim_basepose.jpg" class="thumbnail bordered" data-toggle="lightbox" data-title="Export" data-gallery="animexport" data-lightbox="animexport">
-<img src="anim_basepose.jpg" class="img-responsive">
-</a>
-</div>
-</div>
-				<!-- 
-		<a class="toggle_collapse_end" content-id="animation-export_content" id="animation-export_content_end">Collapse</a>
-	 -->
-				</div>
-			<!-- <div class="hr"></div> -->
-		</div>
-	
-</div>
-    		
-            </div>
-		</div>
-        <script src="../js/lightbox.min.js"></script>
-        <script>
-            lightbox.option({
-                "resizeDuration": 100,
-                "fadeDuration": 250,
-            });
-        </script>
 	</body>
 </html>
