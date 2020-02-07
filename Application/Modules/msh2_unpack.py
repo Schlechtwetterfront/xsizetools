@@ -438,11 +438,13 @@ class GeometryUnpacker(Unpacker):
                 self.up.up.last_chunk = 'CLRL'
                 num_colors = unpack('<L', self.fh.read(4))[0]
                 for n in xrange(num_colors):
-                    self.seg.vertices[n].color = msh2.Color(unpack('<BBBB', self.fh.read(4)))
+                    bgra_color = unpack('<BBBB', self.fh.read(4))
+                    self.seg.vertices[n].color = msh2.Color((bgra_color[2], bgra_color[1], bgra_color[0], bgra_color[3]))
                 self.seg.vertices.colored = True
             elif hdr == 'CLRB':
                 self.up.up.last_chunk = 'CLRB'
-                color = unpack('<BBBB', self.fh.read(4))
+                bgra_color = unpack('<BBBB', self.fh.read(4))
+                color = (bgra_color[2], bgra_color[1], bgra_color[0], bgra_color[3])
                 for vert in self.seg.vertices:
                     vert.color = msh2.Color(color)
                 self.seg.vertices.colored = True
