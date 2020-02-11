@@ -1915,7 +1915,7 @@ class Vertex(object):
         return ''.join(data)
 
     def pack_color(self):
-        return self.color.pack('B')
+        return self.color.pack_bgra('B')
 
 
 class VertexCollection(object):
@@ -2553,6 +2553,16 @@ class Color(object):
                            self.green,
                            self.blue,
                            self.alpha)
+
+    def pack_bgra(self, mode='B'):
+        '''Same as pack but packs into BGRA ordering.'''
+        return struct.pack('<{0}'.format(mode * 4),
+                           self.blue,
+                           self.green,
+                           self.red,
+                           self.alpha)
+
+    
 
 
 class Transform(object):
