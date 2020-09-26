@@ -1,4 +1,4 @@
-# -*- encoding: ascii -*-
+# -*- coding: utf-8 -*-
 '''
     ZeroEngine .msh model format.
 
