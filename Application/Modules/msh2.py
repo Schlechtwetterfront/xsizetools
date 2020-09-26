@@ -1333,6 +1333,9 @@ class ClothGeometry(Packer):
         ''' Creates constraints between faces and vertices so the cloth simulation can keep the
             cloth's shape
         '''
+        def is_fixed(idx):
+            return self.vertices[idx].is_fixed
+
         # Note that the Pandemic exporter does _not_ constrain fixed points to each other (which
         # really doesn't make any sense). So we don't do it either
         for face in self.faces:
@@ -1341,25 +1344,25 @@ class ClothGeometry(Packer):
             #    │    │
             # p4 └────┘ p3
 
-            last_vertex = face.vertices[-1]
+            last_vert_idx = face.vertices[-1]
 
             # Stretch constraints, along the boundary of the polygon
             # p1-p2, p2-p3, p3-p4, p4-p1
             # This allows for any amount of sides to the polygon
-            for vert in face.vertices:
-                both_fixed = vert.is_fixed and last_vertex.is_fixed
+            for vert_idx in face.vertices:
+                both_fixed = is_fixed(vert_idx) and is_fixed(last_vert_idx)
 
                 if both_fixed:
                     continue
 
                 # Check both possible orders, we only want one connection between two vertices
-                a_b_exists = (last_vertex, vert) in self.stretch_constraints
-                b_a_exists = (vert, last_vertex) in self.stretch_constraints
+                a_b_exists = (last_vert_idx, vert_idx) in self.stretch_constraints
+                b_a_exists = (vert_idx, last_vert_idx) in self.stretch_constraints
 
                 if not (a_b_exists or b_a_exists):
-                    self.stretch_constraints.add((last_vertex, vert))
+                    self.stretch_constraints.add((last_vert_idx, vert_idx))
 
-                last_vertex = vert
+                last_vert_idx = vert_idx
 
             # Cross constraints, diagonally across _quads_
             # p1-p3, p2-p4
@@ -1369,10 +1372,10 @@ class ClothGeometry(Packer):
                 pair_2 = (face.vertices[1], face.vertices[3])
 
                 # Only add constraint if either or both vertices are dynamic
-                if not (pair_1[0].is_fixed and pair_1[1].is_fixed):
+                if not (is_fixed(pair_1[0]) and is_fixed(pair_1[1])):
                     self.cross_constraints.add(pair_1)
 
-                if not (pair_2[0].is_fixed and pair_2[1].is_fixed):
+                if not (is_fixed(pair_2[0]) and is_fixed(pair_2[1])):
                     self.cross_constraints.add(pair_2)
 
             # Bend constraints
@@ -1399,8 +1402,7 @@ class ClothGeometry(Packer):
 
                 if not shared_vertices:
                     continue
-                
-                # Just take the first index because it should generate the same indices.
+
                 shared_vertex = shared_vertices[0]
 
                 # get_connections gets all vertices in a face that connect to the given one. So in
@@ -1420,21 +1422,21 @@ class ClothGeometry(Packer):
                         connections2.append(connection_vertex)
 
                 # Zip the two resulting lists ([p1] and [p7]) creating pair p1-p7
-                for v1, v2 in zip(connections1, connections2):
+                for vert_idx_1, vert_idx_2 in zip(connections1, connections2):
                     # Again, a constraint between two fixed points does not make sense. In this case
                     # we need to consider the case of fixed-dynamic _spanning_ a fixed point needs
                     # to be considered, too (e.g. p1-p7 where p1 and p8 are fixed). These should be
                     # kept
-                    both_fixed = v1.is_fixed and v2.is_fixed
+                    both_fixed = is_fixed(vert_idx_1) and is_fixed(vert_idx_2)
 
                     if both_fixed:
                         continue
 
-                    a_b_exists = (v1, v2) in self.bend_constraints
-                    b_a_exists = (v2, v1) in self.bend_constraints
+                    a_b_exists = (vert_idx_1, vert_idx_2) in self.bend_constraints
+                    b_a_exists = (vert_idx_2, vert_idx_1) in self.bend_constraints
 
                     if not (a_b_exists or b_a_exists):
-                        self.bend_constraints.add((v1, v2))
+                        self.bend_constraints.add((vert_idx_1, vert_idx_2))
 
     def pack_stretch(self):
         data = ['SPRS', struct.pack('<LL', 4 + 4 * len(self.stretch_constraints), len(self.stretch_constraints))]
@@ -1570,7 +1572,7 @@ class Face(object):
         connections = []
 
         # Get the vertex before the given one
-        # Undeflow -> take last one
+        # Underflow -> take last one
         if index - 1 < 0:
             connections.append(self.vertices[-1])
         else:
