@@ -16,71 +16,67 @@
 	</head>
 	<body class="page-xsizetools">
 
-		<div class="container-fluid page__header">
-			
-				<header class="page__title container">
-	<h1>XSIZETools</h1>
-</header>
-			
+		<div class="container padded">
+			<h1 class="page-title">XSIZETools</h1>
 		</div>
 
 		<div class="container">
 
 			
-				<nav class="menu">
-    <ul class="menu__nav blocks">
-        
-        
-        
-            <li class="menu__category"><h5 class="category-title">Navigation</h5></li>
-            
-            <li class="menu__link"><a href="#overview">Overview</a></li>
-            
-            <li class="menu__link"><a href="#installation">Download & Installation</a></li>
-            
-            <li class="menu__link"><a href="#contributors">Contributors</a></li>
-            
-        
-            <li class="menu__category"><h5 class="category-title">Downloads</h5></li>
-            
-            <li class="menu__link"><a href="https://github.com/Schlechtwetterfront/xsizetools/releases">Releases</a></li>
-            
-        
-            <li class="menu__category"><h5 class="category-title">Guidelines</h5></li>
-            
-            <li class="menu__link"><a href="#export-guidelines">Export</a></li>
-            
-            <li class="menu__link"><a href="#import-guidelines">Import</a></li>
-            
-            <li class="menu__link"><a href="#cloth-guidelines">Cloth</a></li>
-            
-        
-            <li class="menu__category"><h5 class="category-title">Documentation</h5></li>
-            
-            <li class="menu__link"><a href="#scripts">Scripts</a></li>
-            
-            <li class="menu__link"><a href="#export-docs">.msh Export</a></li>
-            
-            <li class="menu__link"><a href="#import-docs">.msh Import</a></li>
-            
-            <li class="menu__link"><a href="#material-docs">Material Manager</a></li>
-            
-            <li class="menu__link"><a href="#msh2txt">msh2txt</a></li>
-            
-            <li class="menu__link"><a href="#animation-export">Animation Export</a></li>
-            
-        
-            <li class="menu__category"><h5 class="category-title">Other Resources</h5></li>
-            
-            <li class="menu__link"><a href="https://github.com/Schlechtwetterfront/xsizetools">View on Github</a></li>
-            
-            <li class="menu__link"><a href="http://gametoast.com/viewtopic.php?f=36&t=26664">View Thread on Gametoast</a></li>
-            
-        
-        
-        
-    </ul>
-</nav>
+				<aside class="menu">
+	<ul class="navigation blocks">
+		
+		
+		
+			<li class="category"><span class="category-title">Navigation</span></li>
+			
+			<li class="link"><a href="#overview">Overview</a></li>
+			
+			<li class="link"><a href="#installation">Download & Installation</a></li>
+			
+			<li class="link"><a href="#contributors">Contributors</a></li>
+			
+		
+			<li class="category"><span class="category-title">Downloads</span></li>
+			
+			<li class="link"><a href="https://github.com/Schlechtwetterfront/xsizetools/releases">Releases</a></li>
+			
+		
+			<li class="category"><span class="category-title">Guidelines</span></li>
+			
+			<li class="link"><a href="#export-guidelines">Export</a></li>
+			
+			<li class="link"><a href="#import-guidelines">Import</a></li>
+			
+			<li class="link"><a href="#cloth-guidelines">Cloth</a></li>
+			
+		
+			<li class="category"><span class="category-title">Documentation</span></li>
+			
+			<li class="link"><a href="#scripts">Scripts</a></li>
+			
+			<li class="link"><a href="#export-docs">.msh Export</a></li>
+			
+			<li class="link"><a href="#import-docs">.msh Import</a></li>
+			
+			<li class="link"><a href="#material-docs">Material Manager</a></li>
+			
+			<li class="link"><a href="#msh2txt">msh2txt</a></li>
+			
+			<li class="link"><a href="#animation-export">Animation Export</a></li>
+			
+		
+			<li class="category"><span class="category-title">Other Resources</span></li>
+			
+			<li class="link"><a href="https://github.com/Schlechtwetterfront/xsizetools">View on Github</a></li>
+			
+			<li class="link"><a href="http://gametoast.com/viewtopic.php?f=36&t=26664">View Thread on Gametoast</a></li>
+			
+		
+		
+		
+	</ul>
+</aside>
 			
 
 			
@@ -90,19 +86,18 @@
 
 				
 						
-							<section class="block block-overview">
+							<section class="block">
 
 <h2 id="overview">Overview</h2>
 
 <p>XSIZETools is an addon for Softimage with full export and import of 3D .msh files for ZeroEngine (Star Wars Battlefront I and II). That includes geometry, materials with all ZeroEngine-specific flags, animations, collisions and simulated cloth.</p>
 <p>In general, important updates will be gathered into a <a href="https://github.com/Schlechtwetterfront/xsizetools/releases" title="Releases">release</a>, so choosing the latest release should give you the latest working features. Alternatively you can download the most recent commit directly with the "Download ZIP" button.</p>
-<p>For more information on usage go to the <a href="http://schlechtwetterfront.github.io/xsizetools/" title="XSIZETools Homepage">XSIZETools homepage</a>.
-If you encounter bugs or have problems, feel free to post on the <a href="http://gametoast.com/viewtopic.php?f=36&amp;t=26664" title="Gametoast Thread">Gametoast forums</a> (you might need to use a proxy from some countries)
+<p>If you encounter bugs or have problems, feel free to post on the <a href="http://gametoast.com/viewtopic.php?f=36&amp;t=26664" title="Gametoast Thread">Gametoast forums</a> (you might need to use a proxy from some countries)
 or send me a mail via Github.</p>
 
 </section>
 						
-							<section class="block block-installation">
+							<section class="block">
 
 <h2 id="installation">Download & Installation</h2>
 
@@ -110,21 +105,29 @@ or send me a mail via Github.</p>
 <ol>
 <li>Choose one of the <a href="https://github.com/Schlechtwetterfront/xsizetools/releases" title="Releases">releases from here</a> and download it.</li>
 <li>If you <strong>don't</strong> have a Softimage version of 2011 or higher,
-    download and install <a href="http://www.python.org/ftp/python/2.6.6/python-2.6.6.msi">python</a> and 
-    <a href="http://sourceforge.net/projects/pywin32/files/pywin32/Build%20217/pywin32-217.win32-py2.6.exe/download">pywin32</a>.</li>
-<li>Download and install the <a href="https://www.visualstudio.com/downloads/download-visual-studio-vs#d-visual-c">Visual C++ 2015 Redistributable</a>.
-    Download both versions by selecting the format and activating the <em>Download</em> button.
-    If the page doesn't automatically navigate to the Visual C++ 2015 redist select <em>Tools for Visual Studio 2015</em> on the left and then choose <em>Microsoft Visual C++ 2015 Redistributable</em>.</li>
+  download and install <a href="https://www.python.org/ftp/python/2.7.18/python-2.7.18.msi" title="Python 2.7">python</a> and
+  <a href="https://github.com/mhammond/pywin32/releases/download/b228/pywin32-228.win32-py2.7.exe" title="Pywin for 2.7">pywin32</a>. You can also choose your own combination from <a href="https://www.python.org/downloads/" title="Python Download">python downloads</a> and <a href="https://github.com/mhammond/pywin32/releases" title="Pywin Download">pywin downloads</a>.</li>
+<li>Download and install the <a href="redist15">Visual C++ 2015 Redistributable</a>.
+  Download both versions by selecting the format and activating the <em>Download</em> button.
+  If the page doesn't automatically navigate to the Visual C++ 2015 redist select <em>Tools for Visual Studio 2015</em> on the left and then choose <em>Microsoft Visual C++ 2015 Redistributable</em>.</li>
 <li>Unzip the downloaded archive into
-    <code>C:/users/%user%/Autodesk/Softimage_%version%/Addons/</code>.
-    In the end, the directory including <code>README.md</code>, <code>xsizet.ver</code>, etc should be <code>C:/Users/%user%/Autodesk/Softimage_2015/Addons/xsizetools/</code>.</li>
+  <code>C:/users/%user%/Autodesk/Softimage_%version%/Addons/</code> or <code>C:/users/%user%/Softimage/Softimage_%version%/Addons/</code>.
+  In the end, the directory including <code>README.md</code>, <code>xsizet.ver</code>, etc should be <code>C:/Users/%user%/Autodesk/Softimage_2015/Addons/xsizetools/</code>.</li>
 </ol>
 <p>If python and pywin32 was installed correctly it should look something like
-<a href="installed_python.jpg">this</a>.  </p>
+<a href="installed_python.jpg">this</a>.</p>
+<ul>
+<li><a href="http://schlechtwetterfront.github.io/xsizetools/" title="XSIZETools Homepage">XSIZETools Homepage</a></li>
+<li><a href="http://gametoast.com/viewtopic.php?f=36&amp;t=26664" title="Gametoast Thread">Gametoast Thread</a></li>
+<li><a href="https://www.python.org/downloads/" title="Python Download">Python Downloads</a></li>
+<li><a href="https://github.com/mhammond/pywin32/releases" title="Pywin Download">Pywin Downloads</a></li>
+<li><a href="https://www.python.org/ftp/python/2.7.18/python-2.7.18.msi" title="Python 2.7">Python 2.7</a> + <a href="https://github.com/mhammond/pywin32/releases/download/b228/pywin32-228.win32-py2.7.exe" title="Pywin for 2.7">Pywin</a></li>
+<li><a href="https://www.visualstudio.com/downloads/download-visual-studio-vs#d-visual-c" title="C++ 2015 redist">Visual C++ 2015 redist</a></li>
+</ul>
 
 </section>
 						
-							<section class="block block-contributors">
+							<section class="block">
 
 <h2 id="contributors">Contributors</h2>
 
@@ -143,7 +146,7 @@ or send me a mail via Github.</p>
 
 </section>
 						
-							<section class="block block-export-guidelines">
+							<section class="block">
 
 <h2 id="export-guidelines">Export Guidelines</h2>
 
@@ -179,7 +182,7 @@ or send me a mail via Github.</p>
 
 </section>
 						
-							<section class="block block-import-guidelines">
+							<section class="block">
 
 <h2 id="import-guidelines">Import Guidelines</h2>
 
@@ -193,7 +196,7 @@ or send me a mail via Github.</p>
 
 </section>
 						
-							<section class="block block-cloth-guidelines">
+							<section class="block">
 
 <h2 id="cloth-guidelines">Cloth Guidelines</h2>
 
@@ -210,7 +213,7 @@ or send me a mail via Github.</p>
 
 </section>
 						
-							<section class="block block-scripts">
+							<section class="block">
 
 <h2 id="scripts">Scripts</h2>
 
@@ -225,7 +228,7 @@ or send me a mail via Github.</p>
 
 </section>
 						
-							<section class="block block-export-docs">
+							<section class="block">
 
 <h2 id="export-docs">Export Documentation</h2>
 
@@ -276,7 +279,7 @@ or send me a mail via Github.</p>
 
 </section>
 						
-							<section class="block block-import-docs">
+							<section class="block">
 
 <h2 id="import-docs">Import Documentation</h2>
 
@@ -309,7 +312,7 @@ or send me a mail via Github.</p>
 
 </section>
 						
-							<section class="block block-material-docs">
+							<section class="block">
 
 <h2 id="material-docs">Material Manager Documentation</h2>
 
@@ -337,7 +340,7 @@ or send me a mail via Github.</p>
 
 </section>
 						
-							<section class="block block-animation-export">
+							<section class="block">
 
 <h2 id="animation-export">Animation Export</h2>
 
@@ -385,12 +388,12 @@ or send me a mail via Github.</p>
 
 </section>
 						
-							<section class="block block-msh2txt">
+							<section class="block">
 
 <h2 id="msh2txt">MSH2TXT</h2>
 
 <p>Documentation for the .msh to .txt converter. Lays out data structure.</p>
-<h3>Model Types</h3>
+<h4>Model Types</h4>
 <p>Models can have different types, some with geometry, some without etc.</p>
 <table>
 <thead>
@@ -430,12 +433,11 @@ or send me a mail via Github.</p>
 </tr>
 </tbody>
 </table>
-<h3>File Structure and Naming Conventions</h3>
+<h4>File Structure and Naming Conventions</h4>
 <p>When msh2txt converts a .msh file to text representation it will create files in the following schema.
 All these files are JSON files.</p>
 <p>Tags in angled quotes (<code>&lt;&gt;</code>) represent placeholders. I.e. <code>&lt;name&gt;</code> will be replaced with the .msh's name.</p>
-<h4>Scene Root</h4>
-<p><code>&lt;name&gt;.txt</code></p>
+<h5>Scene Root <code>&lt;name&gt;.txt</code></h5>
 <table>
 <thead>
 <tr>
@@ -452,8 +454,7 @@ All these files are JSON files.</p>
 </tr>
 </tbody>
 </table>
-<h4>Scene Info</h4>
-<p><code>&lt;name&gt; nfo.txt</code></p>
+<h5>Scene Info <code>&lt;name&gt; nfo.txt</code></h5>
 <table>
 <thead>
 <tr>
@@ -490,8 +491,7 @@ All these files are JSON files.</p>
 </tr>
 </tbody>
 </table>
-<h4>Model Root</h4>
-<p><code>&lt;name&gt; mdl &lt;model_name&gt; .txt</code></p>
+<h5>Model Root <code>&lt;name&gt; mdl &lt;model_name&gt; .txt</code></h5>
 <p>For every Model.</p>
 <table>
 <thead>
@@ -554,10 +554,9 @@ All these files are JSON files.</p>
 </tr>
 </tbody>
 </table>
-<h4>Model Mesh Segment</h4>
-<p><code>&lt;name&gt; mdl &lt;model_name&gt; seg &lt;# of segment&gt; .txt</code></p>
+<h5>Model Mesh Segment <code>&lt;name&gt; mdl &lt;model_name&gt; seg &lt;# of segment&gt; .txt</code></h5>
 <p>For every segment (SEGM/CLTH/SHDW) in the models geometry.</p>
-<h5><code>SegmentGeometry</code></h5>
+<h6><code>SegmentGeometry</code></h6>
 <table>
 <thead>
 <tr>
@@ -599,7 +598,7 @@ All these files are JSON files.</p>
 </tr>
 </tbody>
 </table>
-<h5><code>ShadowGeometry</code></h5>
+<h6><code>ShadowGeometry</code></h6>
 <table>
 <thead>
 <tr>
@@ -636,7 +635,7 @@ All these files are JSON files.</p>
 </tr>
 </tbody>
 </table>
-<h5><code>ClothGeometry</code></h5>
+<h6><code>ClothGeometry</code></h6>
 <table>
 <thead>
 <tr>
@@ -698,8 +697,7 @@ All these files are JSON files.</p>
 </tr>
 </tbody>
 </table>
-<h4>Material</h4>
-<p><code>&lt;name&gt; mtl &lt;material name&gt; .txt</code></p>
+<h5>Material <code>&lt;name&gt; mtl &lt;material name&gt; .txt</code></h5>
 <p>For every Material.</p>
 <table>
 <thead>
@@ -782,8 +780,8 @@ All these files are JSON files.</p>
 </tr>
 </tbody>
 </table>
-<h3>Structs</h3>
-<h5><code>BBox</code></h5>
+<h4>Structs</h4>
+<h6><code>BBox</code></h6>
 <table>
 <thead>
 <tr>
@@ -815,7 +813,7 @@ All these files are JSON files.</p>
 </tr>
 </tbody>
 </table>
-<h5><code>Transform</code></h5>
+<h6><code>Transform</code></h6>
 <table>
 <thead>
 <tr>
@@ -842,7 +840,7 @@ All these files are JSON files.</p>
 </tr>
 </tbody>
 </table>
-<h5><code>Color</code></h5>
+<h6><code>Color</code></h6>
 <table>
 <thead>
 <tr>
@@ -876,7 +874,7 @@ All these files are JSON files.</p>
 </tr>
 </tbody>
 </table>
-<h5><code>Vertex</code></h5>
+<h6><code>Vertex</code></h6>
 <table>
 <thead>
 <tr>
@@ -918,7 +916,7 @@ All these files are JSON files.</p>
 </tr>
 </tbody>
 </table>
-<h5><code>Face</code></h5>
+<h6><code>Face</code></h6>
 <table>
 <thead>
 <tr>
@@ -935,7 +933,7 @@ All these files are JSON files.</p>
 </tr>
 </tbody>
 </table>
-<h5><code>ClothVertex</code></h5>
+<h6><code>ClothVertex</code></h6>
 <table>
 <thead>
 <tr>
@@ -967,7 +965,7 @@ All these files are JSON files.</p>
 </tr>
 </tbody>
 </table>
-<h5><code>ClothCollision</code></h5>
+<h6><code>ClothCollision</code></h6>
 <table>
 <thead>
 <tr>
