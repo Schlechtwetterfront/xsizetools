@@ -21,7 +21,7 @@ To use XSIZETools you need the following:
 
 1. If you **don't** have a Softimage version of 2011 or higher,
    download and install [python][python27] and
-   [pywin32][pywin27]. You can also choose your own combination from [python downloads][python] and [pywin downloads][pywin].
+   [pywin32][pywin27] (pywin32 must be version 217).
 
 1. Download and install the [Visual C++ 2015 Redistributable](redist15).
    Download both versions by selecting the format and activating the _Download_ button.
@@ -51,7 +51,7 @@ Modify `setup_86.bat` and `setup_64.bat` to point it to the correct _SDK paths_ 
 [releases]: https://github.com/Schlechtwetterfront/xsizetools/releases "Releases"
 [python]: https://www.python.org/downloads/ "Python Download"
 [python27]: https://www.python.org/ftp/python/2.7.18/python-2.7.18.msi "Python 2.7"
-[pywin27]: https://github.com/mhammond/pywin32/releases/download/b228/pywin32-228.win32-py2.7.exe "Pywin for 2.7"
+[pywin27]: https://sourceforge.net/projects/pywin32/files/pywin32/Build%20217/pywin32-217.win32-py2.7.exe/download "Pywin for 2.7"
 [pywin]: https://github.com/mhammond/pywin32/releases "Pywin Download"
 [redist15]: https://www.visualstudio.com/downloads/download-visual-studio-vs#d-visual-c "C++ 2015 redist"
 [redist86]: http://www.microsoft.com/download/en/details.aspx?id=5555 "C++ 2010 redist Download"
