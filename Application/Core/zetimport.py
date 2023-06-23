@@ -937,7 +937,7 @@ class Import(softimage.SIGeneral):
                     if not item.Type == 'polymsh':
                         continue
                     self.xsi.ApplyTopoOp('WeldEdges', item)
-                    self.xsi.SetValue('{0}.polymsh.weldedgesop.distance'.format(item.Name), 0.02)
+                    self.xsi.SetValue('{0}.polymsh.weldedgesop.distance'.format(item.Name), 0.002)
         if not self.msh.animation.empty and not self.config.get('ignoreanim'):
             with zetcore.Timer('Animated in %s s %s ms.'):
                 anim = AnimationImport(self, self.chain, self.msh.animation.bones)
