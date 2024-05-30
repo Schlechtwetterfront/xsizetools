@@ -3,6 +3,7 @@
 '''
 from win32com.client import constants as const
 import win32com.client
+import logging
 import softimage
 import zetcore
 import zetexport
@@ -41,6 +42,8 @@ def exportbutton_OnClicked():
             message.extend(('\n', 'Traceback:', '\n'))
             message.extend(['\t{0}'.format(element) for element in traceback.format_exc().split('\n')])
             message = '\n'.join(message)
+
+            logging.exception('Failed to export')
 
             win32clipboard.OpenClipboard()
             win32clipboard.EmptyClipboard()
