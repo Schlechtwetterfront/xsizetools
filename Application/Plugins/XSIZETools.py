@@ -55,7 +55,7 @@ def check_version(quiet=False):
     with open(verdir, 'r') as fh:
         local_major, local_minor, local_build = fh.readline().split('.')
     try:
-        latest = req.get('http://raw.github.com/Schlechtwetterfront/xsizetools/master/xsizet.ver')
+        latest = req.get('https://raw.github.com/Schlechtwetterfront/xsizetools/master/xsizet.ver')
     except (req.ConnectionError, req.Timeout):
         if quiet:
             pb.Visible = False
@@ -67,7 +67,7 @@ def check_version(quiet=False):
     pb.Value = 1
     if int(build) > int(local_build):
         if uitk.MsgBox(OLD_VERSION_MSG.format(local_major, local_minor, local_build, major, minor, build), 4) == 6:
-            webbrowser.open('http://schlechtwetterfront.github.io/xsizetools/')
+            webbrowser.open('https://schlechtwetterfront.github.io/xsizetools/')
     else:
         if quiet:
             pb.Visible = False
@@ -81,7 +81,7 @@ def XSILoadPlugin(in_reg):
     in_reg.Author = 'Ande'
     in_reg.Name = 'XSIZETools'
     in_reg.Email = 'schlchtwtrfrnt@gmail.com'
-    in_reg.URL = 'http://schlechtwetterfront.github.io/xsizetools/'
+    in_reg.URL = 'https://schlechtwetterfront.github.io/xsizetools/'
     in_reg.Major = 1
     in_reg.Minor = 0
 
@@ -166,7 +166,7 @@ def ZETOpenWebsite_Init(in_ctxt):
 
 def ZETOpenWebsite_Execute():
     import webbrowser
-    url = 'http://schlechtwetterfront.github.io/xsizetools/'
+    url = 'https://schlechtwetterfront.github.io/xsizetools/'
     webbrowser.open_new_tab(url)
     return True
 
@@ -296,7 +296,7 @@ def ZETHelp_Execute():
     lay.AddStaticText('Code Copyright (C) Benedikt Schatz')
     lay.EndRow()
     lay.AddRow()
-    lay.AddStaticText('      http://schlechtwetterfront.github.io/xsizetools/', 290)
+    lay.AddStaticText('      https://schlechtwetterfront.github.io/xsizetools/', 290)
     lay.EndRow()
     lay.EndGroup()
     lay.AddGroup('Credits', 1)
