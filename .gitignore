@@ -14,3 +14,8 @@
 *.lib
 *.pdb
 *.db
+
+*.pyc
+*.log
+/Resources/export
+/Resources/import
