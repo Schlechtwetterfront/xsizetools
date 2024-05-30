@@ -53,25 +53,36 @@ class MaterialBuilder(object):
         for mat in coll:
             logging.info('Building Material {0}.'.format(mat.name))
             simat = matlib.CreateMaterial('Phong', mat.name)
-            # Colors.
+
+            # Colors
             shader = simat.Shaders(0)
-            col = shader.Parameters('diffuse').Value
-            col.Red = mat.diff_color.red
-            col.Green = mat.diff_color.green
-            col.Blue = mat.diff_color.blue
-            col.Alpha = mat.diff_color.alpha
 
-            col = shader.Parameters('ambient').Value
-            col.Red = mat.ambt_color.red
-            col.Green = mat.ambt_color.green
-            col.Blue = mat.ambt_color.blue
-            col.Alpha = mat.ambt_color.alpha
+            color_param = shader.Parameters('diffuse')
 
-            col = shader.Parameters('specular').Value
-            col.Red = mat.spec_color.red
-            col.Green = mat.spec_color.green
-            col.Blue = mat.spec_color.blue
-            col.Alpha = mat.spec_color.alpha
+            red_param = color_param.Parameters('red')
+            red_param.Value = mat.diff_color.red
+            green_param = color_param.Parameters('green')
+            green_param.Value = mat.diff_color.green
+            blue_param = color_param.Parameters('blue')
+            blue_param.Value = mat.diff_color.blue
+
+            color_param = shader.Parameters('ambient')
+
+            red_param = color_param.Parameters('red')
+            red_param.Value = mat.ambt_color.red
+            green_param = color_param.Parameters('green')
+            green_param.Value = mat.ambt_color.green
+            blue_param = color_param.Parameters('blue')
+            blue_param.Value = mat.ambt_color.blue
+
+            color_param = shader.Parameters('specular')
+
+            red_param = color_param.Parameters('red')
+            red_param.Value = mat.spec_color.red
+            green_param = color_param.Parameters('green')
+            green_param.Value = mat.spec_color.green
+            blue_param = color_param.Parameters('blue')
+            blue_param.Value = mat.spec_color.blue
 
             shader.Parameters('shiny').Value = mat.gloss
 
