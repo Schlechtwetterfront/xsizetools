@@ -87,22 +87,21 @@ class MaterialBuilder(object):
                 self.xsi.SIConnectShaderToCnxPoint(img_clip, imgshader.tex, False)
                 self.xsi.SIConnectShaderToCnxPoint(imgshader, simat.Shaders(0).Parameters('diffuse'), False)
             # ZEFlags.
-            simat2 = self.get_si_mat(mat)
+            simat2 = self.get_si_mat(simat.Name)
             if simat2:
                 self.add_flag_prop(simat2, mat)
             materials[mat.name] = simat
-            logging.info('Finished building {0}.'.format(mat.name))
+            logging.info('Finished building {0} (as {1}).'.format(mat.name, simat.Name))
         logging.info('Finished building materials.')
         return materials
 
-    def get_si_mat(self, mat):
-        name = mat.name
+    def get_si_mat(self, si_name):
         mats = self.imp.material_name_dict()
         try:
-            mat = mats[name]
+            mat = mats[si_name]
             return mat
         except KeyError:
-            logging.exception('Couldnt find material {0}.'.format(name))
+            logging.exception('Couldnt find material {0}.'.format(si_name))
             return None
 
     def add_flag_prop(self, simat, mat):
