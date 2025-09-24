@@ -53,25 +53,36 @@ class MaterialBuilder(object):
         for mat in coll:
             logging.info('Building Material {0}.'.format(mat.name))
             simat = matlib.CreateMaterial('Phong', mat.name)
-            # Colors.
+
+            # Colors
             shader = simat.Shaders(0)
-            col = shader.Parameters('diffuse').Value
-            col.Red = mat.diff_color.red
-            col.Green = mat.diff_color.green
-            col.Blue = mat.diff_color.blue
-            col.Alpha = mat.diff_color.alpha
 
-            col = shader.Parameters('ambient').Value
-            col.Red = mat.ambt_color.red
-            col.Green = mat.ambt_color.green
-            col.Blue = mat.ambt_color.blue
-            col.Alpha = mat.ambt_color.alpha
+            color_param = shader.Parameters('diffuse')
 
-            col = shader.Parameters('specular').Value
-            col.Red = mat.spec_color.red
-            col.Green = mat.spec_color.green
-            col.Blue = mat.spec_color.blue
-            col.Alpha = mat.spec_color.alpha
+            red_param = color_param.Parameters('red')
+            red_param.Value = mat.diff_color.red
+            green_param = color_param.Parameters('green')
+            green_param.Value = mat.diff_color.green
+            blue_param = color_param.Parameters('blue')
+            blue_param.Value = mat.diff_color.blue
+
+            color_param = shader.Parameters('ambient')
+
+            red_param = color_param.Parameters('red')
+            red_param.Value = mat.ambt_color.red
+            green_param = color_param.Parameters('green')
+            green_param.Value = mat.ambt_color.green
+            blue_param = color_param.Parameters('blue')
+            blue_param.Value = mat.ambt_color.blue
+
+            color_param = shader.Parameters('specular')
+
+            red_param = color_param.Parameters('red')
+            red_param.Value = mat.spec_color.red
+            green_param = color_param.Parameters('green')
+            green_param.Value = mat.spec_color.green
+            blue_param = color_param.Parameters('blue')
+            blue_param.Value = mat.spec_color.blue
 
             shader.Parameters('shiny').Value = mat.gloss
 
@@ -87,22 +98,21 @@ class MaterialBuilder(object):
                 self.xsi.SIConnectShaderToCnxPoint(img_clip, imgshader.tex, False)
                 self.xsi.SIConnectShaderToCnxPoint(imgshader, simat.Shaders(0).Parameters('diffuse'), False)
             # ZEFlags.
-            simat2 = self.get_si_mat(mat)
+            simat2 = self.get_si_mat(simat.Name)
             if simat2:
                 self.add_flag_prop(simat2, mat)
             materials[mat.name] = simat
-            logging.info('Finished building {0}.'.format(mat.name))
+            logging.info('Finished building {0} (as {1}).'.format(mat.name, simat.Name))
         logging.info('Finished building materials.')
         return materials
 
-    def get_si_mat(self, mat):
-        name = mat.name
+    def get_si_mat(self, si_name):
         mats = self.imp.material_name_dict()
         try:
-            mat = mats[name]
+            mat = mats[si_name]
             return mat
         except KeyError:
-            logging.exception('Couldnt find material {0}.'.format(name))
+            logging.exception('Couldnt find material {0}.'.format(si_name))
             return None
 
     def add_flag_prop(self, simat, mat):
@@ -248,8 +258,7 @@ class ChainItemBuilder(softimage.SIModel):
         # shadowvolumes are only ever single-segment; segments[0] will always be our info
         vertex_positions = self.get_shadow_vertices() #self.model.segments[0].positions
 
-        faces = self.get_shadow_faces() # prayge...
-        #logging.info('face info: {0} vertex info: {1}'.format(faces, vertex_positions))
+        faces = self.get_shadow_faces()
 
         if self.model.parent_name:
             parent = self.chainbuilder.name_dict[self.model.parent_name]
@@ -261,9 +270,6 @@ class ChainItemBuilder(softimage.SIModel):
                 self.model.parent_name,
                 self.model.name
             )
-        #self.si_model = parent.AddPolygonMesh(vertex_positions,
-        #                                      faces,
-        #                                      self.model.name)
         try:
             self.si_model = parent.AddPolygonMesh(vertex_positions,
                                                   faces,
@@ -524,7 +530,7 @@ class ChainItemBuilder(softimage.SIModel):
 
         return faces
 
-    # arrange the vertex positions into the format softimage likes
+    # arrange shadow vertices in the format softimage likes
     def get_shadow_vertices(self):
         verts = []
         for vpos in self.model.segments[0].positions:
@@ -1011,7 +1017,7 @@ class Import(softimage.SIGeneral):
                     if not item.Type == 'polymsh':
                         continue
                     self.xsi.ApplyTopoOp('WeldEdges', item)
-                    self.xsi.SetValue('{0}.polymsh.weldedgesop.distance'.format(item.Name), 0.02)
+                    self.xsi.SetValue('{0}.polymsh.weldedgesop.distance'.format(item.Name), 0.002)
         if not self.msh.animation.empty and not self.config.get('ignoreanim'):
             with zetcore.Timer('Animated in %s s %s ms.'):
                 anim = AnimationImport(self, self.chain, self.msh.animation.bones)
