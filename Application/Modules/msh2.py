@@ -1186,13 +1186,16 @@ class SegmentGeometry(Packer):
 
 
 class ShadowGeometry(Packer):
+    '''
+        Shadow geometry is stored as a flat list of positions plus a half-edge data
+        structure.
+    '''
     def __init__(self, collection=None):
         if collection:
             self.collection = collection
         else:
             self.collection = None
         self.classname = 'ShadowGeometry'
-        self.data = ''
         self.positions = []
         self.edges = []
 
@@ -1202,7 +1205,7 @@ class ShadowGeometry(Packer):
             'num_positions': len(self.positions),
             'positions': self.positions,
             'num_edges': len(self.edges),
-            'edges': self.edges,
+            'edges': [],
         }
         return data
 
@@ -1220,21 +1223,40 @@ class ShadowGeometry(Packer):
         fh.write('\t\t\t\tNo data available.\n')
 
     def repack(self):
-        data = ['SHDW', 'size', self.data]
-        data[1] = struct.pack('<L', len(self.data))
-        return ''.join(data)
+        return self.pack()
 
     def pack(self):
-        data = ['SHDW', 'size']
+        data = ['SEGM', 'size', 'SHDW', 'size']
+
         data.append(struct.pack('<L', len(self.positions)))
+
         for pos in self.positions:
             data.append(struct.pack('<fff', *pos))
-        data.append(struct.pack('<L', len(self.edges)))
-        for edge in self.edges:
-            data.append(struct.pack('<HHHH', *edge))
-        data[1] = struct.pack('<L', 4 + 4 + 6 * len(self.edges) + 12 * len(self.positions))
-        return ''.join(data)
 
+        data.append(struct.pack('<L', len(self.edges)))
+
+        for edge in self.edges:
+            data.append(struct.pack('<HHHH', edge.vertex_index, edge.next_edge_index, edge.opposite_edge_index, 65535))
+
+        shdw_size = 4 + 12 * len(self.positions) + 4 + 8 * len(self.edges)
+
+        data[3] = struct.pack('<L', shdw_size)
+        data[1] = struct.pack('<L', 4 + 4 + shdw_size)
+
+        return ''.join(data)
+    
+class ShadowGeometryEdge:
+    '''
+        Each edge (half-edge) is its starting point, the index of the next half-edge in its face and
+        the index of the opposite edge in the adjacent face.
+    '''
+    def __init__(self, vertex_index, next_edge_index, opposite_edge_index):
+        # Starting vertex
+        self.vertex_index = vertex_index
+        # Next half-edge this half-edge connects to to form a full edge
+        self.next_edge_index = next_edge_index
+        # Adjacent face's half-edge index that represents the same "physical" edge
+        self.opposite_edge_index = opposite_edge_index
 
 class ClothCollision(Packer):
     def __init__(self, cloth_geo=None):

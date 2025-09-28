@@ -393,7 +393,6 @@ class GeometryUnpacker(Unpacker):
             if hdr == 'SHDW':
                 self.up.up.last_chunk = 'SHDW'
                 self.seg = msh2.ShadowGeometry(self.up.mdl)
-                # self.seg.data = self.fh.read(size)
                 num_pos = self.long(self.fh.read(4))
                 positions = []
                 for n in xrange(num_pos):
@@ -401,7 +400,10 @@ class GeometryUnpacker(Unpacker):
                 num_edges = self.long(self.fh.read(4))
                 edges = []
                 for n in xrange(num_edges):
-                    edge = self.short(self.fh.read(2)), self.short(self.fh.read(2)), self.short(self.fh.read(2)), self.short(self.fh.read(2))
+                    edge_components = self.short(self.fh.read(2)), self.short(self.fh.read(2)), self.short(self.fh.read(2)), self.short(self.fh.read(2))
+                    if edge_components[3] != 65535:
+                        self.log('Expected 65535 as edge close marker, got {0}'.format(edge_components[3]))
+                    edge = msh2.ShadowGeometryEdge(edge_components[0], edge_components[1], edge_components[2])
                     edges.append(edge)
                 self.seg.positions = positions
                 self.seg.edges = edges

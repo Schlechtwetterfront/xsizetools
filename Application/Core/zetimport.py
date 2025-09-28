@@ -251,12 +251,9 @@ class ChainItemBuilder(softimage.SIModel):
         self.geo.AddCluster(const.siVertexCluster, 'ZEFixedPoints', self.model.segments[0].vertices.fixed_indices())
 
     def build_shadow(self):
-        '''Build a null instead of a shadow mesh.'''
         logging.info('Building {0} as shadow(originally {1}).'.format(self.model.name, self.model.model_type))
-        #self.si_model = self.xsi.GetPrim('Null', '{0}(shadow)'.format(self.model.name), self.model.parent_name)
-
-        # shadowvolumes are only ever single-segment; segments[0] will always be our info
-        vertex_positions = self.get_shadow_vertices() #self.model.segments[0].positions
+        
+        vertex_positions = self.get_shadow_vertex_positions()
 
         faces = self.get_shadow_faces()
 
@@ -265,25 +262,71 @@ class ChainItemBuilder(softimage.SIModel):
         else:
             parent = self.xsi.ActiveSceneRoot
         if not parent:
-            logging.error(
-                'Cant find parent %s for %s.',
-                self.model.parent_name,
-                self.model.name
-            )
+            logging.error('Cant find parent {0} for {1}.'.format(self.model.parent_name,
+                                                                 self.model.name))
+        if len(vertex_positions) == 0:
+            logging.info('Building {0} as null (originally {1}) because no geometry information was found.'.format(self.model.name, self.model.model_type))
+            self.build_null()
+            return
         try:
-            self.si_model = parent.AddPolygonMesh(vertex_positions,
-                                                  faces,
-                                                  self.model.name)
+            with zetcore.Timer('Built polygon mesh in %ss %sms.'):
+                self.si_model = parent.AddPolygonMesh(vertex_positions,
+                                                      faces,
+                                                      self.model.name)
         except com_error:
-            logging.exception(
-                'verts: %s, faces: %s, name: %s.',
-                vertex_positions,
-                faces,
-                self.model.name
-            )
+            logging.exception('verts: {0}, faces: {1}, name: {2}.'.format(vertex_positions,
+                                                                          faces, self.model.name))
             self.imp.abort_checklog()
+        self.geo = self.si_model.ActivePrimitive.GetGeometry2(0)
+
         self.set_transform()
         self.set_vis()
+
+    def get_shadow_vertex_positions(self):
+        v_pos = []
+
+        with zetcore.Timer('Retrieved shadow vertices in %ss %sms.'):
+            for segment in self.model.segments:
+                for vert in segment.positions:
+                    v_pos.extend(vert)
+            logging.debug('Retrieved {0} shadow vertex positions.'.format(len(v_pos) / 3))
+
+        return v_pos
+    
+    def get_shadow_faces(self):
+        faces = []
+        offset = 0
+
+        with zetcore.Timer('Retrieved shadow faces in %ss %sms.'):
+            for segment in self.model.segments:
+                visited_edge_indices = set()
+
+                for starting_edge_index, _ in enumerate(segment.edges):
+                    if starting_edge_index in visited_edge_indices:
+                        continue
+
+                    face = []
+
+                    edge_index = starting_edge_index
+
+                    # Follow edges around boundary of face
+                    while True:
+                        edge = segment.edges[edge_index]
+
+                        face.append(edge.vertex_index + offset)
+                        visited_edge_indices.add(edge_index)
+                        edge_index = edge.next_edge_index
+
+                        # Reached start again
+                        if edge_index == starting_edge_index:
+                            break
+
+                    faces.append(len(face))
+                    faces.extend(face)
+
+                offset += len(segment.positions)
+
+        return faces
 
     def get_c_prim_data(self):
         '''Gets the corresponding COLL data for this model.'''
@@ -527,48 +570,6 @@ class ChainItemBuilder(softimage.SIModel):
                         sii = sii[0] + offset, sii[1] + offset, sii[2] + offset
                     faces.extend(sii)
                 offset += len(segment.vertices)
-
-        return faces
-
-    # arrange shadow vertices in the format softimage likes
-    def get_shadow_vertices(self):
-        verts = []
-        for vpos in self.model.segments[0].positions:
-            verts.extend(vpos)
-        return verts
-
-    def get_shadow_faces(self):
-        # edge info 0 = vertex index that this edge shares with the edge we connect to
-        # edge info 1 = index for next edge (i.e. edge we connect to)
-        # edge info 2 = index for our "twin" (i.e. edge that is positioned identically to us, but has 
-        # edge info 3 = filler; always -1
-
-        # would probably be more efficient to go into the edge info class and:
-        # - create actual named member values for the above properties
-        # - add the "mark" as a member value instead of creating a whole new set for it
-        # but I'm too lazy right now
-        markedEdges = set()
-        faces = []
-
-        # shadowvolumes are only ever single-segment; segments[0] will always be our info
-        edgeList = self.model.segments[0].edges
-        for i, edge in enumerate(edgeList):
-            if i not in markedEdges:
-                vertIndices = []
-                j = i
-                numSides = 0
-                while True:
-                    ptr = edgeList[j]
-
-                    vertIndices.append(ptr[0]) # remember; 0 is the vertex index for this edge
-                    markedEdges.add(j) # mark this edge as checked; ignore it if we come across it again
-                    j = ptr[1] # next edge
-                    numSides += 1
-                    if j == i:
-                        break
-                # construct a face from the vertices we find
-                faces.append(numSides) # number of vertices in the face
-                faces.extend(vertIndices) # add the actual vertex indices
 
         return faces
 
