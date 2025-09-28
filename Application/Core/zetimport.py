@@ -253,7 +253,35 @@ class ChainItemBuilder(softimage.SIModel):
     def build_shadow(self):
         '''Build a null instead of a shadow mesh.'''
         logging.info('Building {0} as shadow(originally {1}).'.format(self.model.name, self.model.model_type))
-        self.si_model = self.xsi.GetPrim('Null', '{0}(shadow)'.format(self.model.name), self.model.parent_name)
+        #self.si_model = self.xsi.GetPrim('Null', '{0}(shadow)'.format(self.model.name), self.model.parent_name)
+
+        # shadowvolumes are only ever single-segment; segments[0] will always be our info
+        vertex_positions = self.get_shadow_vertices() #self.model.segments[0].positions
+
+        faces = self.get_shadow_faces()
+
+        if self.model.parent_name:
+            parent = self.chainbuilder.name_dict[self.model.parent_name]
+        else:
+            parent = self.xsi.ActiveSceneRoot
+        if not parent:
+            logging.error(
+                'Cant find parent %s for %s.',
+                self.model.parent_name,
+                self.model.name
+            )
+        try:
+            self.si_model = parent.AddPolygonMesh(vertex_positions,
+                                                  faces,
+                                                  self.model.name)
+        except com_error:
+            logging.exception(
+                'verts: %s, faces: %s, name: %s.',
+                vertex_positions,
+                faces,
+                self.model.name
+            )
+            self.imp.abort_checklog()
         self.set_transform()
         self.set_vis()
 
@@ -499,6 +527,48 @@ class ChainItemBuilder(softimage.SIModel):
                         sii = sii[0] + offset, sii[1] + offset, sii[2] + offset
                     faces.extend(sii)
                 offset += len(segment.vertices)
+
+        return faces
+
+    # arrange shadow vertices in the format softimage likes
+    def get_shadow_vertices(self):
+        verts = []
+        for vpos in self.model.segments[0].positions:
+            verts.extend(vpos)
+        return verts
+
+    def get_shadow_faces(self):
+        # edge info 0 = vertex index that this edge shares with the edge we connect to
+        # edge info 1 = index for next edge (i.e. edge we connect to)
+        # edge info 2 = index for our "twin" (i.e. edge that is positioned identically to us, but has 
+        # edge info 3 = filler; always -1
+
+        # would probably be more efficient to go into the edge info class and:
+        # - create actual named member values for the above properties
+        # - add the "mark" as a member value instead of creating a whole new set for it
+        # but I'm too lazy right now
+        markedEdges = set()
+        faces = []
+
+        # shadowvolumes are only ever single-segment; segments[0] will always be our info
+        edgeList = self.model.segments[0].edges
+        for i, edge in enumerate(edgeList):
+            if i not in markedEdges:
+                vertIndices = []
+                j = i
+                numSides = 0
+                while True:
+                    ptr = edgeList[j]
+
+                    vertIndices.append(ptr[0]) # remember; 0 is the vertex index for this edge
+                    markedEdges.add(j) # mark this edge as checked; ignore it if we come across it again
+                    j = ptr[1] # next edge
+                    numSides += 1
+                    if j == i:
+                        break
+                # construct a face from the vertices we find
+                faces.append(numSides) # number of vertices in the face
+                faces.extend(vertIndices) # add the actual vertex indices
 
         return faces
 
