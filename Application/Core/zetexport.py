@@ -176,7 +176,7 @@ class ModelConverter(softimage.SIModel):
 
     def is_shadow(self):
         '''Checks if this model is a shadow mesh.'''
-        return False
+        return 'shadow' in self.si_model.Name.lower()
 
     def is_collprim(self):
         '''Checks if this model is a collision primitive.'''
@@ -449,6 +449,73 @@ class ModelConverter(softimage.SIModel):
 
         self.clear_multiverts(coll)
         return coll
+    
+    def get_shadow_segments(self):
+        seg = msh2.ShadowGeometry()
+
+        # Positions
+        flat_positions = self.export.xsi.ZET_GetVertexPositions(self.geo, True)
+
+        seg.positions = [flat_positions[n:n+3] for n in xrange(0, len(flat_positions), 3)]
+
+        # Faces as half-edges
+        vert_indices, vert_counts = self.export.xsi.ZET_GetPolyVertexIndicesAndCounts(self.geo)
+
+        self.export.stats.verts += len(seg.positions)
+        self.export.stats.faces += len(vert_counts)
+
+        # Keeps track of all edge indices for an undirected edge (vert_index, next_vert_index)
+        edge_dict = {}
+
+        # Half-edges
+        edges = []
+
+        vert_count_offset = 0
+
+        for vert_count in vert_counts:
+            for n in xrange(vert_count):
+                vert_index = vert_indices[vert_count_offset + n]
+
+                # Wrap around if last in face, otherwise just next edge index
+                next_edge_index = len(edges) - n if n == vert_count - 1 else len(edges) + 1
+
+                edge = msh2.ShadowGeometryEdge(vert_index, next_edge_index, -1)
+
+                next_vert_index = vert_indices[vert_count_offset + ((n + 1) % vert_count)]
+
+                # Always store as (smaller index, larger index) for easier lookup
+                edge_key = (min(vert_index, next_vert_index), max(vert_index, next_vert_index))
+
+                edge_indices = edge_dict.get(edge_key)
+
+                if not edge_indices:
+                    edge_dict[edge_key] = [len(edges)]
+                else:
+                    edge_indices.append(len(edges))
+
+                edges.append(edge)
+
+            vert_count_offset += vert_count
+
+        for key, indices in edge_dict.items():
+            if len(indices) == 2:
+                edge_index_1 = indices[0]
+                edge_index_2 = indices[1]
+
+                edges[edge_index_1].opposite_edge_index = edge_index_2
+                edges[edge_index_2].opposite_edge_index = edge_index_1
+            else:
+                logging.warning('Expected 2 edges for key {0}, got {1}. Shadow meshes should always be closed.'.format(key, len(indices)))
+
+        seg.edges = edges
+
+        coll = msh2.SegmentCollection(self.msh2_model)
+        coll.model = self.msh2_model
+        coll.msh = self.msh2_model.msh
+        seg.collection = coll
+        coll.add(seg)
+
+        return coll
 
     def process_bbox(self):
         '''Calculates a bounding box for this model.'''
@@ -650,7 +717,12 @@ class ModelConverter(softimage.SIModel):
         self.msh2_model.vis = int(not self.get_vis(self.si_model))
         self.msh2_model.transform = msh2.Transform(*self.get_transform_quat(self.si_model))
         self.msh2_model.model_type = self.get_msh2_model_type(self.si_model)
-        if 'geo' in self.msh2_model.model_type:
+        if self.msh2_model.model_type == 'geoshadow':
+            logging.info('Is shadow.')
+            with zetcore.Timer('Shadow segments in %ss %sms.'):
+                self.msh2_model.segments = self.get_shadow_segments()
+            self.process_bbox()
+        elif 'geo' in self.msh2_model.model_type:
             logging.info('Is geometry.')
             self.msh2_model.segments = None
             with zetcore.Timer('Segments in %ss %sms.'):
@@ -679,8 +751,7 @@ class ModelConverter(softimage.SIModel):
         # Reset scale because we're using vertex world coordinates.
         # And do it after process_collision_prim because it needs the scale.
         self.msh2_model.transform.scale = 1.0, 1.0, 1.0
-        if self.msh2_model.model_type == 'geoshadow':
-            self.export.abort('Shadowmeshes arent supported.')
+
         return self.msh2_model
 
 
