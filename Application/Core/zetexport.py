@@ -327,43 +327,45 @@ class ModelConverter(softimage.SIModel):
         '''Gets weights and deformers, returns a list of four weight value
         tuples and four deformer names tuples.'''
         _, weight_list, def_list = self.export.xsi.CGA_GetWeightsZE(self.geo)
+
         # Nodes per point: point 0: node_index, point 1: node_index etc...
         nodes_per_point = self.export.xsi.CGA_GetNodesPerPoint(self.geo)
+
         # Temporary lists.
-        wght_lst_temp = []
-        def_lst_tmp = []
-        ndx_lst_tmp = []
-        count = 0
+        weights_temp = []
+        deformers_temp = []
+        deformer_indices_temp = []
+
         for chunk in andecore.chunks(weight_list, len(def_list)):
-            count += 1
-            # Create a placeholder for the weight values
-            lst = 4 * [0.0]
-            # Placeholder for deformer references.
-            lst2 = 4 * ['deformername']
-            # Placeholder for deformer indices.
-            lst3 = 4 * [0]
-            n = 0
-            for ndx, el in enumerate(chunk):
-                if el != 0.0 and n < 4:
-                    # Assign weight value if not zero and
-                    # not exceeded maximum weights(4).
-                    lst[n] = el / 100
-                    # Assign deformer name.
-                    lst2[n] = def_list[ndx]
-                    # Assign deformer indices.
-                    lst3[n] = ndx
-                    n += 1
-            wght_lst_temp.append(lst)
-            def_lst_tmp.append(lst2)
-            ndx_lst_tmp.append(lst3)
-        weights_list = len(nodes_per_point) * ['empty']
-        deformer_list = len(nodes_per_point) * ['empty']
-        index_list = len(nodes_per_point) * ['empty']
+            weight_index_pairs = [[weight / 100, i] for i, weight in enumerate(chunk) if weight > 0.01]
+
+            weight_index_pairs.sort(key=lambda p: p[0], reverse=True)
+
+            # ZE only supports 4 deformers.
+            used_pairs = weight_index_pairs[:4]
+
+            total_weight = sum([w for w, _ in used_pairs])
+
+            # Ensure weights sum up to 1 (100%).
+            for p in used_pairs:
+                p[0] = p[0] / total_weight
+
+            used_pairs += [(0, 0)] * max(0, 4 - len(used_pairs))
+            
+            weights_temp.append([weight for weight, _ in used_pairs])
+            deformers_temp.append([def_list[i] for _, i in used_pairs])
+            deformer_indices_temp.append([i for _, i in used_pairs])
+
+        weights = len(nodes_per_point) * ['empty']
+        deformers = len(nodes_per_point) * ['empty']
+        deformer_indices = len(nodes_per_point) * ['empty']
+
         for ndx, el in enumerate(nodes_per_point):
-            weights_list[ndx] = wght_lst_temp[el]
-            deformer_list[ndx] = def_lst_tmp[el]
-            index_list[ndx] = ndx_lst_tmp[el]
-        return weights_list, deformer_list, index_list
+            weights[ndx] = weights_temp[el]
+            deformers[ndx] = deformers_temp[el]
+            deformer_indices[ndx] = deformer_indices_temp[el]
+
+        return weights, deformers, deformer_indices
 
     def get_deformers(self):
         '''Gets a lost fof all deformers for this model.'''
